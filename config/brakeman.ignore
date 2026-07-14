@@ -1,0 +1,848 @@
+{
+  "ignored_warnings": [
+    {
+      "warning_type": "Remote Code Execution",
+      "warning_code": 24,
+      "fingerprint": "0fcd117fd53301f531142fc075ee8d30219c1239affce9322f9939ac0572ba3b",
+      "check_name": "UnsafeReflection",
+      "message": "Unsafe reflection method `constantize` called on model attribute",
+      "file": "app/models/ticket/number.rb",
+      "line": 45,
+      "link": "https://brakemanscanner.org/docs/warning_types/remote_code_execution/",
+      "code": "Setting.get(\"ticket_number\").constantize",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Ticket::Number",
+        "method": "Ticket::Number.adapter"
+      },
+      "user_input": "Setting.get(\"ticket_number\")",
+      "confidence": "Medium",
+      "cwe_id": [
+        470
+      ],
+      "note": "Setting.get(\"ticket_number\") returns defined ticket number backend class names"
+    },
+    {
+      "warning_type": "Denial of Service",
+      "warning_code": 76,
+      "fingerprint": "15d4ddbc3ac2ae0a0fe27218a42a1920fe2c1868ae5f504422c4af8ffe893beb",
+      "check_name": "RegexDoS",
+      "message": "Model attribute used in regular expression",
+      "file": "app/models/channel/filter/monitoring_base.rb",
+      "line": 102,
+      "link": "https://brakemanscanner.org/docs/warning_types/denial_of_service/",
+      "code": "/#{(Setting.get(\"#{integration_name}_recovery_match\") or \"(OK|UP)\")}/i",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Channel::Filter::MonitoringBase",
+        "method": "Channel::Filter::MonitoringBase.run"
+      },
+      "user_input": "Setting.get(\"#{integration_name}_recovery_match\")",
+      "confidence": "Medium",
+      "cwe_id": [
+        20,
+        185
+      ],
+      "note": "Admin configured RegExp"
+    },
+    {
+      "warning_type": "Denial of Service",
+      "warning_code": 76,
+      "fingerprint": "15d4ddbc3ac2ae0a0fe27218a42a1920fe2c1868ae5f504422c4af8ffe893beb",
+      "check_name": "RegexDoS",
+      "message": "Model attribute used in regular expression",
+      "file": "app/models/channel/filter/monitoring_base.rb",
+      "line": 131,
+      "link": "https://brakemanscanner.org/docs/warning_types/denial_of_service/",
+      "code": "/#{(Setting.get(\"#{integration_name}_recovery_match\") or \"(OK|UP)\")}/i",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Channel::Filter::MonitoringBase",
+        "method": "Channel::Filter::MonitoringBase.run"
+      },
+      "user_input": "Setting.get(\"#{integration_name}_recovery_match\")",
+      "confidence": "Medium",
+      "cwe_id": [
+        20,
+        185
+      ],
+      "note": "Admin configured RegExp"
+    },
+    {
+      "warning_type": "Remote Code Execution",
+      "warning_code": 24,
+      "fingerprint": "176994cedb6a57bc52f7a98b0fd93caad211f8f3b48fd010a5db164b37992e1f",
+      "check_name": "UnsafeReflection",
+      "message": "Unsafe reflection method `constantize` called on model attribute",
+      "file": "app/models/avatar.rb",
+      "line": 432,
+      "link": "https://brakemanscanner.org/docs/warning_types/remote_code_execution/",
+      "code": "ObjectLookup.by_id(object_id).constantize",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Avatar",
+        "method": "Avatar._add_init_avatar"
+      },
+      "user_input": "ObjectLookup.by_id(object_id)",
+      "confidence": "Medium",
+      "cwe_id": [
+        470
+      ],
+      "note": "ObjectLookup.by_id works as designed"
+    },
+    {
+      "warning_type": "Redirect",
+      "warning_code": 18,
+      "fingerprint": "2ebd9f5e35ae11122d5561fdbbef7432eeef6b34d7c61249365be7dc34cbfb82",
+      "check_name": "Redirect",
+      "message": "Possible unprotected redirect",
+      "file": "app/controllers/external_credentials_controller.rb",
+      "line": 39,
+      "link": "https://brakemanscanner.org/docs/warning_types/redirect/",
+      "code": "redirect_to(ExternalCredential.request_account_to_link(params[:provider].downcase, params)[:authorize_url], :allow_other_host => true)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "ExternalCredentialsController",
+        "method": "link_account"
+      },
+      "user_input": "ExternalCredential.request_account_to_link(params[:provider].downcase, params)[:authorize_url]",
+      "confidence": "Weak",
+      "cwe_id": [
+        601
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "Denial of Service",
+      "warning_code": 76,
+      "fingerprint": "381781925211cac1f2592a6537f4abc050f98b081e5554b7d3d70a9454157e35",
+      "check_name": "RegexDoS",
+      "message": "Model attribute used in regular expression",
+      "file": "app/models/ticket/number/increment.rb",
+      "line": 47,
+      "link": "https://brakemanscanner.org/docs/warning_types/denial_of_service/",
+      "code": "/(?<=\\W|^)#{Regexp.quote(Setting.get(\"ticket_hook\"))}\\s{0,2}(#{(\"\" or Setting.get(\"system_id\").to_s)}\\d{2,48})\\b/i",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Ticket::Number::Increment",
+        "method": "Ticket::Number::Increment.check"
+      },
+      "user_input": "Setting.get(\"system_id\").to_s",
+      "confidence": "Medium",
+      "cwe_id": [
+        20,
+        185
+      ],
+      "note": "Admin configured RegExp"
+    },
+    {
+      "warning_type": "Remote Code Execution",
+      "warning_code": 24,
+      "fingerprint": "3c69accdb245b8493b7455698a454c70c2246c14f46f24e28e1c5329cee9ffac",
+      "check_name": "UnsafeReflection",
+      "message": "Unsafe reflection method `constantize` called on model attribute",
+      "file": "config/initializers/store_provider_check.rb",
+      "line": 11,
+      "link": "https://brakemanscanner.org/docs/warning_types/remote_code_execution/",
+      "code": "\"Store::Provider::#{Setting.get(\"storage_provider\")}\".constantize",
+      "render_path": null,
+      "location": null,
+      "user_input": "Setting.get(\"storage_provider\")",
+      "confidence": "Medium",
+      "cwe_id": [
+        470
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "Remote Code Execution",
+      "warning_code": 25,
+      "fingerprint": "4de4e9e3a023616489b5ae24a6cad8500e0c82f40963828bc73fd07cc69e0ac1",
+      "check_name": "Deserialize",
+      "message": "Use of `Marshal.load` may be dangerous",
+      "file": "app/models/core_workflow/attributes.rb",
+      "line": 110,
+      "link": "https://brakemanscanner.org/docs/warning_types/unsafe_deserialization",
+      "code": "Marshal.load(Marshal.dump(payload_class.find_by(:id => @payload[\"params\"][\"id\"])))",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "CoreWorkflow::Attributes",
+        "method": "saved_only"
+      },
+      "user_input": null,
+      "confidence": "Weak",
+      "cwe_id": [
+        502
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "Denial of Service",
+      "warning_code": 76,
+      "fingerprint": "4ea1b96c11cdde309b0f31defd8af9dc39dd7605a7bb18b13b122469a74a5a70",
+      "check_name": "RegexDoS",
+      "message": "Model attribute used in regular expression",
+      "file": "app/models/channel/filter/monitoring_base.rb",
+      "line": 125,
+      "link": "https://brakemanscanner.org/docs/warning_types/denial_of_service/",
+      "code": "/#{(Setting.get(\"#{integration_name}_ignore_match\") or \"\")}/i",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Channel::Filter::MonitoringBase",
+        "method": "Channel::Filter::MonitoringBase.run"
+      },
+      "user_input": "Setting.get(\"#{integration_name}_ignore_match\")",
+      "confidence": "Medium",
+      "cwe_id": [
+        20,
+        185
+      ],
+      "note": "Admin configured RegExp"
+    },
+    {
+      "warning_type": "Remote Code Execution",
+      "warning_code": 25,
+      "fingerprint": "4fece0b57f4c3096ec1d0746b032c8b0c96b1a5c9225858a075f5006b558339b",
+      "check_name": "Deserialize",
+      "message": "Use of `Marshal.load` may be dangerous",
+      "file": "app/services/service/ticket/bulk/single_item_update.rb",
+      "line": 58,
+      "link": "https://brakemanscanner.org/docs/warning_types/unsafe_deserialization",
+      "code": "Marshal.load(Marshal.dump(perform[:input]))",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Service::Ticket::Bulk::SingleItemUpdate",
+        "method": "ticket_data"
+      },
+      "user_input": null,
+      "confidence": "Weak",
+      "cwe_id": [
+        502
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "SSL Verification Bypass",
+      "warning_code": 71,
+      "fingerprint": "539fc6f1e51adf3d01c8f72a88f7964878a9dd4f7bc059433557143d69a2461f",
+      "check_name": "SSLVerify",
+      "message": "SSL certificate verification was bypassed",
+      "file": "lib/user_agent.rb",
+      "line": 58,
+      "link": "https://brakemanscanner.org/docs/warning_types/ssl_verification_bypass/",
+      "code": "UserAgent::HttpClient.get_client(uri, options).new(uri.host, uri.port).verify_mode = OpenSSL::SSL::VERIFY_NONE",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "UserAgent",
+        "method": "self.get_http"
+      },
+      "user_input": null,
+      "confidence": "High",
+      "cwe_id": [
+        295
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "54c6ff0714c6d869037e344ea22bedcece2d2bc3b88f1cdfffe72ce62d8ef816",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "lib/models.rb",
+      "line": 172,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "model_class.where(\"#{reflection_value.name}_id\" => object_id)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Models",
+        "method": "self.references"
+      },
+      "user_input": "reflection_value.name",
+      "confidence": "Weak",
+      "cwe_id": [
+        89
+      ],
+      "note": "Reflections come from the models themselves and are thus safe to use."
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "54c6ff0714c6d869037e344ea22bedcece2d2bc3b88f1cdfffe72ce62d8ef816",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "lib/models.rb",
+      "line": 185,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "model_class.where(\"#{reflection_value.name}_id\" => object_id)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Models",
+        "method": "self.references"
+      },
+      "user_input": "reflection_value.name",
+      "confidence": "Weak",
+      "cwe_id": [
+        89
+      ],
+      "note": "Reflections come from the models themselves and are thus safe to use."
+    },
+    {
+      "warning_type": "Remote Code Execution",
+      "warning_code": 24,
+      "fingerprint": "582df3b442a09879f0c035b50f6c4fce9aa8285c907737476f16004246c67bc6",
+      "check_name": "UnsafeReflection",
+      "message": "Unsafe reflection method `safe_constantize` called on parameter value",
+      "file": "app/controllers/tests_controller.rb",
+      "line": 37,
+      "link": "https://brakemanscanner.org/docs/warning_types/remote_code_execution/",
+      "code": "params.fetch(:exception, \"StandardError\").safe_constantize",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "TestsController",
+        "method": "error_raised_exception"
+      },
+      "user_input": "params.fetch(:exception, \"StandardError\")",
+      "confidence": "High",
+      "cwe_id": [
+        470
+      ],
+      "note": "Setting.where(area: 'Transaction::Backend::Sync').order(:name) returns defined Transaction backend class names"
+    },
+    {
+      "warning_type": "Remote Code Execution",
+      "warning_code": 24,
+      "fingerprint": "7541faf8d3249dc4ac24f9c354024614ae79b0d6cd4c057f034ea88be1154bf7",
+      "check_name": "UnsafeReflection",
+      "message": "Unsafe reflection method `constantize` called on model attribute",
+      "file": "lib/application_lib.rb",
+      "line": 26,
+      "link": "https://brakemanscanner.org/docs/warning_types/remote_code_execution/",
+      "code": "Setting.get(setting).constantize",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "ApplicationLib::ClassMethods",
+        "method": "load_adapter_by_setting"
+      },
+      "user_input": "Setting.get(setting)",
+      "confidence": "Medium",
+      "cwe_id": [
+        470
+      ],
+      "note": "ApplicationLib.load_adapter_by_setting works as designed"
+    },
+    {
+      "warning_type": "Denial of Service",
+      "warning_code": 76,
+      "fingerprint": "768e035d4bcb32ab79f5f747ccd5561d3c5f3a8ea74b2be08638d892be2249b2",
+      "check_name": "RegexDoS",
+      "message": "Model attribute used in regular expression",
+      "file": "app/models/ticket/number/date.rb",
+      "line": 49,
+      "link": "https://brakemanscanner.org/docs/warning_types/denial_of_service/",
+      "code": "/(?<=\\W|^)#{Regexp.quote(Setting.get(\"ticket_hook\"))}\\s{0,2}(\\d{4,10}#{(Setting.get(\"system_id\") or \"\")}\\d{2,40})\\b/i",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Ticket::Number::Date",
+        "method": "Ticket::Number::Date.check"
+      },
+      "user_input": "Setting.get(\"system_id\")",
+      "confidence": "Medium",
+      "cwe_id": [
+        20,
+        185
+      ],
+      "note": "Admin configured RegExp"
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "8374304b5866de51754c98208fc3dcd434bc20e02bd4c9713f6d35f831a0ddd7",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/models/pgp_key.rb",
+      "line": 32,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "PGPKey.where(([\"#{SqlHelper.new(:object => (PGPKey)).array_contains_one(:email_addresses, uid.downcase)} OR (? LIKE domain_alias)\", SqlHelper.quote_like(uid.downcase)] or SqlHelper.new(:object => (PGPKey)).array_contains_one(:email_addresses, uid.downcase)))",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "PGPKey",
+        "method": "PGPKey.find_all_by_uid"
+      },
+      "user_input": "SqlHelper.new(:object => (PGPKey)).array_contains_one(:email_addresses, uid.downcase)",
+      "confidence": "Medium",
+      "cwe_id": [
+        89
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "7f248c60e38d8f73ba5f3ae896d1c9ac18e8f961c4d34a6c308deba5bf51430c",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/models/concerns/can_search.rb",
+      "line": 309,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "Arel.sql(\"array_position(ARRAY[#{ids.join(\",\")}]::bigint[], id::bigint)\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "CanSearch",
+        "method": "where_ordered_ids"
+      },
+      "user_input": "ids.join(\",\")",
+      "confidence": "Medium",
+      "cwe_id": [
+        89
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "Remote Code Execution",
+      "warning_code": 25,
+      "fingerprint": "89ac258e481395b8687e1a3607cf2c6c7f4bd77c8bde7a570c39f6dc3488110d",
+      "check_name": "Deserialize",
+      "message": "Use of `Marshal.load` may be dangerous",
+      "file": "app/models/core_workflow/result.rb",
+      "line": 20,
+      "link": "https://brakemanscanner.org/docs/warning_types/unsafe_deserialization",
+      "code": "Marshal.load(Marshal.dump(payload.permit!.to_h))",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "CoreWorkflow::Result",
+        "method": "initialize"
+      },
+      "user_input": null,
+      "confidence": "Weak",
+      "cwe_id": [
+        502
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "Remote Code Execution",
+      "warning_code": 24,
+      "fingerprint": "8db3b4731daa1ef96c53729b2fca4cc91b47af058564f61cba24833aacaa55ae",
+      "check_name": "UnsafeReflection",
+      "message": "Unsafe reflection method `constantize` called on model attribute",
+      "file": "app/jobs/transaction_job.rb",
+      "line": 25,
+      "link": "https://brakemanscanner.org/docs/warning_types/remote_code_execution/",
+      "code": "Setting.get(setting.name).constantize",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "TransactionJob",
+        "method": "perform"
+      },
+      "user_input": "Setting.get(setting.name)",
+      "confidence": "Medium",
+      "cwe_id": [
+        470
+      ],
+      "note": "Setting.where(area: 'Transaction::Backend::Async').order(:name) returns defined Transaction  backend class names"
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "9385240f75935e7ed242f9b52cc9471bcbb907d1990a33ec083f303d951df563",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/models/taskbar/has_attachments.rb",
+      "line": 7,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "where(\"state LIKE '%#{SqlHelper.quote_like(\"form_id\")}%'\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Taskbar::HasAttachments",
+        "method": null
+      },
+      "user_input": "SqlHelper.quote_like(\"form_id\")",
+      "confidence": "Medium",
+      "cwe_id": [
+        89
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "Denial of Service",
+      "warning_code": 76,
+      "fingerprint": "949570adfbda072b1fa14632a6d7a0e829a632c699339dce93e1ff109bf79786",
+      "check_name": "RegexDoS",
+      "message": "Model attribute used in regular expression",
+      "file": "app/models/ticket/number/increment.rb",
+      "line": 41,
+      "link": "https://brakemanscanner.org/docs/warning_types/denial_of_service/",
+      "code": "/(?<=\\W|^)#{Regexp.quote(Setting.get(\"ticket_hook\"))}#{Regexp.quote(Setting.get(\"ticket_hook_divider\").to_s)}(#{(\"\" or Setting.get(\"system_id\").to_s)}\\d{2,48})\\b/i",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Ticket::Number::Increment",
+        "method": "Ticket::Number::Increment.check"
+      },
+      "user_input": "Setting.get(\"system_id\").to_s",
+      "confidence": "Medium",
+      "cwe_id": [
+        20,
+        185
+      ],
+      "note": "Admin configured RegExp"
+    },
+    {
+      "warning_type": "Remote Code Execution",
+      "warning_code": 24,
+      "fingerprint": "99ea0a566c684509f05b93d53f68bef433b0c6ff357e84f516f8f08c7a1e5faf",
+      "check_name": "UnsafeReflection",
+      "message": "Unsafe reflection method `constantize` called on model attribute",
+      "file": "app/models/link/triggers_subscriptions.rb",
+      "line": 20,
+      "link": "https://brakemanscanner.org/docs/warning_types/remote_code_execution/",
+      "code": "Link::Object.find(link_object_id).name.constantize",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Link::TriggersSubscriptions",
+        "method": "trigger_subscriptions"
+      },
+      "user_input": "Link::Object.find(link_object_id).name",
+      "confidence": "Medium",
+      "cwe_id": [
+        470
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "a9e68e841f16226b94c736d272962dd57d02c2333ead2855f2494dfb2c994de7",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped parameter value",
+      "file": "app/views/knowledge_base/public/answers/show.html.erb",
+      "line": 11,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "prepare_rich_text(find_answer(find_category(params[:category]).answers, params[:answer]).translation.content.body_with_urls)",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "KnowledgeBase::Public::AnswersController",
+          "method": "show",
+          "line": 11,
+          "file": "app/controllers/knowledge_base/public/answers_controller.rb",
+          "rendered": {
+            "name": "knowledge_base/public/answers/show",
+            "file": "app/views/knowledge_base/public/answers/show.html.erb"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "knowledge_base/public/answers/show"
+      },
+      "user_input": "params[:category]",
+      "confidence": "Weak",
+      "cwe_id": [
+        79
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "Remote Code Execution",
+      "warning_code": 24,
+      "fingerprint": "b4e5b1ad22930f849b12cbdf519dced6ec46b6cc653504f0a8e910c0a9590d61",
+      "check_name": "UnsafeReflection",
+      "message": "Unsafe reflection method `constantize` called on model attribute",
+      "file": "app/models/object_manager/attribute.rb",
+      "line": 973,
+      "link": "https://brakemanscanner.org/docs/warning_types/remote_code_execution/",
+      "code": "ObjectLookup.by_id(object_lookup_id).constantize",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "ObjectManager::Attribute",
+        "method": "check_name"
+      },
+      "user_input": "ObjectLookup.by_id(object_lookup_id)",
+      "confidence": "Medium",
+      "cwe_id": [
+        470
+      ],
+      "note": "ObjectLookup.by_id works as designed"
+    },
+    {
+      "warning_type": "Command Injection",
+      "warning_code": 14,
+      "fingerprint": "c47bddc058fcf0381c1a91f2d107606a76bb1a5c40130c555ff1dfec713f2775",
+      "check_name": "Execute",
+      "message": "Possible command injection",
+      "file": "lib/secure_mailing/pgp/tool/exec/agent.rb",
+      "line": 32,
+      "link": "https://brakemanscanner.org/docs/warning_types/command_injection/",
+      "code": "Open3.capture3(\"GNUPGHOME\" => (@gnupg_home), *([\"#{File.dirname(binary_path)}/gpgconf\"] + cmdline), :binmode => true)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "SecureMailing::PGP::Tool::Exec::Agent",
+        "method": "gpgconf"
+      },
+      "user_input": "File.dirname(binary_path)",
+      "confidence": "Medium",
+      "cwe_id": [
+        77
+      ],
+      "note": "gpg command line tool stuff."
+    },
+    {
+      "warning_type": "Dynamic Render Path",
+      "warning_code": 15,
+      "fingerprint": "c52f57d32456c9ab6dba6dfc93bd8effa16829a87a9ce9368da83a35fc6cf1a7",
+      "check_name": "Render",
+      "message": "Render path contains parameter value",
+      "file": "app/controllers/tests_controller.rb",
+      "line": 13,
+      "link": "https://brakemanscanner.org/docs/warning_types/dynamic_render_path/",
+      "code": "render(action => params[:name], {})",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "TestsController",
+        "method": "show"
+      },
+      "user_input": "params[:name]",
+      "confidence": "High",
+      "cwe_id": [
+        22
+      ],
+      "note": "Running QUnit tests"
+    },
+    {
+      "warning_type": "SSL Verification Bypass",
+      "warning_code": 71,
+      "fingerprint": "c7311ebfec11c51dead99054a31ec84773b4d0d4848c11a15801c439d35d2171",
+      "check_name": "SSLVerify",
+      "message": "SSL certificate verification was bypassed",
+      "file": "app/controllers/integration/exchange_controller.rb",
+      "line": 93,
+      "link": "https://brakemanscanner.org/docs/warning_types/ssl_verification_bypass/",
+      "code": "Autodiscover::Client.new(:email => params[:user], :password => params[:password]).http.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Integration::ExchangeController",
+        "method": "autodiscover_basic_auth_check"
+      },
+      "user_input": null,
+      "confidence": "High",
+      "cwe_id": [
+        295
+      ],
+      "note": "Only if requester sends `:disable_ssl_verify` param"
+    },
+    {
+      "warning_type": "Remote Code Execution",
+      "warning_code": 24,
+      "fingerprint": "d48809837203098f7be4803f19b4f180f93361030bcf145560c65582d44f8edc",
+      "check_name": "UnsafeReflection",
+      "message": "Unsafe reflection method `constantize` called on model attribute",
+      "file": "app/models/channel/email_parser.rb",
+      "line": 173,
+      "link": "https://brakemanscanner.org/docs/warning_types/remote_code_execution/",
+      "code": "Setting.get(setting.name).constantize",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Channel::EmailParser",
+        "method": "_process"
+      },
+      "user_input": "Setting.get(setting.name)",
+      "confidence": "Medium",
+      "cwe_id": [
+        470
+      ],
+      "note": "Setting.where(area: 'Postmaster::PreFilter').order(:name) returns defined postmaster backend class names"
+    },
+    {
+      "warning_type": "Remote Code Execution",
+      "warning_code": 24,
+      "fingerprint": "d48809837203098f7be4803f19b4f180f93361030bcf145560c65582d44f8edc",
+      "check_name": "UnsafeReflection",
+      "message": "Unsafe reflection method `constantize` called on model attribute",
+      "file": "app/models/channel/email_parser.rb",
+      "line": 329,
+      "link": "https://brakemanscanner.org/docs/warning_types/remote_code_execution/",
+      "code": "Setting.get(setting.name).constantize",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Channel::EmailParser",
+        "method": "_process"
+      },
+      "user_input": "Setting.get(setting.name)",
+      "confidence": "Medium",
+      "cwe_id": [
+        470
+      ],
+      "note": "Setting.where(area: 'Postmaster::PreFilter').order(:name) returns defined postmaster backend class names"
+    },
+    {
+      "warning_type": "Remote Code Execution",
+      "warning_code": 24,
+      "fingerprint": "d5d1526bf7a888d1965405d0e3dc5c63f11fe2de47f9704c0e1717ee0410dd6b",
+      "check_name": "UnsafeReflection",
+      "message": "Unsafe reflection method `safe_constantize` called on model attribute",
+      "file": "app/models/online_notification.rb",
+      "line": 38,
+      "link": "https://brakemanscanner.org/docs/warning_types/remote_code_execution/",
+      "code": "ObjectLookup.by_id(object_lookup_id).safe_constantize",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "OnlineNotification",
+        "method": "related_object"
+      },
+      "user_input": "ObjectLookup.by_id(object_lookup_id)",
+      "confidence": "Medium",
+      "cwe_id": [
+        470
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "Denial of Service",
+      "warning_code": 76,
+      "fingerprint": "ea2a3af842a48c9ef4dc8d142abd56978baa4823a598d2a76dc8f840799d6967",
+      "check_name": "RegexDoS",
+      "message": "Model attribute used in regular expression",
+      "file": "app/models/ticket/number/date.rb",
+      "line": 44,
+      "link": "https://brakemanscanner.org/docs/warning_types/denial_of_service/",
+      "code": "/(?<=\\W|^)#{Regexp.quote(Setting.get(\"ticket_hook\"))}#{Regexp.quote((Setting.get(\"ticket_hook_divider\") or \"\"))}(\\d{4,10}#{(Setting.get(\"system_id\") or \"\")}\\d{2,40})\\b/i",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Ticket::Number::Date",
+        "method": "Ticket::Number::Date.check"
+      },
+      "user_input": "Setting.get(\"system_id\")",
+      "confidence": "Medium",
+      "cwe_id": [
+        20,
+        185
+      ],
+      "note": "Admin configured RegExp"
+    },
+    {
+      "warning_type": "Remote Code Execution",
+      "warning_code": 25,
+      "fingerprint": "f4f4cba4803223bb1c6a3b61140050f188912dde06d3c3d08959772701ab7936",
+      "check_name": "Deserialize",
+      "message": "Use of `Marshal.load` may be dangerous",
+      "file": "app/models/core_workflow/result.rb",
+      "line": 207,
+      "link": "https://brakemanscanner.org/docs/warning_types/unsafe_deserialization",
+      "code": "Marshal.load(Marshal.dump(@result.except(:rerun_count)))",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "CoreWorkflow::Result",
+        "method": "consider_rerun"
+      },
+      "user_input": null,
+      "confidence": "Weak",
+      "cwe_id": [
+        502
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "Dangerous Eval",
+      "warning_code": 13,
+      "fingerprint": "f7980b20d0d9119e081ff8116bd049a42529a40e2ccbdd4a32e8d6146a8d39fe",
+      "check_name": "Evaluation",
+      "message": "Dynamic code evaluation",
+      "file": "lib/background_services/service/process_scheduled_jobs/job_executor.rb",
+      "line": 50,
+      "link": "https://brakemanscanner.org/docs/warning_types/dangerous_eval/",
+      "code": "eval(job.method)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "BackgroundServices::Service::ProcessScheduledJobs::JobExecutor",
+        "method": "eval_job_method"
+      },
+      "user_input": null,
+      "confidence": "Weak",
+      "cwe_id": [
+        913,
+        95
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "Remote Code Execution",
+      "warning_code": 24,
+      "fingerprint": "fa62d2e232a02c3e0ac7764954b85b5f199f56923dabb11bf2ff246e7cb5295a",
+      "check_name": "UnsafeReflection",
+      "message": "Unsafe reflection method `constantize` called on model attribute",
+      "file": "lib/transaction_dispatcher.rb",
+      "line": 37,
+      "link": "https://brakemanscanner.org/docs/warning_types/remote_code_execution/",
+      "code": "Setting.get(setting.name).constantize",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "TransactionDispatcher",
+        "method": "self.perform"
+      },
+      "user_input": "Setting.get(setting.name)",
+      "confidence": "Medium",
+      "cwe_id": [
+        470
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "Remote Code Execution",
+      "warning_code": 24,
+      "fingerprint": "fc299f57cedf226dc79a25c6bca84ceb85d5896a86820648d49c0e59d865575a",
+      "check_name": "UnsafeReflection",
+      "message": "Unsafe reflection method `constantize` called on model attribute",
+      "file": "app/graphql/gql/resolvers/belongs_to_resolver.rb",
+      "line": 18,
+      "link": "https://brakemanscanner.org/docs/warning_types/remote_code_execution/",
+      "code": "ObjectLookup.by_id(object.send(field.through_key)).constantize",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Gql::Resolvers::BelongsToResolver",
+        "method": "target_object_klass"
+      },
+      "user_input": "ObjectLookup.by_id(object.send(field.through_key))",
+      "confidence": "Medium",
+      "cwe_id": [
+        470
+      ],
+      "note": ""
+    }
+  ],
+  "brakeman_version": "8.0.4"
+}

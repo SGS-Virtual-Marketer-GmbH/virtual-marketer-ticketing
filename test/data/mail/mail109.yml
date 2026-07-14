@@ -1,0 +1,17 @@
+--- !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+from: Customer <noemail2@example.com>
+from_email: noemail2@example.com
+from_display_name: Customer
+to: Helpdesk <noemail3@example.com>
+subject: "【IMAC】0702 * Customer * Another Customer * 12345678/23456789 [Helpdesk]"
+body: "<p>This should say Japanese in Japanese. 日本語</p>"
+content_type: text/html
+attachments:
+- !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+  data: "<html>\n<body>\n\t<p>This should say Japanese in Japanese. 日本語</p>\n</body>\n</html>\n\t\t"
+  filename: message.html
+  preferences: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+    content-alternative: true
+    original-format: true
+    Mime-Type: text/html
+    Charset: iso-2022-jp

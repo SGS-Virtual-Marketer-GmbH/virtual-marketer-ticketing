@@ -1,0 +1,288 @@
+// Copyright (C) 2012-2026 Zammad Foundation, https://zammad-foundation.org/
+
+import { FormKit } from '@formkit/vue'
+
+import { renderComponent } from '#tests/support/components/index.ts'
+import { waitFor } from '#tests/support/vitest-wrapper.ts'
+
+import { i18n } from '#shared/i18n.ts'
+
+const now = new Date('2021-04-13T11:10:00Z')
+
+const renderDateField = async (props: Record<string, unknown> = {}, options: any = {}) => {
+  return renderComponent(FormKit, {
+    props: {
+      type: 'date',
+      name: 'date',
+      label: 'Date',
+      id: 'date',
+      ...props,
+    },
+    ...options,
+    form: true,
+  })
+}
+
+describe('Fields - FieldDate', () => {
+  beforeEach(() => {
+    i18n.setTranslationMap(new Map())
+  })
+
+  beforeAll(() => {
+    vi.useFakeTimers().setSystemTime(now)
+  })
+
+  afterAll(() => {
+    vi.useRealTimers()
+  })
+
+  describe('type "date"', () => {
+    it('renders input and allows selecting date', async () => {
+      const view = await renderDateField()
+
+      const input = view.getByLabelText('Date')
+
+      expect(input).toHaveDisplayValue('')
+
+      await view.events.click(input)
+      await view.events.click(await view.findByText('12'))
+
+      const emittedInput = view.emitted().inputRaw as Array<Array<InputEvent>>
+
+      expect(emittedInput[0][0]).toBe('2021-04-12')
+      expect(input).toHaveDisplayValue('2021-04-12')
+    })
+
+    it('renders input and allows typing date', async () => {
+      const view = await renderDateField()
+
+      const input = view.getByLabelText('Date')
+
+      expect(input).toHaveDisplayValue('')
+
+      await view.events.type(input, '2021-04-12')
+      await view.events.keyboard('{Enter}')
+
+      const emittedInput = view.emitted().inputRaw as Array<Array<InputEvent>>
+
+      expect(emittedInput.at(-1)?.at(0)).toBe('2021-04-12')
+      expect(input).toHaveDisplayValue('2021-04-12')
+    })
+
+    it('renders input and allows selecting a date range', async () => {
+      const view = await renderDateField({
+        range: true,
+      })
+
+      const input = view.getByLabelText('Date')
+      expect(input).toHaveDisplayValue('')
+
+      await view.events.click(input)
+      await view.events.click(await view.findByText('12'))
+      await view.events.click(view.getByText('14'))
+
+      const emittedInput = view.emitted().inputRaw as Array<Array<InputEvent>>
+
+      expect(emittedInput.at(-1)?.at(0)).toEqual(['2021-04-12', '2021-04-14'])
+      expect(input).toHaveDisplayValue('2021-04-12 - 2021-04-14')
+    })
+
+    it('renders input and allows typing date range', async () => {
+      const view = await renderDateField({
+        range: true,
+      })
+
+      const input = view.getByLabelText('Date')
+
+      expect(input).toHaveDisplayValue('')
+
+      await view.events.type(input, '2021-04-12 - 2021-04-14')
+      await view.events.keyboard('{Enter}')
+
+      const emittedInput = view.emitted().inputRaw as Array<Array<InputEvent>>
+
+      expect(emittedInput.at(-1)?.[0]).toEqual(['2021-04-12', '2021-04-14'])
+      expect(input).toHaveDisplayValue('2021-04-12 - 2021-04-14')
+    })
+
+    it('with partialRange disabled, commits only a complete range (no partial [from, null])', async () => {
+      // Shared model handling parity with desktop: the picker auto-applies a
+      // single date as `[from, null]`, which the gate drops until both ends are
+      // picked.
+      const view = await renderDateField({ range: true, partialRange: false })
+
+      const input = view.getByLabelText('Date')
+      await view.events.click(input)
+
+      await view.events.click(await view.findByText('12'))
+      const afterFirst = view.emitted().inputRaw as Array<Array<unknown>> | undefined
+      expect(afterFirst?.at(-1)?.[0] ?? null).not.toEqual(['2021-04-12', null])
+
+      await view.events.click(view.getByText('14'))
+      const afterSecond = view.emitted().inputRaw as Array<Array<unknown>>
+      expect(afterSecond.at(-1)?.[0]).toEqual(['2021-04-12', '2021-04-14'])
+    })
+
+    it('renders input and allows selecting today', async () => {
+      const view = await renderDateField()
+
+      const input = view.getByLabelText('Date')
+      expect(input).toHaveDisplayValue('')
+
+      await view.events.click(input)
+      await view.events.click(await view.findByText('Today'))
+
+      const emittedInput = view.emitted().inputRaw as Array<Array<InputEvent>>
+
+      expect(emittedInput[0][0]).toBe('2021-04-13')
+      expect(input).toHaveDisplayValue('2021-04-13')
+    })
+
+    it('sets the default date', async () => {
+      const view = await renderDateField({
+        value: '2020-02-10',
+      })
+
+      const input = view.getByLabelText('Date')
+
+      expect(input).toHaveDisplayValue('2020-02-10')
+    })
+
+    it('allows to clear value', async () => {
+      const view = await renderDateField({
+        value: '2020-02-10',
+        clearable: true,
+      })
+
+      const input = view.getByLabelText('Date')
+
+      expect(input).toHaveDisplayValue('2020-02-10')
+
+      await view.events.click(view.getByLabelText('Clear selection'))
+
+      const emittedInput = view.emitted().inputRaw as Array<Array<InputEvent>>
+
+      expect(emittedInput[0][0]).toBeNull()
+      expect(input).toHaveDisplayValue('')
+    })
+
+    it("doesn't allow changing anything while disabled", async () => {
+      const view = await renderDateField({
+        disabled: true,
+      })
+
+      const input = view.getByLabelText('Date')
+
+      expect(input).toBeDisabled()
+    })
+
+    it('disables days after today, if pastOnly present', async () => {
+      const view = await renderDateField({
+        pastOnly: true,
+      })
+
+      const input = view.getByLabelText('Date')
+
+      await view.events.click(input)
+      await view.events.click(await view.findByText('14'))
+
+      expect(input).toHaveDisplayValue('')
+
+      await view.events.click(view.getByText('13'))
+
+      expect(input).toHaveDisplayValue('2021-04-13')
+    })
+
+    it('disables days before today, if futureOnly present', async () => {
+      const view = await renderDateField({
+        futureOnly: true,
+      })
+      const input = view.getByLabelText('Date')
+
+      await view.events.click(input)
+      await view.events.click(await view.findByText('12'))
+
+      expect(input).toHaveDisplayValue('')
+
+      await view.events.click(view.getByText('13'))
+
+      expect(input).toHaveDisplayValue('2021-04-13')
+    })
+
+    it('rerenders props', async () => {
+      const view = await renderDateField({
+        maxDate: '2021-04-14',
+      })
+
+      const input = view.getByLabelText('Date')
+
+      await view.events.click(input)
+      await view.events.click(await view.findByText('15'))
+
+      expect(input).toHaveDisplayValue('')
+
+      await view.rerender({
+        maxDate: '2021-04-15',
+      })
+
+      await view.events.click(await view.findByText('15'))
+
+      await waitFor(() => expect(input).toHaveDisplayValue('2021-04-15'))
+    })
+  })
+
+  describe('type "datetime"', () => {
+    it('renders input and allows selecting today', async () => {
+      const view = await renderDateField({
+        type: 'datetime',
+      })
+
+      const input = view.getByLabelText('Date')
+
+      expect(input).toHaveDisplayValue('')
+
+      await view.events.click(input)
+      await view.events.click(await view.findByText('Today'))
+
+      const emittedInput = view.emitted().inputRaw as Array<Array<InputEvent>>
+
+      expect(emittedInput.at(-1)?.at(0)).toMatch(/^2021-04-13T11:10:.*Z$/)
+      expect(input).toHaveDisplayValue('2021-04-13 11:10')
+    })
+
+    it('renders input and allows entering timestamp', async () => {
+      const view = await renderDateField({
+        type: 'datetime',
+      })
+
+      const input = view.getByLabelText('Date')
+
+      expect(input).toHaveDisplayValue('')
+
+      await view.events.type(input, '2021-04-13 11:10')
+      await view.events.keyboard('{Enter}')
+
+      const emittedInput = view.emitted().inputRaw as Array<Array<InputEvent>>
+
+      expect(emittedInput.at(-1)?.at(0)).toBe('2021-04-13T11:10:00.000Z')
+      expect(input).toHaveDisplayValue('2021-04-13 11:10')
+    })
+
+    it('renders AM/PM, if needed', async () => {
+      i18n.setTranslationMap(new Map([['FORMAT_DATETIME', 'mm/dd/yyyy l:MM P']]))
+
+      const view = await renderDateField({
+        type: 'datetime',
+      })
+
+      const input = view.getByLabelText('Date')
+
+      expect(input).toHaveDisplayValue('')
+
+      await view.events.click(input)
+      await view.events.click(await view.findByText('Today'))
+
+      expect(input).toHaveDisplayValue('04/13/2021 11:10 am')
+    })
+  })
+})

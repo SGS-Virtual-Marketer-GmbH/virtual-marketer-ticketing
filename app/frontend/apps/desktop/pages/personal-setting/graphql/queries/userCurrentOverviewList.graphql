@@ -1,0 +1,8 @@
+query userCurrentOverviewList($ignoreUserConditions: Boolean!) {
+  userCurrentTicketOverviews(ignoreUserConditions: $ignoreUserConditions) {
+    id
+    name
+    organizationShared
+    outOfOffice
+  }
+}

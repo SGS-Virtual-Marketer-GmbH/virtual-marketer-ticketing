@@ -1,0 +1,7 @@
+subscription macrosUpdate {
+  macrosUpdate {
+    macroId
+    groupIds
+    removeMacroId
+  }
+}

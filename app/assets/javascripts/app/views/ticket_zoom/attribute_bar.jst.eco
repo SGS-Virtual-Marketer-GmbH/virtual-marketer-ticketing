@@ -1,0 +1,86 @@
+<% if @aiAgentIsRunning: %>
+  <div  class="aiAgent-outer js-aiAgentAvatar" aria-label="<%- @T('AI agent') %>">
+    <div class="aiAgent-inner">
+      <%- @Icon('ai-agent') %>
+    </div>
+    <div class="avatar-status"><%- @Icon('pen') %></div>
+  </div>
+<% end %>
+
+<div class="attributeBar-avatars horizontal js-avatars hidden-xs"></div>
+
+<div class="attributeBar-draft-spacer hidden-xs"></div>
+
+<div class="attributeBar-draft <% if !@sharedButtonVisible: %>hide<% end %> buttonDropdown btn js-draft align-left">
+  <span class="attributeBar-draft--available">
+    <span class="hidden-xs">
+      <%- @Icon('note') %>
+      <%- @T('Draft available') %>
+    </span>
+
+    <span class="visible-xs">
+      <%- @Icon('note') %>
+    </span>
+  </span>
+
+  <span class="attributeBar-draft--saving hide">
+    <%- @Icon('reload') %>
+    <%- @T('Sharing draft…') %>
+  </span>
+</div>
+
+<div class="flex"></div>
+
+<div class="attributeBar-reset buttonDropdown btn js-reset <% if !@resetButtonShown: %>hide<% end %>"><span><%- @T('Discard your unsaved changes.') %></span></div>
+<div class="buttonDropdown dropdown dropdown--actions dropup<% if !@ticket.editable(): %> hide<% end %>">
+  <div class="btn btn--text btn--icon--last" data-toggle="dropdown">
+    <span class="js-secondaryActionButtonLabel"></span> <%- @Icon('arrow-up') %>
+  </div>
+  <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="secondaryAction">
+    <li class="js-secondaryAction" role="menuitem">
+      <span class="js-secondaryActionLabel" data-type="closeTab"><%- @T('Close tab') %></span>
+      <span class="dropdown-selectedSpacer js-selectedIcon">
+        <%- @Icon('checkmark') %>
+      </span>
+    <li class="js-secondaryAction" role="menuitem">
+      <span class="js-secondaryActionLabel" data-type="closeTabOnTicketClose"><%- @T('Close tab on ticket close') %></span>
+      <span class="dropdown-selectedSpacer js-selectedIcon">
+        <%- @Icon('checkmark') %>
+      </span>
+    <% if @overview_id: %>
+    <li class="js-secondaryAction" role="menuitem">
+      <span class="js-secondaryActionLabel" data-type="closeNextInOverview"><%- @T('Next in overview') %></span>
+      <span class="dropdown-selectedSpacer js-selectedIcon">
+        <%- @Icon('checkmark') %>
+      </span>
+    <% end %>
+    <li class="js-secondaryAction" role="menuitem">
+      <span class="js-secondaryActionLabel" data-type="stayOnTab"><%- @T('Stay on tab') %></span>
+      <span class="dropdown-selectedSpacer js-selectedIcon">
+        <%- @Icon('checkmark') %>
+      </span>
+  </ul>
+</div>
+<form class="buttonDropdown<% if !@ticket.editable(): %> hide<% end %>">
+<% if @macroDisabled && @sharedDraftsDisabled: %>
+  <button class="btn btn--primary js-submit"><span><%- @T('Update') %></span></button>
+<% else: %>
+  <div class="buttonDropdown dropdown dropup js-submitDropdown">
+    <button class="btn btn--primary btn--split--first js-submit"><span><%- @T('Update') %></span></button>
+    <button class="btn btn--primary btn--slim btn--only-icon btn--split--last js-openDropdownMacro"><%- @Icon('arrow-up') %></button>
+      <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="userAction">
+        <% if !@sharedDraftsDisabled: %>
+          <li class="dropdown-header" role="menuitem"><%- @T('Draft') %></li>
+          <li class="js-dropdownActionSaveDraft" role="menuitem"><%- @T('Save Draft') %></li>
+        <% end %>
+
+        <% if !@macroDisabled: %>
+          <li class="dropdown-header" role="menuitem"><%- @T('Macros') %></li>
+          <% for macro in @macros: %>
+            <li class="js-dropdownActionMacro" role="menuitem" data-id="<%= macro.id %>"><%- @Ti(macro.displayName()) %>
+          <% end %>
+        <% end %>
+    </ul>
+  </div>
+<% end %>
+</form>

@@ -1,0 +1,23 @@
+# Copyright (C) 2012-2026 Zammad Foundation, https://zammad-foundation.org/
+
+module Gql::Mutations
+  class User::Current::RemoveLinkedAccount < BaseMutation
+    description "Remove a linked account of the current user's profile"
+
+    argument :provider, Gql::Types::Enum::AuthenticationProviderType, description: 'Internal name of the provider'
+    argument :uid,      String, description: 'UID of the linked account'
+
+    field :success, Boolean, null: false, description: 'Was the linked account removed?'
+
+    requires_permission 'user_preferences.linked_accounts'
+
+    def resolve(provider:, uid:)
+
+      Service::User::RemoveLinkedAccount
+        .with_current_user(context.current_user)
+        .execute(provider:, uid:)
+
+      { success: true }
+    end
+  end
+end

@@ -1,0 +1,13 @@
+subscription userCurrentAvatarUpdates {
+  userCurrentAvatarUpdates {
+    avatars {
+      id
+      default
+      deletable
+      initial
+      imageHash
+      createdAt
+      updatedAt
+    }
+  }
+}

@@ -1,0 +1,29 @@
+query ticket($ticketId: ID!) {
+  ticket(ticketId: $ticketId) {
+    ...ticketAttributes
+    aiSummaryEnabled
+    createArticleType {
+      id
+      name
+    }
+    mentions(first: 20) {
+      totalCount
+      edges {
+        node {
+          ...ticketMention
+        }
+        cursor
+      }
+    }
+    checklist {
+      id
+      completed
+      incomplete
+      total
+      complete
+    }
+    referencingChecklistTickets {
+      ...referencingTicket
+    }
+  }
+}

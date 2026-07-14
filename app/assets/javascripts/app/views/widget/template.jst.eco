@@ -1,0 +1,20 @@
+<div class="templates-select">
+  <form>
+    <div class="form-group">
+      <label class="" for="template_name"><%- @T('Select Template') %></label>
+      <div id="form-template"></div>
+    </div>
+    <div class="horizontal">
+      <button type="submit" class="btn btn--action align-right js-apply"><%- @T('Apply') %></button>
+    </div>
+  </form>
+</div>
+
+<div class="templates-welcome">
+  <p><%- @T('No template created yet.') %></p>
+  <p><%- @T('With templates you can pre-fill ticket attributes.') %></p>
+  <p>
+    <a class="js-createLink u-clickable" href="#manage/templates"><%- @T('Create a new template in the admin interface.') %></a>
+    <span class="js-createTextOnly"><%- @T('Create a new template in the admin interface.') %></span>
+  </p>
+</div>

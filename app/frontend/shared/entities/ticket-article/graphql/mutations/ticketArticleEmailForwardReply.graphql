@@ -1,0 +1,17 @@
+mutation ticketArticleEmailForwardReply($articleId: ID!, $formId: FormId!) {
+  ticketArticleEmailForwardReply(articleId: $articleId, formId: $formId) {
+    quotableFrom
+    quotableTo
+    quotableCc
+    attachments {
+      id
+      internalId
+      name
+      size
+      type
+    }
+    errors {
+      ...errors
+    }
+  }
+}

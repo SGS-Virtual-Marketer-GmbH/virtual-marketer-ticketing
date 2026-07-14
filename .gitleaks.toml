@@ -1,0 +1,24 @@
+title = "Zammad gitleaks Configuration"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "global allow list"
+paths = [
+  '''^doc/developer_manual/cookbook/how-to-setup-pgp-integration.md''',
+  '''^doc/developer_manual/cookbook/how-to-setup-smime-integration.md''',
+  '''^log/''',
+  '''^spec/factories/pgp_key\.rb''',
+  '''^spec/fixtures/files/imap/.*\.crt''',
+  '''^spec/fixtures/files/ldap/.*\.crt''',
+  '''^spec/fixtures/files/pgp/.*\.asc''',
+  '''^spec/fixtures/files/smime/.*\.key''',
+  '''^test/data/mail/mail\d+\.(yml|box)''',
+  '''^test/data/saml/zammad-client.json''',
+  '''^test/data/telegram/private/sticker.json''',
+  '''^test/data/vcr_cassettes/''',
+  '''^tmp/''',
+]
+regexTarget = "line"
+regexes = []

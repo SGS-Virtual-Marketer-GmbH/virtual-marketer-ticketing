@@ -1,0 +1,15 @@
+<% for area, metadata of @result: %>
+  <% if done && metadata.items.length > 0: %> <li class="divider"></li> <% end %>
+  <% done = true %>
+
+  <% for item in metadata.items: %>
+    <li>
+      <a href="<%- item.url %>" class="nav-tab nav-tab--search <%= item.class %>" data-id="<%= item.id %>" data-popover-show-avatar="true">
+        <div class="nav-tab-icon">
+          <%- @Icon(item.icon, item.iconClass) %>
+        </div>
+        <span class="nav-tab-name flex u-textTruncate"><%= item.display %></span>
+      </a>
+    </li>
+  <% end %>
+<% end %>

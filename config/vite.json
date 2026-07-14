@@ -1,0 +1,13 @@
+{
+  "all": {
+    "publicOutputDir": "assets/frontend/vite",
+    "sourceCodeDir": "app/frontend",
+    "viteBinPath": "node_modules/vite/bin/vite.js",
+    "watchAdditionalPaths": []
+  },
+  "development": {
+    "autoBuild": true,
+    "publicOutputDir": "assets/frontend/vite-dev",
+    "port": 3036
+  }
+}

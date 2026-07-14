@@ -1,0 +1,15 @@
+subscription ticketArticleUpdates($ticketId: ID!) {
+  ticketArticleUpdates(ticketId: $ticketId) {
+    addArticle {
+      id
+      createdAt
+      sender {
+        name
+      }
+    }
+    updateArticle {
+      ...ticketArticleAttributes
+    }
+    removeArticleId
+  }
+}

@@ -1,0 +1,94 @@
+<!-- Copyright (C) 2012-2026 Zammad Foundation, https://zammad-foundation.org/ -->
+
+<script setup lang="ts">
+import { computed } from 'vue'
+
+import CommonUserAvatar, {
+  type Props as CommonUserAvatarProps,
+} from '#shared/components/CommonUserAvatar/CommonUserAvatar.vue'
+import type { AvatarUser } from '#shared/components/CommonUserAvatar/types.ts'
+import { getIdFromGraphQLId } from '#shared/graphql/utils.ts'
+import { useSessionStore } from '#shared/stores/session.ts'
+import { SYSTEM_USER_ID } from '#shared/utils/constants.ts'
+
+import { type Props as CommonPopoverProps } from '#desktop//components/CommonPopover/CommonPopover.vue'
+import CommonPopoverWithTrigger from '#desktop/components/CommonPopover/CommonPopoverWithTrigger.vue'
+import UserPopover from '#desktop/components/User/UserPopoverWithTrigger/UserPopover.vue'
+
+export interface Props {
+  user: AvatarUser
+  popoverConfig?: Omit<CommonPopoverProps, 'owner'>
+  avatarConfig?: Omit<CommonUserAvatarProps, 'entity'>
+  triggerClass?: string
+  noTriggerLink?: boolean
+  noFocusStyling?: boolean
+  noHoverStyling?: boolean
+  zIndex?: string
+}
+
+const props = defineProps<Props>()
+
+defineOptions({
+  inheritAttrs: false,
+})
+
+defineSlots<{
+  default(props: {
+    isOpen?: boolean | undefined
+    popoverId?: string
+    hasOpenViaLongClick?: boolean
+  }): never
+}>()
+
+const userInternalId = computed(() => getIdFromGraphQLId(props.user.id))
+
+const session = useSessionStore()
+
+const hasUserAccess = computed(() => session.hasPermission(['ticket.agent', 'admin.user']))
+
+const isSystemUser = computed(() => {
+  const { id } = props.user
+
+  return id === SYSTEM_USER_ID
+})
+</script>
+
+<template>
+  <CommonPopoverWithTrigger
+    v-if="hasUserAccess && !isSystemUser"
+    :class="[
+      !$slots?.default?.() ? 'rounded-full! focus-visible:outline-2!' : '',
+      triggerClass ?? '',
+    ]"
+    :no-hover-styling="noHoverStyling"
+    :no-focus-styling="noFocusStyling"
+    :z-index="zIndex"
+    :trigger-link="!noTriggerLink ? `/users/${userInternalId}` : undefined"
+    :trigger-link-active-class="
+      !$slots?.default?.()
+        ? 'outline-2! outline-offset-1! outline-blue-800! hover:outline-blue-800!'
+        : ''
+    "
+    v-bind="{ ...popoverConfig, ...$attrs }"
+  >
+    <template #popover-content="{ popoverId, hasOpenedViaLongClick }">
+      <UserPopover
+        :id="popoverId"
+        :user-avatar="user"
+        :has-open-via-long-click="hasOpenedViaLongClick"
+        :no-profile-link="!noTriggerLink"
+      />
+    </template>
+
+    <template #default="slotProps">
+      <slot v-bind="slotProps">
+        <CommonUserAvatar v-bind="avatarConfig" :entity="user" />
+      </slot>
+    </template>
+  </CommonPopoverWithTrigger>
+  <div v-else class="pointer-events-none" v-bind="$attrs">
+    <slot>
+      <CommonUserAvatar v-bind="avatarConfig" :entity="user" />
+    </slot>
+  </div>
+</template>

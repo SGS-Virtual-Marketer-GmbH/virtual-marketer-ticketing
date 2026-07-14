@@ -1,0 +1,14 @@
+query autocompleteSearchOrganization($input: AutocompleteSearchOrganizationInput!) {
+  autocompleteSearchOrganization(input: $input) {
+    value
+    label
+    labelPlaceholder
+    heading
+    headingPlaceholder
+    disabled
+    icon
+    organization {
+      ...organizationAttributes
+    }
+  }
+}

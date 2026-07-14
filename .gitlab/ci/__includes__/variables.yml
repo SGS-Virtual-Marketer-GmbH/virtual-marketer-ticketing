@@ -1,0 +1,32 @@
+# Global variables added to the ENV of each job and service container.
+variables:
+  FF_NETWORK_PER_BUILD: 1 # https://docs.gitlab.com/runner/configuration/feature-flags.html
+  # For corepack download caching.
+  COREPACK_HOME: ${CI_PROJECT_DIR}/tmp/cache/.corepack
+  # for faster translation loading
+  Z_LOCALES: 'en-us:de-de'
+  RAILS_ENV: 'test'
+  # Browser tests and variables
+  RAILS_SERVE_STATIC_FILES: 'true'
+  TZ: 'Europe/London'
+  # docker-imap-devel variables required for mail tests
+  MAILNAME: 'mail.test.dc.zammad.com'
+  MAIL_SERVER: 'mail'
+  MAIL_ADDRESS: 'zammad@mail.test.dc.zammad.com'
+  MAIL_PASS: 'zammad'
+  MAIL_ADDRESS_ASCII: 'zammad-test@mail.test.dc.zammad.com'
+  MAIL_PASS_ASCII: '¼¿B3È;yÚ}&J¢Q;{Bü@_£)D"5>RÌ8eoø’'
+
+  # Settings for elasticsearch, if active
+  ES_INDEX: 'estest.ci'
+  ELASTICSEARCH_TAG: 'stable'
+
+  # Define image versions. Regular commits test against 'stable' (lowest supported version),
+  #   scheduled pipelines against 'latest' (newest stable release of the services).
+  POSTGRESQL_TAG: 'stable'
+  REDIS_TAG: 'stable'
+
+  # Compile assets only once.
+  CI_SKIP_ASSETS_PRECOMPILE: 'true'
+  # Avoid unnecessary DB resets.
+  CI_SKIP_DB_RESET: 'true'

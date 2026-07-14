@@ -1,0 +1,354 @@
+# Copyright (C) 2012-2026 Zammad Foundation, https://zammad-foundation.org/
+
+require 'rails_helper'
+
+RSpec.describe SearchKnowledgeBaseBackend do
+  include_context 'basic Knowledge Base'
+
+  let(:instance) { described_class.new options }
+  let(:user)     { create(:admin) }
+
+  let(:options) do
+    {
+      knowledge_base: knowledge_base,
+      locale:         primary_locale,
+      scope:          nil
+    }
+  end
+
+  def handle_elasticsearch(enabled)
+    if enabled
+      searchindex_model_reload([KnowledgeBase::Translation, KnowledgeBase::Category::Translation, KnowledgeBase::Answer::Translation])
+    else
+      Setting.set('es_url', nil)
+    end
+  end
+
+  context 'with ES', searchindex: true do
+    describe '#search' do
+      context 'when highlight enabled' do
+        let(:options) do
+          {
+            knowledge_base:    knowledge_base,
+            locale:            primary_locale,
+            scope:             nil,
+            highlight_enabled: true
+          }
+        end
+
+        before do
+          published_answer
+          searchindex_model_reload([KnowledgeBase::Translation, KnowledgeBase::Category::Translation, KnowledgeBase::Answer::Translation])
+        end
+
+        # https://github.com/zammad/zammad/issues/3070
+        it 'lists item with an attachment' do
+          expect(instance.search('Hello World', user: user)).to be_present
+        end
+
+        context 'with big attachment' do
+          before do
+            url = "#{Setting.get('es_url')}/_all/_settings?preserve_existing=true"
+            SearchIndexBackend.make_request_and_validate(url, data: { index: { 'highlight.max_analyzed_offset': 1000 } }, method: :put)
+          end
+
+          let(:attachment) { fixture_file_upload('spec/fixtures/files/upload/lipsum.pdf') }
+
+          let :published_answer do
+            create(:knowledge_base_answer, :published, :with_attachment, attachment:, category: category)
+          end
+
+          it 'lists item with an attachment' do
+            expect(instance.search('Suspendisse', user: user)).to be_present
+          end
+        end
+      end
+    end
+
+    describe '#search with shortcut queries' do
+      let(:ai_generated_answer) { create(:knowledge_base_answer, :published, :with_tag, tag_names: ['ai-generated'], category: category) }
+
+      let(:recently_created) { travel_to(2.days.ago) { create(:knowledge_base_answer, :published, category: category) } }
+
+      let(:old_answer) { travel_to(30.days.ago) { create(:knowledge_base_answer, :published, category: category) } }
+
+      let(:recently_updated) do
+        travel_to(30.days.ago) { create(:knowledge_base_answer, :published, category: category) }.tap do |answer|
+          travel_to(1.day.ago) { answer.translations.first.touch(:edited_at) }
+        end
+      end
+
+      before do
+        draft_answer
+        published_answer
+        ai_generated_answer
+        recently_created
+        old_answer
+        recently_updated
+        searchindex_model_reload([KnowledgeBase::Translation, KnowledgeBase::Category::Translation, KnowledgeBase::Answer::Translation])
+      end
+
+      describe 'publication_state:draft' do
+        let(:query)  { 'publication_state:draft' }
+        let(:result) { instance.search(query, user: user) }
+        let(:ids)    { result.pluck(:id).map(&:to_i) }
+
+        it 'finds drafts' do
+          expect(ids).to include(draft_answer.id)
+        end
+
+        it 'excludes published answers' do
+          expect(ids).not_to include(published_answer.id)
+        end
+      end
+
+      describe 'tags:ai-generated' do
+        let(:query)  { 'tags:ai-generated' }
+        let(:result) { instance.search(query, user: user) }
+        let(:ids)    { result.pluck(:id).map(&:to_i) }
+
+        it 'finds ai-generated answers' do
+          expect(ids).to include(ai_generated_answer.id)
+        end
+
+        it 'excludes untagged answers' do
+          expect(ids).not_to include(published_answer.id)
+        end
+      end
+
+      describe 'created_at:>now-14d' do
+        let(:query)  { 'created_at:>now-14d' }
+        let(:result) { instance.search(query, user: user) }
+        let(:ids)    { result.pluck(:id).map(&:to_i) }
+
+        it 'finds recently created answers' do
+          expect(ids).to include(recently_created.id)
+        end
+
+        it 'excludes old answers' do
+          expect(ids).not_to include(old_answer.id)
+        end
+      end
+
+      describe 'edited_at:>now-3d' do
+        let(:query)  { 'edited_at:>now-3d' }
+        let(:result) { instance.search(query, user: user) }
+        let(:ids)    { result.pluck(:id).map(&:to_i) }
+
+        it 'finds recently updated answers' do
+          expect(ids).to include(recently_updated.id)
+        end
+
+        it 'excludes old answers' do
+          expect(ids).not_to include(old_answer.id)
+        end
+      end
+    end
+  end
+
+  context 'with paging' do
+    let(:answers) do
+      Array.new(20) do |nth|
+        create(:knowledge_base_answer, :published, :with_attachment, category: category, translation_attributes: { title: "#{search_phrase} #{nth}" })
+      end
+    end
+
+    let(:search_phrase) { 'paging test' }
+
+    let(:options) do
+      {
+        knowledge_base: knowledge_base,
+        locale:         primary_locale,
+        scope:          nil,
+        order_by:       { id: :desc }
+      }
+    end
+
+    shared_examples 'verify paging' do |elasticsearch:|
+      context "when elastic search is #{elasticsearch}", searchindex: elasticsearch do
+        before do
+          answers
+
+          handle_elasticsearch(elasticsearch)
+        end
+
+        it 'first page is first 5 answers' do
+          results = instance.search(search_phrase, user: user, pagination: build(:pagination, params: { page: 1, per_page: 5 }))
+
+          first_5 = answers.reverse.slice(0, 5)
+
+          expect(results.pluck(:id)).to eq first_5.map { |answer| answer.translations.first.id }
+        end
+
+        it 'second page is next 5 answers' do
+          results = instance.search(search_phrase, user: user, pagination: build(:pagination, params: { page: 2, per_page: 5 }))
+
+          next_5 = answers.reverse.slice(5, 5)
+
+          expect(results.pluck(:id)).to eq next_5.map { |answer| answer.translations.first.id }
+        end
+
+        it 'last page may be partial' do
+          results = instance.search(search_phrase, user: user, pagination: build(:pagination, params: { page: 4, per_page: 6 }))
+
+          last_page = answers.reverse.slice(18, 6)
+
+          expect(results.pluck(:id)).to eq last_page.map { |answer| answer.translations.first.id }
+        end
+
+        it '5th page is empty' do
+          results = instance.search(search_phrase, user: user, pagination: build(:pagination, params: { page: 5, per_page: 5 }))
+
+          expect(results).to be_blank
+        end
+      end
+    end
+
+    include_examples 'verify paging', elasticsearch: true
+    include_examples 'verify paging', elasticsearch: false
+  end
+
+  context 'with successful API response' do
+    before do
+      published_answer
+    end
+
+    shared_examples 'verify response' do |elasticsearch:|
+      it "ID is an Integer when ES=#{elasticsearch}", searchindex: elasticsearch do
+        handle_elasticsearch(elasticsearch)
+
+        first_result = instance.search(published_answer.translations.first.title, user: user).first
+        expect(first_result[:id]).to be_a(Integer)
+      end
+    end
+
+    include_examples 'verify response', elasticsearch: true
+    include_examples 'verify response', elasticsearch: false
+  end
+
+  context 'with user trait and object state' do
+    def expected_visibility_instance(ui_identifier)
+      options = {
+        knowledge_base: knowledge_base,
+        locale:         primary_locale,
+        scope:          nil,
+        flavor:         ui_identifier
+      }
+
+      described_class.new options
+    end
+
+    shared_examples 'verify given object is visible' do |searchindex:, ui:|
+      it "lists in #{ui} interface when ES=#{searchindex}", searchindex: do
+        instance = expected_visibility_instance ui
+        object
+
+        handle_elasticsearch(searchindex)
+
+        expect(instance.search(object.translations.first.title, user: user)).to be_present
+      end
+    end
+
+    shared_examples 'verify given object is not visible' do |searchindex:, ui:|
+      it "does not list in #{ui} interface when ES=#{searchindex}", searchindex: do
+        instance = expected_visibility_instance ui
+        object
+
+        handle_elasticsearch(searchindex)
+
+        expect(instance.search(object.translations.first.title, user: user)).to be_blank
+      end
+    end
+
+    shared_examples 'verify given search backend' do |permissions:, ui:|
+      [true, false].each do |searchindex|
+        if permissions == :all || permissions == ui
+          it_behaves_like 'verify given object is visible', searchindex:, ui:
+        else
+          it_behaves_like 'verify given object is not visible', searchindex:, ui:
+        end
+      end
+    end
+
+    shared_examples 'verify given permissions' do |scope:, trait:, admin:, agent:|
+      context "with #{trait} #{scope}" do
+        let(:object) { create("knowledge_base_#{scope}", trait, knowledge_base: knowledge_base) }
+
+        include_examples 'verify given user', user_id: :admin, permissions: admin
+        include_examples 'verify given user', user_id: :agent, permissions: agent
+      end
+    end
+
+    shared_examples 'verify given user' do |user_id:, permissions:|
+      context "with #{user_id}" do
+        let(:user) { create(user_id) }
+
+        include_examples 'verify given search backend', permissions: permissions, ui: :agent
+        include_examples 'verify given search backend', permissions: permissions, ui: :public
+      end
+    end
+
+    include_examples 'verify given permissions', scope: :answer, trait: :published, admin: :all, agent: :all
+    include_examples 'verify given permissions', scope: :answer, trait: :internal,  admin: :all, agent: :agent
+    include_examples 'verify given permissions', scope: :answer, trait: :draft,     admin: :all, agent: :none
+    include_examples 'verify given permissions', scope: :answer, trait: :archived,  admin: :all, agent: :none
+
+    include_examples 'verify given permissions', scope: :category, trait: :empty,                admin: :all, agent: :none
+    include_examples 'verify given permissions', scope: :category, trait: :containing_published, admin: :all, agent: :all
+    include_examples 'verify given permissions', scope: :category, trait: :containing_internal,  admin: :all, agent: :agent
+    include_examples 'verify given permissions', scope: :category, trait: :containing_draft,     admin: :all, agent: :none
+    include_examples 'verify given permissions', scope: :category, trait: :containing_archived,  admin: :all, agent: :none
+
+    context 'with granular permissions' do
+      before do
+        KnowledgeBase::PermissionsUpdate
+          .new(category)
+          .update! Role.find_by(name: 'Agent') => 'none'
+      end
+
+      context 'with reader with limited access to answer' do
+        let(:object) { internal_answer }
+        let(:user)   { create(:agent)  }
+
+        include_examples 'verify given search backend', permissions: :none, ui: :agent
+      end
+
+      context 'with editor with full access to answer' do
+        let(:object) { internal_answer }
+        let(:user)   { create(:admin)  }
+
+        include_examples 'verify given search backend', permissions: :all, ui: :agent
+        include_examples 'verify given search backend', permissions: :all, ui: :public
+      end
+
+      context 'with reader with limited access to category' do
+        let(:object) { internal_answer.category }
+        let(:user)   { create(:agent)  }
+
+        include_examples 'verify given search backend', permissions: :none, ui: :agent
+      end
+
+      context 'with editor with full access to category' do
+        let(:object) { internal_answer.category }
+        let(:user)   { create(:admin)  }
+
+        include_examples 'verify given search backend', permissions: :all, ui: :agent
+        include_examples 'verify given search backend', permissions: :all, ui: :public
+      end
+
+      context 'with unauthorized user and public answer' do
+        let(:object) { published_answer }
+        let(:user)   { nil }
+
+        include_examples 'verify given search backend', permissions: :all, ui: :public
+      end
+
+      context 'with unauthorized user and internal answer' do
+        let(:object) { internal_answer }
+        let(:user)   { nil }
+
+        include_examples 'verify given search backend', permissions: :none, ui: :public
+      end
+    end
+  end
+end

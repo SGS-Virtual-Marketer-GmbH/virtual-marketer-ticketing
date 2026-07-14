@@ -1,0 +1,51 @@
+<div class="input form-group">
+  <div class="formGroup-label">
+    <label for="token-name"><%- @T('Name') %> *</label>
+  </div>
+  <div class="controls"><input id="token-name" type="text" name="name" value="" class="form-control js-input" required></div>
+</div>
+
+<div class="input form-group">
+  <div class="formGroup-label">
+    <label for="token-expires-at"><%- @T('Expires') %></label>
+  </div>
+  <div class="controls js-date"></div>
+</div>
+
+<div class="permission form-group checkbox">
+  <div class="controls checkbox">
+  <% for permission in @permissions: %>
+    <% if !permission.name.match(/\./): %>
+    <label class="inline-label checkbox-replacement">
+      <input type="checkbox" value="<%= permission.name %>" name="permission" <% if @params && _.contains(@params.permissions, permission.id): %>checked<% end %> <% if permission.preferences.disabled: %>disabled<% end %>/>
+      <%- @Icon('checkbox', 'icon-unchecked') %>
+      <%- @Icon('checkbox-checked', 'icon-checked') %>
+      <span class="label-text">
+        <% - if permission.label: %>
+          <%- @T(permission.label) %> (<%= permission.name %>)
+        <% else: %>
+          <%= permission.name %>
+        <% end %>
+      </span>
+      <span class="help-text"><%- @T(permission.description) %></span>
+    </label>
+    <% else: %>
+      <div class="checkbox-child js-subPermissionList">
+        <label class="inline-label checkbox-replacement">
+          <input type="checkbox" value="<%= permission.name %>" name="permission" <% if @params && _.contains(@params.permissions, permission.id): %>checked<% end %> <% if permission.preferences.disabled: %>disabled<% end %>/>
+          <%- @Icon('checkbox', 'icon-unchecked') %>
+          <%- @Icon('checkbox-checked', 'icon-checked') %>
+          <span class="label-text">
+            <% - if permission.label: %>
+              <%- @T(permission.label) %> (<%= permission.name %>)
+            <% else: %>
+              <%= permission.name %>
+            <% end %>
+          </span>
+          <span class="help-text"><%- @T(permission.description) %></span>
+        </label>
+      </div>
+    <% end %>
+  <% end %>
+  </div>
+</div>

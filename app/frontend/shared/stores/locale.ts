@@ -1,0 +1,98 @@
+// Copyright (C) 2012-2026 Zammad Foundation, https://zammad-foundation.org/
+
+import { defineStore } from 'pinia'
+import { effectScope, ref } from 'vue'
+
+import { useLocalesLazyQuery } from '#shared/graphql/queries/locales.api.ts'
+import type { LocalesQuery, LocalesQueryVariables } from '#shared/graphql/types.ts'
+import localeForBrowserLanguage from '#shared/i18n/localeForBrowserLanguage.ts'
+import { QueryHandler } from '#shared/server/apollo/handler/index.ts'
+import log from '#shared/utils/log.ts'
+
+import { useTranslationsStore } from './translations.ts'
+
+import type { LastArrayElement } from 'type-fest'
+
+type Locale = LastArrayElement<LocalesQuery['locales']>
+
+let localesQuery: QueryHandler<LocalesQuery, LocalesQueryVariables>
+
+const getLocalesQuery = () => {
+  if (localesQuery) return localesQuery
+
+  const scope = effectScope()
+  scope.run(() => {
+    localesQuery = new QueryHandler(useLocalesLazyQuery({ onlyActive: true }))
+  })
+
+  return localesQuery
+}
+
+export const useLocaleStore = defineStore(
+  'locale',
+  () => {
+    const localeData = ref<Maybe<Locale>>(null)
+    const locales = ref<Maybe<LocalesQuery['locales']>>(null)
+    const settingLocaleFor = ref<string>()
+
+    const translations = useTranslationsStore()
+
+    const loadLocales = async (): Promise<void> => {
+      if (locales.value) return
+
+      const currentQuery = getLocalesQuery()
+      const { data: result } = await currentQuery.query()
+
+      locales.value = result?.locales || null
+    }
+
+    const setLocale = async (locale?: string): Promise<void> => {
+      if (settingLocaleFor.value && settingLocaleFor.value === locale) {
+        log.debug(
+          'localeStore.setLocale()',
+          'Aborting, already setting locale for:',
+          settingLocaleFor.value,
+        )
+        return
+      }
+
+      await loadLocales()
+
+      let newLocaleData
+
+      if (locale) {
+        newLocaleData = locales.value?.find((elem) => {
+          return elem.locale === locale
+        })
+      }
+
+      if (!newLocaleData) newLocaleData = localeForBrowserLanguage(locales.value || [])
+
+      log.debug('localeStore.setLocale()', newLocaleData)
+
+      if (localeData.value?.locale === newLocaleData.locale) return
+
+      settingLocaleFor.value = newLocaleData.locale
+
+      // Update the translations store, when the locale is different.
+      await translations.load(newLocaleData.locale)
+
+      localeData.value = newLocaleData
+
+      document.documentElement.setAttribute('dir', newLocaleData.dir)
+      document.documentElement.setAttribute('lang', newLocaleData.locale)
+
+      settingLocaleFor.value = undefined
+    }
+
+    return {
+      locales,
+      localeData,
+      setLocale,
+      loadLocales,
+    }
+  },
+  {
+    requiresAuth: false,
+  },
+)

@@ -1,0 +1,16 @@
+<div class="page-header">
+  <div class="page-header-title">
+    <div class="zammad-switch zammad-switch--small js-checklistSetting">
+      <input name="enableChecklists" type="checkbox" id="enableChecklists" <% if @C('checklist'): %>checked<% end %>>
+      <label for="enableChecklists"></label>
+    </div>
+    <h1><%- @T('Checklists') %><small></small></h1>
+  </div>
+</div>
+
+<div class="page-content">
+  <p><%- @T('With checklists you can keep track of the progress of your ticket related tasks.') %></p>
+
+  <div class="settings-entry settings-entry--stretched vertical js-checklistTemplatesTable">
+  </div>
+</div>

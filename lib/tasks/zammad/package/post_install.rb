@@ -1,0 +1,29 @@
+# Copyright (C) 2012-2026 Zammad Foundation, https://zammad-foundation.org/
+
+require 'tasks/zammad/package_command'
+
+module Tasks
+  module Zammad
+    module Package
+      class PostInstall < Tasks::Zammad::PackageCommand
+        def self.description
+          'Runs all steps to finalize package installation.'
+        end
+
+        def self.task_handler
+
+          # ensure umask is correct for asset handling #5846
+          set_default_umask
+
+          if ::Package.app_package_installation?
+            exec_command('zammad run rake zammad:package:migrate')
+            exec_command('zammad run rake zammad:package:precompile')
+          else
+            exec_command('rake zammad:package:migrate')
+            exec_command('rake zammad:package:precompile')
+          end
+        end
+      end
+    end
+  end
+end

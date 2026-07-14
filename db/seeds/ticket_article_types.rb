@@ -1,0 +1,17 @@
+# Copyright (C) 2012-2026 Zammad Foundation, https://zammad-foundation.org/
+
+Ticket::Article::Type.create_if_not_exists(id: 1, name: __('email'), communication: true)
+Ticket::Article::Type.create_if_not_exists(id: 2, name: __('sms'), communication: true)
+Ticket::Article::Type.create_if_not_exists(id: 3, name: __('chat'), communication: true)
+Ticket::Article::Type.create_if_not_exists(id: 4, name: __('fax'), communication: true)
+Ticket::Article::Type.create_if_not_exists(id: 5, name: __('phone'), communication: true)
+# Zammad does not have a twitter integration any longer, but the types are still here for displaying existing articles and for the importers.
+Ticket::Article::Type.create_if_not_exists(id: 6, name: __('twitter status'), communication: true)
+Ticket::Article::Type.create_if_not_exists(id: 7, name: __('twitter direct-message'), communication: true)
+Ticket::Article::Type.create_if_not_exists(id: 8, name: __('facebook feed post'), communication: true)
+Ticket::Article::Type.create_if_not_exists(id: 9, name: __('facebook feed comment'), communication: true)
+Ticket::Article::Type.create_if_not_exists(id: 10, name: __('note'), communication: false)
+Ticket::Article::Type.create_if_not_exists(id: 11, name: __('web'), communication: true)
+Ticket::Article::Type.create_if_not_exists(id: 12, name: __('telegram personal-message'), communication: true)
+Ticket::Article::Type.create_if_not_exists(id: 13, name: __('facebook direct-message'), communication: true)
+Ticket::Article::Type.create_if_not_exists(id: 14, name: __('whatsapp message'), communication: true)

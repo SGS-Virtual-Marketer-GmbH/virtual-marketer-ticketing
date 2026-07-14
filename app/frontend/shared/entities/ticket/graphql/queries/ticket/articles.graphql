@@ -1,0 +1,36 @@
+query ticketArticles(
+  $ticketId: ID!
+  $beforeCursor: String
+  $afterCursor: String
+  $pageSize: Int
+  $loadFirstArticles: Boolean = true
+  $firstArticlesCount: Int = 1
+) {
+  firstArticles: ticketArticles(ticketId: $ticketId, first: $firstArticlesCount)
+    @include(if: $loadFirstArticles) {
+    edges {
+      node {
+        ...ticketArticleAttributes
+      }
+    }
+  }
+  articles: ticketArticles(
+    ticketId: $ticketId
+    before: $beforeCursor
+    after: $afterCursor
+    last: $pageSize
+  ) {
+    totalCount
+    edges {
+      node {
+        ...ticketArticleAttributes
+      }
+      cursor
+    }
+    pageInfo {
+      endCursor
+      startCursor
+      hasPreviousPage
+    }
+  }
+}

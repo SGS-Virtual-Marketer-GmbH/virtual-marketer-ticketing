@@ -1,0 +1,70 @@
+{
+  "extends": [
+    "stylelint-config-standard",
+    "stylelint-config-recommended-scss",
+    "stylelint-config-recommended-vue"
+  ],
+  "rules": {
+    "alpha-value-notation": null,
+    "block-no-empty": null,
+    "color-function-notation": "legacy",
+    "color-function-alias-notation": null,
+    "declaration-block-no-duplicate-properties": null,
+    "declaration-block-no-redundant-longhand-properties": null,
+    "declaration-block-no-shorthand-property-overrides": null,
+    "declaration-block-single-line-max-declarations": null,
+    "font-family-no-missing-generic-family-keyword": null,
+    "function-calc-no-unspaced-operator": null,
+    "hue-degree-notation": null,
+    "function-no-unknown": null,
+    "keyframes-name-pattern": null,
+    "media-feature-range-notation": "prefix",
+    "no-descending-specificity": null,
+    "no-duplicate-selectors": null,
+    "number-max-precision": null,
+    "selector-class-pattern": null,
+    "selector-no-vendor-prefix": null,
+    "selector-pseudo-element-no-unknown": null,
+    "scss/at-extend-no-missing-placeholder": null,
+    "scss/load-no-partial-leading-underscore": true,
+    "scss/at-rule-no-unknown": null,
+    "scss/dollar-variable-pattern": null,
+    "scss/double-slash-comment-whitespace-inside": null,
+    "scss/no-global-function-names": null,
+    "value-no-vendor-prefix": null,
+    "property-no-unknown": [true, { "ignoreProperties": ["scroll-snap-mode"] }],
+    "property-no-vendor-prefix": null,
+    "value-keyword-case": [
+      "lower",
+      {
+        "camelCaseSvgKeywords": true
+      }
+    ],
+    "at-rule-no-deprecated": [
+      true,
+      {
+        "ignoreAtRules": ["apply"]
+      }
+    ],
+    "nesting-selector-no-missing-scoping-root": null
+  },
+  "ignoreFiles": [
+    "**/bootstrap*.css",
+    "**/codemirror.css",
+    "**/cropper.css",
+    "**/fineuploader.css",
+    "**/jquery*.css",
+    "**/qunit*.css",
+    "**/reset*.css",
+    "**/svg-dimensions.css",
+    "app/assets/builds/**",
+    "coverage/**",
+    "public/assets/*.css",
+    "public/assets/chat/chat.css",
+    "public/assets/doorkeeper/**",
+    "public/assets/frontend/vite-dev/**",
+    "public/assets/frontend/vite/**",
+    "tmp/**",
+    "vendor/**"
+  ]
+}

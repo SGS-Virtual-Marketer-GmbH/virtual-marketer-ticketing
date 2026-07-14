@@ -1,0 +1,12 @@
+fragment ticketTaskbarTabAttributes on Ticket {
+  id
+  internalId
+  number
+  title
+  state {
+    id
+    name
+  }
+  stateColorCode
+  updatedAt
+}

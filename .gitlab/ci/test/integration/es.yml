@@ -1,0 +1,20 @@
+.template_integration_es:
+  extends:
+    - .job_rules_default
+  services:
+    - !reference [.services, postgresql]
+    - !reference [.services, redis]
+    - !reference [.services, memcached]
+    - !reference [.services, elasticsearch]
+  stage: test
+  script:
+    - !reference [.scripts, zammad_db_init]
+    - bundle exec rspec --tag searchindex --tag ~type:system
+
+# Lowest and highest supported Elasticsearch versions
+rspec:es:
+  extends:
+    - .template_integration_es
+  parallel:
+    matrix:
+      - ELASTICSEARCH_TAG: [stable, latest]

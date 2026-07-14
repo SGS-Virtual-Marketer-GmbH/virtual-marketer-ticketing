@@ -1,0 +1,10 @@
+<div class="input form-group">
+  <div class="controls controls--button ignore-readonly">
+    <input readonly type="text" value="<%= @attribute.value %>" class="form-control js-select js-permanent-readonly">
+    <div class="controls-button u-clickable js-copy" role="button" aria-label="<%- @T('Copy to clipboard') %>">
+      <span class="controls-button-inner">
+        <%- @Icon('clipboard') %>
+      </span>
+    </div>
+  </div>
+</div>

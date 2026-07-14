@@ -1,0 +1,48 @@
+From: "Customer" <noemail2@example.com>
+To: "Helpdesk" <noemail3@example.com>
+Subject:
+ =?iso-2022-jp?B?GyRCIVobKEJJTUFDGyRCIVsbKEIwNzAyICogQ3VzdG9tZXIgKiBBbm90?=
+ =?iso-2022-jp?B?aGVyIEN1c3RvbWVyICogMTIzNDU2NzgvMjM0NTY3ODkgW0hlbHBkZXNr?=
+ =?iso-2022-jp?B?XQ==?=
+Date: Fri, 23 Jun 2023 21:25:00 +0000
+Message-ID:
+ <SJ0PR15MB4357DF3B8A813E73DB1878D39523A@SJ0PR15MB4357.namprd15.prod.outlook.com>
+Accept-Language: ja-JP, en-US
+Content-Language: en-US
+Content-Type: multipart/mixed;
+	boundary="_011_SJ0PR15MB4357DF3B8A813E73DB1878D39523ASJ0PR15MB4357namp_"
+Importance: high
+MIME-Version: 1.0
+
+--_011_SJ0PR15MB4357DF3B8A813E73DB1878D39523ASJ0PR15MB4357namp_
+Content-Type: multipart/related;
+	boundary="_010_SJ0PR15MB4357DF3B8A813E73DB1878D39523ASJ0PR15MB4357namp_";
+	type="multipart/alternative"
+
+--_010_SJ0PR15MB4357DF3B8A813E73DB1878D39523ASJ0PR15MB4357namp_
+Content-Type: multipart/alternative;
+	boundary="_000_SJ0PR15MB4357DF3B8A813E73DB1878D39523ASJ0PR15MB4357namp_"
+
+--_000_SJ0PR15MB4357DF3B8A813E73DB1878D39523ASJ0PR15MB4357namp_
+Content-Type: text/plain; charset="iso-2022-jp"
+Content-Transfer-Encoding: quoted-printable
+
+This should say Japanese in Japanese. =1B$BF|K\8l=1B(B
+
+
+
+--_000_SJ0PR15MB4357DF3B8A813E73DB1878D39523ASJ0PR15MB4357namp_
+Content-Type: text/html; charset="iso-2022-jp"
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<body>
+	<p>This should say Japanese in Japanese. =1B$BF|K\8l=1B(B</p>
+</body>
+</html>
+		
+--_000_SJ0PR15MB4357DF3B8A813E73DB1878D39523ASJ0PR15MB4357namp_--
+
+
+--_010_SJ0PR15MB4357DF3B8A813E73DB1878D39523ASJ0PR15MB4357namp_--
+

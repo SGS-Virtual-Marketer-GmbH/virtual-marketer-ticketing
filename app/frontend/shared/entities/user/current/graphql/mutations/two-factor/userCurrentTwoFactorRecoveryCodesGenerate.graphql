@@ -1,0 +1,8 @@
+mutation userCurrentTwoFactorRecoveryCodesGenerate($token: String!) {
+  userCurrentTwoFactorRecoveryCodesGenerate(token: $token) {
+    recoveryCodes
+    errors {
+      ...errors
+    }
+  }
+}

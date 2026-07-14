@@ -1,0 +1,16 @@
+<div>
+  <div class="page-header">
+    <div class="page-header-title">
+      <h1><%- @T('Translations') %> <small><%- @T('Management') %></small></h1>
+    </div>
+
+    <div class="page-header-meta">
+    <% if @hasDescriptionButton: %>
+      <button class="btn js-description"><%- @T('Description') %></button>
+    <% end %>
+      <button class="btn btn--success js-new-translation"><%- @T('New Translation') %></button>
+    </div>
+  </div>
+
+  <div class="page-content js-content-container"></div>
+</div>

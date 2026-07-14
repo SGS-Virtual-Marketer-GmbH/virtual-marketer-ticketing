@@ -1,0 +1,33 @@
+<form class="settings-entry" id="<%= @setting.name %>">
+  <h2><%- @T(@setting.title) %></h2>
+  <p class="help-text"><%- @T('You can switch between the following backends for new attachments even on a system that is already in production without any loss of data.') %></p>
+  <dl class="help-text">
+    <dt><%- @T('Filesystem') %><code>File</code></dt>
+    <dd><%- @T('Attachments are stored in the filesystem.') %></dd>
+    <dt><%- @T('Database') %><code>DB</code></dt>
+    <dd><%- @T('Attachments are stored in the database.') %></dd>
+    <dt><%- @T('Simple Storage Service (S3)') %><code>S3</code></dt>
+    <dd><%- @T('Attachments are stored in a Simple Storage Service.') %><br /><%- @T('For more details, please check out our online documentation %l.', 'https://admin-docs.zammad.org/en/latest/settings/system/storage.html') %></dd>
+  </dl>
+  <p class="help-text"><%- @T('If you want to move already stored attachments from one backend to another, you need to execute the following rails/rake task.') %></p>
+  <code>
+  rake zammad:store:move_files SOURCE_STORAGE TARGET_STORAGE
+  </code>
+  <p class="help-text"><%- @T('Examples:') %></p>
+  <p class="help-text"><%- @T('Move all from "%s" to "%s":', @Tp('Filesystem'), @Tp('Database')) %></p>
+  </p>
+  <code>
+  rake zammad:store:move_files File DB
+  </code>
+  <p class="help-text"><%- @T('Move all from "%s" to "%s":', @Tp('Database'), @Tp('Simple Storage (S3)')) %></p>
+  </p>
+  <code>
+  rake zammad:store:move_files DB S3
+  </code>
+  <br>
+  <br>
+  <div class="horizontal end">
+    <div class="form-item flex"></div>
+    <button type="submit" class="btn btn--primary"><%- @T('Submit') %></button>
+  </div>
+</form>

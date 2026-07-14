@@ -1,0 +1,18 @@
+query formUpdater(
+  $formUpdaterId: EnumFormUpdaterId!
+  $meta: FormUpdaterMetaInput!
+  $data: JSON!
+  $relationFields: [FormUpdaterRelationField!]!
+  $id: ID
+) {
+  formUpdater(
+    formUpdaterId: $formUpdaterId
+    meta: $meta
+    data: $data
+    relationFields: $relationFields
+    id: $id
+  ) {
+    fields
+    flags
+  }
+}

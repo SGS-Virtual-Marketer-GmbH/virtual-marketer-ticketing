@@ -1,0 +1,16 @@
+<div class="page-header">
+  <div class="page-header-title">
+    <h2><%- @T(@overview.name) %></h2>
+  </div>
+  <div class="page-header-meta">
+    <% if @edit: %>
+      <div class="btn btn--action" data-type="settings"><%- @T('Options') %></div>
+    <% end %>
+  </div>
+</div>
+
+<div class="page-content">
+  <div class="table-overview"></div>
+</div>
+
+<div class="bulkAction hide"></div>

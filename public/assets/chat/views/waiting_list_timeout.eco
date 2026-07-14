@@ -1,0 +1,5 @@
+<div class="zammad-chat-modal-text">
+  <%- @T('We are sorry, it is taking longer than expected to get a slot. Please try again later or send us an email. Thank you!') %>
+  <br>
+  <div class="zammad-chat-button js-restart"<%= " style='background: #{ @background }'" if @background %>><%- @T('Start new conversation') %></div>
+</div>

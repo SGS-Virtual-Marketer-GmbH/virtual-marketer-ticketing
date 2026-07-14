@@ -1,0 +1,10 @@
+query searchCounts(
+  $search: String!
+  $onlyIn: [EnumSearchableModels!]!
+  $filters: [SelectorObjectInput!]
+) {
+  searchCounts(search: $search, onlyIn: $onlyIn, filters: $filters) {
+    model
+    totalCount
+  }
+}

@@ -1,0 +1,37 @@
+# Copyright (C) 2012-2026 Zammad Foundation, https://zammad-foundation.org/
+
+require 'rails_helper'
+
+RSpec.describe Service::User::TwoFactor::InitiateMethodConfiguration do
+  subject(:service_result) { described_class.with_current_user(user).execute(method_name:) }
+
+  let(:user) { create(:agent) }
+
+  context 'when the given method exists' do
+    let(:method_name) { 'authenticator_app' }
+
+    context 'when the given method is not enabled' do
+      it 'raises error' do
+        expect { service_result }.to raise_error(Exceptions::UnprocessableContent, 'The two-factor authentication method is not enabled.')
+      end
+    end
+
+    context 'when given method is enabled' do
+      before do
+        Setting.set('two_factor_authentication_method_authenticator_app', true)
+      end
+
+      it 'returns secret and provisioning_uri' do
+        expect(service_result).to include(:secret).and include(:provisioning_uri)
+      end
+    end
+  end
+
+  context 'when the given method does not exist' do
+    let(:method_name) { 'nonsense' }
+
+    it 'raises error' do
+      expect { service_result }.to raise_error(Exceptions::UnprocessableContent, 'The given two-factor method does not exist.')
+    end
+  end
+end

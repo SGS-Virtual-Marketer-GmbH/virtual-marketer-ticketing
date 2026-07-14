@@ -1,0 +1,14 @@
+mutation userCurrentNotificationPreferencesUpdate(
+  $groupIds: [ID!]
+  $matrix: UserNotificationMatrixInput!
+  $sound: UserNotificationSoundInput!
+) {
+  userCurrentNotificationPreferencesUpdate(groupIds: $groupIds, matrix: $matrix, sound: $sound) {
+    user {
+      ...userPersonalSettings
+    }
+    errors {
+      ...errors
+    }
+  }
+}

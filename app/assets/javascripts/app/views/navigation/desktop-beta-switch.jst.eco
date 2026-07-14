@@ -1,0 +1,4 @@
+<a href="#" class="dismiss-button">
+  <%- @Icon('diagonal-cross') %>
+</a>
+<div class="js-switchControl"></div>

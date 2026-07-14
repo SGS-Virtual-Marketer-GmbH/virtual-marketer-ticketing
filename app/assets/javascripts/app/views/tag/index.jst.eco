@@ -1,0 +1,28 @@
+<div class="page-header">
+  <div class="page-header-title">
+    <h1><%- @T('Tags') %><small></small></h1>
+  </div>
+</div>
+<div class="page-content">
+
+  <div class="settings-entry">
+    <div class="page-header-title">
+      <div class="zammad-switch zammad-switch--small js-newTagSetting">
+         <input name="tag-new" type="checkbox" id="tag-new" <% if @C('tag_new'): %>checked<% end %>>
+         <label for="tag-new"></label>
+      </div>
+      <h2><%- @T('New Tags') %></h2>
+    </div>
+    <p>⚠ <%- @T('Allow users to add new tags.') %></p>
+  </div>
+
+  <div class="settings-entry vertical">
+    <h2><%- @T('Manage Tags') %></h2>
+    <form class="horizontal form-group js-create">
+      <div class="tags-add form-item">
+      </div>
+      <button type="submit" class="btn btn--primary js-submit"><%- @T('Add') %></button>
+    </form>
+    <div class="js-Table"></div>
+  </div>
+</div>

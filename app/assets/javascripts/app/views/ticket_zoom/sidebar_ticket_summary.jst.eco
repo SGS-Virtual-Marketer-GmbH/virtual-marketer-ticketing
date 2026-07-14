@@ -1,0 +1,59 @@
+<div class="sidebar-block">
+  <div class="suggestion-body">
+    <% if @data?.error: %>
+      <div class="alert alert--danger">
+        <%- @T('The summary could not be generated. Please try again later or contact your administrator.') %>
+        <% if @data?.error_message: %>
+          <p><%- @T('API server error: %s', @Tp(@data.error_message)) %></p>
+        <% end %>
+      </div>
+      <div class="retry-container">
+        <a class="btn btn--secondary btn--action btn--text js-retry" href="#">
+          <%- @T('Retry') %>
+        </a>
+      </div>
+    <% else if !@C('ai_provider'): %>
+      <div class="alert alert--danger">
+        <%- @T('No AI provider is currently set up. Please contact your administrator.') %>
+      </div>
+    <% else if @data?.result: %>
+      <% for item in @structure: %>
+        <% values = [] %>
+        <% if _.isArray(item.value): %>
+          <% values = _.compact(_.flatten(_.map(item.value, (key) => @data?.result[key]))) %>
+        <% else: %>
+          <% values = @data?.result[item.value] %>
+        <% end %>
+        <% if !_.isEmpty(values): %>
+          <div class="ticket-summary-sidebar-item">
+            <h3><%- @T(item.name) %></h3>
+            <% if item.type is 'paragraphs': %>
+              <% for localParagraph in values: %>
+                <p><%- localParagraph %></p>
+              <% end %>
+            <% else if item.type is 'list': %>
+              <ul>
+                <% for localList in values: %>
+                  <li><%- @L(localList) %></li>
+                <% end %>
+              </ul>
+            <% else: %>
+              <% if _.isArray(values): %>
+                <p><%- values.join(' ') %></p>
+              <% else: %>
+                <p><%- values %></p>
+              <% end %>
+            <% end %>
+          </div>
+        <% end %>
+      <% end %>
+      </div>
+      <div class="js-aiFeedback"></div>
+    <% else: %>
+      <p><%- @T('Summary is being generated…') %></p>
+      <div class="loading-container">
+        <div class="loading icon"></div>
+      </div>
+    <% end %>
+  </div>
+</div>

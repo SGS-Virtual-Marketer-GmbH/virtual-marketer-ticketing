@@ -1,0 +1,57 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://graph.facebook.com/oauth/access_token
+    body:
+      encoding: UTF-8
+      string: client_id=<FACEBOOK_APPLICATION_ID>&client_secret=<FACEBOOK_APPLICATION_SECRET>&grant_type=client_credentials
+    headers:
+      User-Agent:
+      - Faraday v2.7.4
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json; charset=UTF-8
+      Facebook-Api-Version:
+      - v10.0
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15552000; preload
+      Pragma:
+      - no-cache
+      Cache-Control:
+      - private, no-cache, no-store, must-revalidate
+      Expires:
+      - Sat, 01 Jan 2000 00:00:00 GMT
+      X-Fb-Request-Id:
+      - A1A4I6rVt6gKlhfbtwMQyEg
+      X-Fb-Trace-Id:
+      - FaIbRUQedID
+      X-Fb-Rev:
+      - '1007457464'
+      X-Fb-Debug:
+      - ZPAsRSMMmSHyKX+eWJ1DQ9uStK9nr+r3xdEOkuD16R6VuvjLLpCcgaJBPz6/F3TU8MJOodONB+ZPzudADoayOQ==
+      Date:
+      - Tue, 09 May 2023 11:00:03 GMT
+      Alt-Svc:
+      - h3=":443"; ma=86400
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '84'
+    body:
+      encoding: UTF-8
+      string: '{"access_token":"***","token_type":"bearer"}'
+  recorded_at: Tue, 09 May 2023 11:00:03 GMT
+recorded_with: VCR 6.1.0

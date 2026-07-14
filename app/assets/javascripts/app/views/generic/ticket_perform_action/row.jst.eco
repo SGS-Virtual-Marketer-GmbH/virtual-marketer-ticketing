@@ -1,0 +1,21 @@
+<div class="horizontal-filter js-filterElement">
+  <div class="horizontal-filter-body">
+    <div class="controls flex-no-shrink horizontal-filter-attribute">
+      <div class="u-positionOrigin js-attributeSelector">
+        <%- @Icon('arrow-down', 'dropdown-arrow') %>
+      </div>
+    </div>
+    <div class="controls js-setAttribute horizontal span-width"></div>
+    <div class="horizontal-filter-group js-setNotification flex"></div>
+    <div class="horizontal-filter-group js-setAI flex"></div>
+    <div class="horizontal-filter-group js-setArticle flex"></div>
+  </div>
+  <div class="filter-controls js-rowActions">
+    <div class="filter-control filter-control-remove js-remove" title="<%- @Ti('Remove') %>">
+      <%- @Icon('minus-small') %>
+    </div>
+    <div class="filter-control filter-control-add js-add" title="<%- @Ti('Add') %>">
+      <%- @Icon('plus-small') %>
+    </div>
+  </div>
+</div>

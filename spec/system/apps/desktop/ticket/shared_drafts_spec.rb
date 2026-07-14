@@ -1,0 +1,180 @@
+# Copyright (C) 2012-2026 Zammad Foundation, https://zammad-foundation.org/
+
+require 'rails_helper'
+
+RSpec.describe 'Desktop > Ticket > Shared Drafts', app: :desktop_view, authenticated_as: :agent1, type: :system do
+  let(:agent1) { create(:agent, password: 'test', groups: [group]) }
+  let(:agent2) { create(:agent, password: 'test', groups: [group]) }
+  let(:group)  { create(:group) }
+
+  let(:ticket) do
+    create(:ticket, group:).tap do |ticket|
+      create(:ticket_article, ticket: ticket)
+    end
+  end
+
+  context 'when using shared drafts' do
+    before do
+      agent2
+
+      visit "/ticket/#{ticket.id}"
+
+      wait_for_form_to_settle("form-ticket-edit-#{ticket.id}")
+    end
+
+    def close_tab
+      return if page.has_no_css?('#taskbarTabListExpanded', wait: 0)
+
+      within '#taskbarTabListExpanded' do
+        find('li', text: ticket.title).find('button[aria-label="Close this tab"]', visible: :all).click
+      end
+    end
+
+    def dismiss_notification
+      find('button[aria-label="Hide notification"]', wait: 0).click
+    rescue Capybara::ElementNotFound
+      nil
+    end
+
+    it 'works correctly', performs_jobs: true do
+      find('button', text: 'Add internal note').click
+
+      wait_for_form_updater(2)
+
+      within_form(form_updater_gql_number: 2) do
+        find_editor('Text').type('article text content')
+        find_select('Priority').select_option('3 high')
+      end
+
+      # Create draft
+      click_on('Drafts & macros')
+      click_on('Save as draft')
+
+      wait_for_gql('shared/entities/ticket-shared-draft-zoom/graphql/mutations/ticketSharedDraftZoomCreate.graphql')
+
+      expect(page).to have_text('Shared draft has been created successfully.')
+      expect(ticket.shared_draft.body).to include('article text content')
+
+      # Create an internal note for agent2
+      click_on('Discard your unsaved changes')
+      click_on('Discard changes')
+
+      find('button', text: 'Add internal note').click
+
+      wait_for_form_updater(5)
+
+      within_form(form_updater_gql_number: 5) do
+        find_editor('Text').type("Can we send this to the customer?  @@#{agent2.firstname}")
+      end
+
+      find('li', text: agent2.fullname).click
+
+      wait_for_form_updater(7)
+
+      click_on('Update')
+
+      expect(page).to have_text('Ticket updated successfully.')
+
+      close_tab
+
+      # Add notification for agent2 from article mention.
+      perform_enqueued_jobs
+
+      # Switch to agent2
+      using_session :agent2 do
+        login(username: agent2.login, password: 'test')
+
+        # Open ticket from notifications.
+        dismiss_notification
+        click_on 'Show notifications'
+        find('a', text: "#{agent1.fullname} updated ticket").click
+
+        expect(page).to have_current_route("tickets/#{ticket.id}")
+
+        wait_for_form_to_settle("form-ticket-edit-#{ticket.id}")
+
+        # Modify draft
+        find('button', text: 'Add internal note').click
+
+        wait_for_form_updater(2)
+
+        within_form(form_updater_gql_number: 2) do
+          find_editor('Text').type('force overwrite dialog')
+        end
+
+        click_on('Draft available')
+        click_on('Apply')
+        click_on('Overwrite content')
+
+        wait_for_form_updater(4)
+
+        within_form(form_updater_gql_number: 4) do
+          find_editor('Text').clear.type('article text content - now with modification')
+        end
+
+        click_on('Drafts & macros')
+        click_on('Save as draft')
+        click_on('Overwrite draft')
+
+        wait_for_gql('shared/entities/ticket-shared-draft-zoom/graphql/mutations/ticketSharedDraftZoomUpdate.graphql')
+
+        expect(ticket.reload.shared_draft.body).to include('article text content - now with modification')
+
+        # Create an internal note for agent1
+        click_on('Discard your unsaved changes')
+        click_on('Discard changes')
+
+        wait_for_form_updater(7)
+
+        find('button', text: 'Add internal note').click
+
+        wait_for_form_updater(8)
+
+        within_form(form_updater_gql_number: 8) do
+          find_editor('Text').type("I changed it slightly, it's ready now.  @@#{agent1.firstname}")
+        end
+
+        find('li', text: agent1.fullname).click
+
+        wait_for_form_updater(10)
+
+        click_on('Update')
+
+        expect(page).to have_text('Ticket updated successfully.')
+
+        close_tab
+
+        page.driver.browser.close
+      end
+
+      # Back to agent1
+      visit "/ticket/#{ticket.id}"
+
+      wait_for_form_to_settle("form-ticket-edit-#{ticket.id}")
+
+      # Apply the draft
+      find('button', text: 'Add internal note').click
+
+      wait_for_form_updater(2)
+
+      within_form(form_updater_gql_number: 2) do
+        find_editor('Text').type('force overwrite dialog')
+      end
+
+      click_on('Draft available')
+      click_on('Apply')
+      click_on('Overwrite content')
+
+      wait_for_form_updater(4)
+
+      click_on('Update')
+
+      wait_for_gql('shared/entities/ticket/graphql/mutations/update.graphql')
+
+      expect(page).to have_no_text('Draft available')
+
+      expect(ticket.articles.count).to eq(4)
+      expect(ticket.articles.last.body).to include('article text content - now with modification')
+    end
+  end
+end

@@ -1,0 +1,54 @@
+<table
+  class="relative table-fixed pb-3"
+  data-v-07053f85=""
+>
+  <table-caption-stub
+    data-v-07053f85=""
+    show="false"
+  />
+  <table-header-stub
+    actions="[object Object],[object Object]"
+    class="sticky top-0 z-10 bg-neutral-50 dark:bg-gray-500"
+    data-v-07053f85=""
+    disablebulkaction="false"
+    hasbulkaction="false"
+    itemids="[object Set]"
+    items="[object Object]"
+    maxitems="1000"
+    selectallloadedactive="false"
+    selectedcount="0"
+    tableattributes="[object Object],[object Object],[object Object],[object Object],[object Object]"
+    totalitemscount="100"
+  />
+  <!-- :TODO tabindex should be -1 re-evaluate when we work on bulk action with checkbox  -->
+  <!-- SR should not be able to focus the row but each action node  -->
+  <tbody
+    class="relative"
+    data-v-07053f85=""
+    inert="false"
+  >
+    
+    
+    <!--v-if-->
+    <table-row-stub
+      data-v-07053f85=""
+      hascheckbox="false"
+      isrowselected="false"
+      isstriped="false"
+      item="[object Object]"
+      noautostriping="false"
+      tabindex="-1"
+    />
+    
+    
+    <transition-stub
+      appear="false"
+      css="true"
+      data-v-07053f85=""
+      leaveactiveclass="absolute"
+      persisted="false"
+    >
+      <!--v-if-->
+    </transition-stub>
+  </tbody>
+</table>

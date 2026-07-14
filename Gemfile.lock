@@ -1,0 +1,1011 @@
+GIT
+  remote: https://github.com/zammad-deps/autodiscover
+  revision: ee9b53dfa797ce6d4f970b82beea7fbdd2df56bb
+  specs:
+    autodiscover (1.0.2)
+      httpclient
+      logging
+      nokogiri
+      nori
+
+GIT
+  remote: https://github.com/zammad-deps/delayed_job
+  revision: 0f1644ccc6911f7fc0950aec6a63440b333a5074
+  branch: threadsafe
+  specs:
+    delayed_job (4.1.13)
+      activesupport (>= 3.0, < 9.0)
+
+GIT
+  remote: https://github.com/zammad-deps/delayed_job_active_record
+  revision: d49dd6da2cfd7650a0c1205f8007cdc9771004fb
+  branch: update-limit-143
+  specs:
+    delayed_job_active_record (4.1.11)
+      activerecord (>= 3.0, < 9.0)
+      delayed_job (>= 3.0, < 5)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    PoParser (3.2.8)
+      simple_po_parser (~> 1.1.6)
+    aasm (6.0.0)
+      concurrent-ruby (~> 1.0)
+    actioncable (8.0.5)
+      actionpack (= 8.0.5)
+      activesupport (= 8.0.5)
+      nio4r (~> 2.0)
+      websocket-driver (>= 0.6.1)
+      zeitwerk (~> 2.6)
+    actionmailbox (8.0.5)
+      actionpack (= 8.0.5)
+      activejob (= 8.0.5)
+      activerecord (= 8.0.5)
+      activestorage (= 8.0.5)
+      activesupport (= 8.0.5)
+      mail (>= 2.8.0)
+    actionmailer (8.0.5)
+      actionpack (= 8.0.5)
+      actionview (= 8.0.5)
+      activejob (= 8.0.5)
+      activesupport (= 8.0.5)
+      mail (>= 2.8.0)
+      rails-dom-testing (~> 2.2)
+    actionpack (8.0.5)
+      actionview (= 8.0.5)
+      activesupport (= 8.0.5)
+      nokogiri (>= 1.8.5)
+      rack (>= 2.2.4)
+      rack-session (>= 1.0.1)
+      rack-test (>= 0.6.3)
+      rails-dom-testing (~> 2.2)
+      rails-html-sanitizer (~> 1.6)
+      useragent (~> 0.16)
+    actiontext (8.0.5)
+      actionpack (= 8.0.5)
+      activerecord (= 8.0.5)
+      activestorage (= 8.0.5)
+      activesupport (= 8.0.5)
+      globalid (>= 0.6.0)
+      nokogiri (>= 1.8.5)
+    actionview (8.0.5)
+      activesupport (= 8.0.5)
+      builder (~> 3.1)
+      erubi (~> 1.11)
+      rails-dom-testing (~> 2.2)
+      rails-html-sanitizer (~> 1.6)
+    activejob (8.0.5)
+      activesupport (= 8.0.5)
+      globalid (>= 0.3.6)
+    activemodel (8.0.5)
+      activesupport (= 8.0.5)
+    activerecord (8.0.5)
+      activemodel (= 8.0.5)
+      activesupport (= 8.0.5)
+      timeout (>= 0.4.0)
+    activerecord-import (2.2.0)
+      activerecord (>= 4.2)
+    activerecord-session_store (2.2.0)
+      actionpack (>= 7.0)
+      activerecord (>= 7.0)
+      cgi (>= 0.3.6)
+      rack (>= 2.0.8, < 4)
+      railties (>= 7.0)
+    activestorage (8.0.5)
+      actionpack (= 8.0.5)
+      activejob (= 8.0.5)
+      activerecord (= 8.0.5)
+      activesupport (= 8.0.5)
+      marcel (~> 1.0)
+    activesupport (8.0.5)
+      base64
+      benchmark (>= 0.3)
+      bigdecimal
+      concurrent-ruby (~> 1.0, >= 1.3.1)
+      connection_pool (>= 2.2.5)
+      drb
+      i18n (>= 1.6, < 2)
+      logger (>= 1.4.2)
+      minitest (>= 5.1)
+      securerandom (>= 0.3)
+      tzinfo (~> 2.0, >= 2.0.5)
+      uri (>= 0.13.1)
+    acts_as_list (1.2.6)
+      activerecord (>= 6.1)
+      activesupport (>= 6.1)
+    addressable (2.9.0)
+      public_suffix (>= 2.0.2, < 8.0)
+    aes_key_wrap (1.1.0)
+    android_key_attestation (0.3.0)
+    anonymous_loader (0.1.2)
+      version_gem (~> 1.1, >= 1.1.13)
+    argon2 (2.3.3)
+      ffi (~> 1.15)
+      ffi-compiler (~> 1.0)
+    ast (2.4.3)
+    attr_required (1.0.2)
+    auth-sanitizer (0.2.2)
+      version_gem (~> 1.1, >= 1.1.10)
+    autoprefixer-rails (10.4.21.0)
+      execjs (~> 2)
+    aws-eventstream (1.4.0)
+    aws-partitions (1.1268.0)
+    aws-sdk-core (3.254.0)
+      aws-eventstream (~> 1, >= 1.3.0)
+      aws-partitions (~> 1, >= 1.992.0)
+      aws-sigv4 (~> 1.9)
+      base64
+      bigdecimal
+      jmespath (~> 1, >= 1.6.1)
+      logger
+    aws-sdk-kms (1.130.0)
+      aws-sdk-core (~> 3, >= 3.254.0)
+      aws-sigv4 (~> 1.5)
+    aws-sdk-s3 (1.227.0)
+      aws-sdk-core (~> 3, >= 3.254.0)
+      aws-sdk-kms (~> 1)
+      aws-sigv4 (~> 1.5)
+    aws-sigv4 (1.12.1)
+      aws-eventstream (~> 1, >= 1.0.2)
+    bake (0.25.0)
+      bigdecimal
+      samovar (~> 2.1)
+    base64 (0.3.0)
+    benchmark (0.5.0)
+    bigdecimal (4.1.2)
+    bindata (2.5.1)
+    binding_of_caller (2.0.0)
+      debug_inspector (>= 1.2.0)
+    biz (1.8.2)
+      clavius (~> 1.0)
+      tzinfo
+    bootsnap (1.24.6)
+      msgpack (~> 1.2)
+    brakeman (8.0.5)
+      racc
+    browser (6.2.0)
+    builder (3.3.0)
+    byk (1.1.0)
+    camertron-eprun (1.1.1)
+    capybara (3.40.0)
+      addressable
+      matrix
+      mini_mime (>= 0.1.3)
+      nokogiri (~> 1.11)
+      rack (>= 1.6.0)
+      rack-test (>= 0.6.3)
+      regexp_parser (>= 1.5, < 3.0)
+      xpath (~> 3.2)
+    cbor (0.5.10.3)
+    cgi (0.5.2)
+    childprocess (5.1.0)
+      logger (~> 1.5)
+    chunky_png (1.4.0)
+    clavius (1.0.4)
+    cld (0.13.0)
+      ffi
+    cldr-plurals-runtime-rb (1.1.0)
+    clearbit (0.3.3)
+      nestful (~> 1.1.0)
+    coderay (1.1.3)
+    coffee-rails (5.0.0)
+      coffee-script (>= 2.2.0)
+      railties (>= 5.2.0)
+    coffee-script (2.4.1)
+      coffee-script-source
+      execjs
+    coffee-script-source (1.12.2)
+    concurrent-ruby (1.3.7)
+    connection_pool (3.0.2)
+    console (1.37.0)
+      fiber-annotation
+      fiber-local (~> 1.1)
+      json
+    cose (1.3.1)
+      cbor (~> 0.5.9)
+      openssl-signature_algorithm (~> 1.0)
+    crack (1.0.1)
+      bigdecimal
+      rexml
+    crass (1.0.7)
+    csv (3.3.5)
+    daemons (1.4.1)
+    dalli (5.0.5)
+      logger
+    dartsass-rails (0.5.1)
+      railties (>= 6.0.0)
+      sass-embedded (~> 1.63)
+    date (3.5.1)
+    debug_inspector (1.2.0)
+    deprecation_toolkit (2.4.0)
+      activesupport (>= 7.0)
+    diff-lcs (1.6.2)
+    diffy (3.4.4)
+    doorkeeper (5.9.3)
+      railties (>= 5)
+    drb (2.2.3)
+    dry-cli (1.4.1)
+    dry-core (1.2.0)
+      concurrent-ruby (~> 1.0)
+      logger
+      zeitwerk (~> 2.6)
+    dry-inflector (1.3.1)
+    dry-logic (1.6.0)
+      bigdecimal
+      concurrent-ruby (~> 1.0)
+      dry-core (~> 1.1)
+      zeitwerk (~> 2.6)
+    dry-struct (1.8.1)
+      dry-core (~> 1.1)
+      dry-types (~> 1.8, >= 1.8.2)
+      ice_nine (~> 0.11)
+      zeitwerk (~> 2.6)
+    dry-types (1.9.1)
+      bigdecimal (>= 3.0)
+      concurrent-ruby (~> 1.0)
+      dry-core (~> 1.0)
+      dry-inflector (~> 1.0)
+      dry-logic (~> 1.4)
+      zeitwerk (~> 2.6)
+    eco (1.0.0)
+      coffee-script
+      eco-source
+      execjs
+    eco-source (1.1.0.rc.1)
+    elastic-transport (8.5.3)
+      faraday (< 3)
+      multi_json
+    elasticsearch (8.11.2)
+      elastic-transport (~> 8.3)
+      elasticsearch-api (= 8.11.2)
+    elasticsearch-api (8.11.2)
+      multi_json
+    em-websocket (0.5.3)
+      eventmachine (>= 0.12.9)
+      http_parser.rb (~> 0)
+    email_address (0.2.9)
+      base64
+      simpleidn
+    erb (6.0.4)
+    erubi (1.13.1)
+    eventmachine (1.2.7)
+    execjs (2.10.1)
+    factory_bot (6.6.0)
+      activesupport (>= 6.1.0)
+    factory_bot_rails (6.5.1)
+      factory_bot (~> 6.5)
+      railties (>= 6.1.0)
+    faker (3.8.0)
+      i18n (>= 1.8.11, < 2)
+    faraday (2.14.3)
+      faraday-net_http (>= 2.0, < 3.5)
+      json
+      logger
+    faraday-follow_redirects (0.5.0)
+      faraday (>= 1, < 3)
+    faraday-mashify (1.0.2)
+      faraday (~> 2.0)
+      hashie
+    faraday-multipart (1.2.0)
+      multipart-post (~> 2.0)
+    faraday-net_http (3.4.4)
+      net-http (~> 0.5)
+    ffi (1.17.4)
+    ffi-compiler (1.4.2)
+      ffi (>= 1.15.5)
+      rake
+    fiber-annotation (0.2.0)
+    fiber-local (1.1.0)
+      fiber-storage
+    fiber-storage (1.0.1)
+    gli (2.22.2)
+      ostruct
+    globalid (1.4.0)
+      activesupport (>= 6.1)
+    google-protobuf (4.35.1)
+      bigdecimal
+      rake (~> 13.3)
+    graphql (2.6.5)
+      base64
+      fiber-storage
+      logger
+    graphql-batch (0.6.1)
+      graphql (>= 1.13, < 3)
+      promise.rb (~> 0.7.2)
+    graphql-fragment_cache (1.22.2)
+      graphql (>= 2.1.4)
+    hashdiff (1.2.1)
+    hashie (5.1.0)
+      logger
+    hiredis-client (0.30.0)
+      redis-client (= 0.30.0)
+    htmlentities (4.4.2)
+    http_parser.rb (0.8.1)
+    httparty (0.24.2)
+      csv
+      mini_mime (>= 1.0.0)
+      multi_xml (>= 0.5.2)
+    httpclient (2.9.0)
+      mutex_m
+    i18n (1.15.2)
+      concurrent-ruby (~> 1.0)
+    icalendar (2.12.3)
+      base64
+      ice_cube (~> 0.16)
+      logger
+      ostruct
+    icalendar-recurrence (1.2.1)
+      icalendar (~> 2.0)
+      ice_cube (~> 0.16)
+      tzinfo (~> 2.0)
+    ice_cube (0.17.0)
+    ice_nine (0.11.2)
+    inflection (1.0.0)
+    iniparse (1.5.0)
+    interception (0.5)
+    io-console (0.8.2)
+    irb (1.18.0)
+      pp (>= 0.6.0)
+      prism (>= 1.3.0)
+      rdoc (>= 4.0.0)
+      reline (>= 0.4.2)
+    jmespath (1.6.2)
+    json (2.20.0)
+    json-jwt (1.17.1)
+      activesupport (>= 4.2)
+      aes_key_wrap
+      base64
+      bindata
+      faraday (~> 2.0)
+      faraday-follow_redirects
+    jwt (3.2.0)
+      base64
+    koala (3.7.0)
+      addressable
+      base64
+      cgi
+      faraday
+      faraday-multipart
+      json (>= 1.8)
+      ostruct
+      rexml
+    language_server-protocol (3.17.0.6)
+    lint_roller (1.1.0)
+    listen (3.10.0)
+      logger
+      rb-fsevent (~> 0.10, >= 0.10.3)
+      rb-inotify (~> 0.9, >= 0.9.10)
+    little-plugger (1.1.4)
+    localhost (1.8.0)
+      bake
+    logger (1.7.0)
+    logging (2.4.0)
+      little-plugger (~> 1.1)
+      multi_json (~> 1.14)
+    loofah (2.25.1)
+      crass (~> 1.0.2)
+      nokogiri (>= 1.12.0)
+    macaddr (1.7.2)
+      systemu (~> 2.6.5)
+    mail (2.9.1)
+      logger
+      mini_mime (>= 0.1.1)
+      net-imap
+      net-pop
+      net-smtp
+    marcel (1.2.1)
+    matrix (0.4.3)
+    messagebird-rest (5.0.0)
+      jwt (< 4)
+    method_source (1.1.0)
+    mime-types (3.7.0)
+      logger
+      mime-types-data (~> 3.2025, >= 3.2025.0507)
+    mime-types-data (3.2026.0701)
+    mini_mime (1.1.5)
+    mini_portile2 (2.8.9)
+    minitest (6.0.6)
+      drb (~> 2.0)
+      prism (~> 1.5)
+    msgpack (1.8.3)
+    multi_json (1.21.1)
+    multi_xml (0.9.1)
+      bigdecimal (>= 3.1, < 5)
+    multipart-post (2.4.1)
+    mutex_m (0.3.0)
+    nestful (1.1.4)
+    net-http (0.9.1)
+      uri (>= 0.11.1)
+    net-imap (0.6.4.1)
+      date
+      net-protocol
+    net-ldap (0.20.0)
+      base64
+      ostruct
+    net-pop (0.1.2)
+      net-protocol
+    net-protocol (0.2.2)
+      timeout
+    net-smtp (0.5.1)
+      net-protocol
+    nio4r (2.7.5)
+    nkf (0.3.0)
+    nokogiri (1.19.4)
+      mini_portile2 (~> 2.8.2)
+      racc (~> 1.4)
+    nori (2.9.1)
+      bigdecimal
+      stringio
+    oauth (1.1.7)
+      auth-sanitizer (~> 0.2, >= 0.2.1)
+      base64 (~> 0.1)
+      oauth-tty (~> 1.0, >= 1.0.10)
+      snaky_hash (~> 2.0, >= 2.0.5)
+      version_gem (~> 1.1, >= 1.1.12)
+    oauth-tty (1.0.12)
+      anonymous_loader (~> 0.1, >= 0.1.1)
+      auth-sanitizer (~> 0.2, >= 0.2.2)
+      version_gem (~> 1.1, >= 1.1.12)
+    oauth2 (2.0.24)
+      anonymous_loader (~> 0.1, >= 0.1.1)
+      auth-sanitizer (~> 0.2, >= 0.2.2)
+      faraday (>= 0.17.3, < 4.0)
+      jwt (>= 1.0, < 4.0)
+      logger (~> 1.2)
+      multi_xml (~> 0.5)
+      rack (>= 1.2, < 4)
+      snaky_hash (~> 2.0, >= 2.0.6)
+      version_gem (~> 1.1, >= 1.1.12)
+    omniauth (2.1.4)
+      hashie (>= 3.4.6)
+      logger
+      rack (>= 2.2.3)
+      rack-protection
+    omniauth-facebook (10.0.0)
+      bigdecimal
+      omniauth-oauth2 (>= 1.2, < 3)
+    omniauth-github (2.0.1)
+      omniauth (~> 2.0)
+      omniauth-oauth2 (~> 1.8)
+    omniauth-gitlab (4.1.0)
+      omniauth (~> 2.0)
+      omniauth-oauth2 (~> 1.8.0)
+    omniauth-google-oauth2 (1.2.2)
+      jwt (>= 2.9.2)
+      oauth2 (~> 2.0)
+      omniauth (~> 2.0)
+      omniauth-oauth2 (~> 1.8)
+    omniauth-linkedin-oauth2 (1.0.1)
+      omniauth-oauth2
+    omniauth-microsoft-office365 (0.0.8)
+      omniauth
+      omniauth-oauth2
+    omniauth-oauth (1.2.1)
+      oauth
+      omniauth (>= 1.0, < 3)
+      rack (>= 1.6.2, < 4)
+    omniauth-oauth2 (1.8.0)
+      oauth2 (>= 1.4, < 3)
+      omniauth (~> 2.0)
+    omniauth-rails_csrf_protection (2.0.1)
+      actionpack (>= 4.2)
+      omniauth (~> 2.0)
+    omniauth-saml (2.2.5)
+      omniauth (~> 2.1)
+      ruby-saml (~> 1.18)
+    omniauth-twitter (1.5.0)
+      cgi
+      omniauth-oauth (~> 1.2)
+      rack
+    omniauth-weibo-oauth2 (0.5.3)
+      omniauth
+      omniauth-oauth2
+    omniauth_openid_connect (0.8.0)
+      omniauth (>= 1.9, < 3)
+      openid_connect (~> 2.2)
+    openid_connect (2.5.0)
+      activemodel
+      attr_required (>= 1.0.0)
+      faraday (~> 2.0)
+      faraday-follow_redirects
+      json-jwt (>= 1.16)
+      mail
+      rack-oauth2 (~> 2.2)
+      swd (~> 2.0)
+      tzinfo
+      validate_url
+      webfinger (~> 2.0)
+    openssl (4.0.2)
+    openssl-signature_algorithm (1.3.0)
+      openssl (> 2.0)
+    ostruct (0.6.3)
+    overcommit (0.71.0)
+      childprocess (>= 0.6.3, < 6)
+      iniparse (~> 1.4)
+      rexml (>= 3.3.9)
+    parallel (2.1.0)
+    parser (3.3.11.1)
+      ast (~> 2.4.1)
+      racc
+    pg (1.6.3)
+    power_assert (3.0.1)
+    pp (0.6.4)
+      prettyprint
+    prettyprint (0.2.0)
+    prism (1.9.0)
+    promise.rb (0.7.4)
+    pry (0.16.0)
+      coderay (~> 1.1)
+      method_source (~> 1.0)
+      reline (>= 0.6.0)
+    pry-doc (1.7.0)
+      pry (~> 0.11)
+      yard (~> 0.9.21)
+    pry-rails (0.3.11)
+      pry (>= 0.13.0)
+    pry-remote (0.1.8)
+      pry (~> 0.9)
+      slop (~> 3.0)
+    pry-rescue (1.6.0)
+      interception (>= 0.5)
+      pry (>= 0.12.0)
+    pry-stack_explorer (0.6.3)
+      binding_of_caller (>= 1.0)
+      pry (~> 0.13)
+    pry-theme (1.3.1)
+      coderay (~> 1.1)
+    public_suffix (7.0.5)
+    puma (8.0.2)
+      nio4r (~> 2.0)
+    pundit (2.5.2)
+      activesupport (>= 3.0.0)
+    pundit-matchers (4.0.0)
+      rspec-core (~> 3.12)
+      rspec-expectations (~> 3.12)
+      rspec-mocks (~> 3.12)
+      rspec-support (~> 3.12)
+    racc (1.8.1)
+    rack (3.2.6)
+    rack-attack (6.8.0)
+      rack (>= 1.0, < 4)
+    rack-oauth2 (2.3.0)
+      activesupport
+      attr_required
+      faraday (~> 2.0)
+      faraday-follow_redirects
+      json-jwt (>= 1.11.0)
+      rack (>= 2.1.0)
+    rack-protection (4.2.1)
+      base64 (>= 0.1.0)
+      logger (>= 1.6.0)
+      rack (>= 3.0.0, < 4)
+    rack-proxy (0.8.3)
+      rack
+    rack-session (2.1.2)
+      base64 (>= 0.1.0)
+      rack (>= 3.0.0)
+    rack-test (2.2.0)
+      rack (>= 1.3)
+    rackup (2.3.1)
+      rack (>= 3)
+    rails (8.0.5)
+      actioncable (= 8.0.5)
+      actionmailbox (= 8.0.5)
+      actionmailer (= 8.0.5)
+      actionpack (= 8.0.5)
+      actiontext (= 8.0.5)
+      actionview (= 8.0.5)
+      activejob (= 8.0.5)
+      activemodel (= 8.0.5)
+      activerecord (= 8.0.5)
+      activestorage (= 8.0.5)
+      activesupport (= 8.0.5)
+      bundler (>= 1.15.0)
+      railties (= 8.0.5)
+    rails-controller-testing (1.0.5)
+      actionpack (>= 5.0.1.rc1)
+      actionview (>= 5.0.1.rc1)
+      activesupport (>= 5.0.1.rc1)
+    rails-dom-testing (2.3.0)
+      activesupport (>= 5.0.0)
+      minitest
+      nokogiri (>= 1.6)
+    rails-html-sanitizer (1.7.0)
+      loofah (~> 2.25)
+      nokogiri (>= 1.15.7, != 1.16.7, != 1.16.6, != 1.16.5, != 1.16.4, != 1.16.3, != 1.16.2, != 1.16.1, != 1.16.0.rc1, != 1.16.0)
+    railties (8.0.5)
+      actionpack (= 8.0.5)
+      activesupport (= 8.0.5)
+      irb (~> 1.13)
+      rackup (>= 1.0.0)
+      rake (>= 12.2)
+      thor (~> 1.0, >= 1.2.2)
+      tsort (>= 0.2)
+      zeitwerk (~> 2.6)
+    rainbow (3.1.1)
+    rake (13.4.2)
+    rb-fsevent (0.11.2)
+    rb-inotify (0.11.1)
+      ffi (~> 1.0)
+    rbs (4.0.3)
+      logger
+      prism (>= 1.6.0)
+      tsort
+    rchardet (1.10.2)
+    rdoc (8.0.0)
+      erb
+      prism (>= 1.6.0)
+      rbs (>= 4.0.0)
+      tsort
+    redis (5.4.1)
+      redis-client (>= 0.22.0)
+    redis-client (0.30.0)
+      connection_pool
+    regexp_parser (2.12.0)
+    reline (0.6.3)
+      io-console (~> 0.5)
+    rexml (3.4.4)
+    rotp (6.3.0)
+    rspec-core (3.13.6)
+      rspec-support (~> 3.13.0)
+    rspec-expectations (3.13.5)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.13.0)
+    rspec-mocks (3.13.8)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.13.0)
+    rspec-rails (8.0.4)
+      actionpack (>= 7.2)
+      activesupport (>= 7.2)
+      railties (>= 7.2)
+      rspec-core (>= 3.13.0, < 5.0.0)
+      rspec-expectations (>= 3.13.0, < 5.0.0)
+      rspec-mocks (>= 3.13.0, < 5.0.0)
+      rspec-support (>= 3.13.0, < 5.0.0)
+    rspec-retry (0.6.2)
+      rspec-core (> 3.3)
+    rspec-support (3.13.7)
+    rszr (1.5.0)
+    rubocop (1.88.2)
+      json (~> 2.3)
+      language_server-protocol (~> 3.17.0.2)
+      lint_roller (~> 1.1.0)
+      parallel (>= 1.10)
+      parser (>= 3.3.0.2)
+      rainbow (>= 2.2.2, < 4.0)
+      regexp_parser (>= 2.9.3, < 3.0)
+      rubocop-ast (>= 1.49.0, < 2.0)
+      ruby-progressbar (~> 1.7)
+      unicode-display_width (>= 2.4.0, < 4.0)
+    rubocop-ast (1.50.0)
+      parser (>= 3.3.7.2)
+      prism (~> 1.7)
+    rubocop-capybara (3.0.0)
+      lint_roller (~> 1.1)
+      rubocop (~> 1.81)
+    rubocop-factory_bot (2.28.0)
+      lint_roller (~> 1.1)
+      rubocop (~> 1.72, >= 1.72.1)
+    rubocop-faker (1.3.0)
+      faker (>= 2.12.0)
+      lint_roller (~> 1.1)
+      rubocop (>= 1.72.1)
+    rubocop-graphql (1.6.0)
+      lint_roller (~> 1.1)
+      rubocop (>= 1.72.1, < 2)
+    rubocop-inflector (1.0.0)
+      activesupport
+      rubocop
+      rubocop-rspec
+    rubocop-performance (1.26.1)
+      lint_roller (~> 1.1)
+      rubocop (>= 1.75.0, < 2.0)
+      rubocop-ast (>= 1.47.1, < 2.0)
+    rubocop-rails (2.35.5)
+      activesupport (>= 4.2.0)
+      lint_roller (~> 1.1)
+      rack (>= 1.1)
+      rubocop (>= 1.75.0, < 2.0)
+      rubocop-ast (>= 1.44.0, < 2.0)
+    rubocop-rake (0.7.1)
+      lint_roller (~> 1.1)
+      rubocop (>= 1.72.1)
+    rubocop-rspec (3.10.2)
+      lint_roller (~> 1.1)
+      regexp_parser (>= 2.0)
+      rubocop (~> 1.86, >= 1.86.2)
+    rubocop-rspec_rails (2.32.0)
+      lint_roller (~> 1.1)
+      rubocop (~> 1.72, >= 1.72.1)
+      rubocop-rspec (~> 3.5)
+    ruby-keycloak-admin (26.5.2)
+      hashie (>= 5.0.0)
+      httparty (>= 0.21, < 0.25)
+    ruby-progressbar (1.13.0)
+    ruby-saml (1.18.1)
+      nokogiri (>= 1.13.10)
+      rexml
+    rubyntlm (0.6.5)
+      base64
+    rubyzip (3.4.1)
+    safety_net_attestation (0.5.0)
+      jwt (>= 2.0, < 4.0)
+    samovar (2.5.1)
+      console (~> 1.0)
+    sass-embedded (1.101.0)
+      google-protobuf (~> 4.31)
+      rake (>= 13)
+    securerandom (0.4.1)
+    selenium-webdriver (4.46.0)
+      base64 (~> 0.2)
+      logger (~> 1.4)
+      rexml (~> 3.2, >= 3.2.5)
+      rubyzip (>= 1.2.2, < 4.0)
+      websocket (~> 1.0)
+    shoulda-matchers (8.0.1)
+      activesupport (>= 7.2)
+    simple_po_parser (1.1.6)
+    simpleidn (0.2.3)
+    slack-ruby-client (3.2.0)
+      faraday (>= 2.0.1)
+      faraday-mashify
+      faraday-multipart
+      gli
+      hashie
+      logger
+    slop (3.6.0)
+    snaky_hash (2.0.6)
+      hashie (>= 0.1.0, < 6)
+      version_gem (>= 1.1.8, < 3)
+    sprockets (4.2.2)
+      concurrent-ruby (~> 1.0)
+      logger
+      rack (>= 2.2.4, < 4)
+    sprockets-rails (3.5.2)
+      actionpack (>= 6.1)
+      activesupport (>= 6.1)
+      sprockets (>= 3.0.0)
+    stringio (3.2.0)
+    swd (2.0.3)
+      activesupport (>= 3)
+      attr_required (>= 0.0.5)
+      faraday (~> 2.0)
+      faraday-follow_redirects
+    syslog (0.4.0)
+      logger
+    systemu (2.6.5)
+    tcr (0.4.1)
+    telegram-bot-ruby (2.7.0)
+      dry-struct (~> 1.6)
+      faraday (~> 2.0)
+      faraday-multipart (~> 1.0)
+      zeitwerk (~> 2.6)
+    telephone_number (1.4.25)
+    terser (1.2.8)
+      execjs (>= 0.3.0, < 3)
+    test-unit (3.7.8)
+      power_assert
+    thor (1.5.0)
+    timeout (0.6.1)
+    tpm-key_attestation (0.14.1)
+      bindata (~> 2.4)
+      openssl (> 2.0)
+      openssl-signature_algorithm (~> 1.0)
+    tsort (0.2.0)
+    twilio-ruby (7.10.7)
+      faraday (>= 2.0, < 3.0)
+      jwt (>= 1.5, < 4.0)
+      nokogiri (>= 1.6, < 2.0)
+    twitter_cldr (6.14.0)
+      base64
+      camertron-eprun
+      cldr-plurals-runtime-rb (~> 1.1)
+      tzinfo
+    tzinfo (2.0.6)
+      concurrent-ruby (~> 1.0)
+    tzinfo-data (1.2026.3)
+      tzinfo (>= 1.0.0)
+    unicode-display_width (3.2.0)
+      unicode-emoji (~> 4.1)
+    unicode-emoji (4.2.0)
+    uri (1.1.1)
+    useragent (0.16.11)
+    validate_url (1.0.15)
+      activemodel (>= 3.0.0)
+      public_suffix
+    vcr (6.4.0)
+    version_gem (1.1.13)
+    viewpoint (1.2.0)
+      httpclient
+      logging
+      mutex_m
+      nokogiri (!= 1.12.3, != 1.12.2, != 1.12.1, != 1.12.0)
+      rubyntlm
+      syslog
+    vite_rails (3.11.1)
+      railties (>= 5.1, < 9)
+      vite_ruby (~> 3.0, >= 3.2.2)
+    vite_ruby (3.10.2)
+      dry-cli (>= 0.7, < 2)
+      logger (~> 1.6)
+      mutex_m
+      rack-proxy (~> 0.6, >= 0.6.1)
+      zeitwerk (~> 2.2)
+    webauthn (3.4.3)
+      android_key_attestation (~> 0.3.0)
+      bindata (~> 2.4)
+      cbor (~> 0.5.9)
+      cose (~> 1.1)
+      openssl (>= 2.2)
+      safety_net_attestation (~> 0.5.0)
+      tpm-key_attestation (~> 0.14.0)
+    webfinger (2.1.3)
+      activesupport
+      faraday (~> 2.0)
+      faraday-follow_redirects
+    webmock (3.26.2)
+      addressable (>= 2.8.0)
+      crack (>= 0.3.2)
+      hashdiff (>= 0.4.0, < 2.0.0)
+    websocket (1.2.11)
+    websocket-driver (0.8.2)
+      base64
+      websocket-extensions (>= 0.1.0)
+    websocket-extensions (0.1.5)
+    whatsapp_sdk (1.1.0)
+      faraday (~> 2.0, > 2.0.1)
+      faraday-multipart (~> 1)
+      zeitwerk (~> 2)
+    write_xlsx (1.15.0)
+      nkf
+      rubyzip (>= 2.4.0, < 4.0)
+    xpath (3.2.0)
+      nokogiri (~> 1.8)
+    yard (0.9.44)
+    zeitwerk (2.8.2)
+    zendesk_api (3.1.1)
+      faraday (> 2.0.0)
+      faraday-multipart
+      hashie (>= 3.5.2, < 6.0.0)
+      inflection
+      mini_mime
+      multipart-post (~> 2.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  PoParser
+  aasm
+  activerecord-import
+  activerecord-session_store
+  acts_as_list
+  argon2
+  autodiscover!
+  autoprefixer-rails
+  aws-sdk-s3
+  biz
+  bootsnap
+  brakeman
+  browser
+  byk
+  capybara
+  chunky_png
+  cld
+  clearbit
+  coffee-rails
+  csv
+  daemons
+  dalli
+  dartsass-rails
+  delayed_job!
+  delayed_job_active_record!
+  deprecation_toolkit
+  diffy
+  doorkeeper
+  eco
+  elasticsearch (= 8.11.2)
+  em-websocket
+  email_address
+  eventmachine
+  execjs
+  factory_bot_rails
+  faker
+  graphql
+  graphql-batch
+  graphql-fragment_cache
+  hiredis-client
+  htmlentities
+  icalendar
+  icalendar-recurrence
+  json
+  koala
+  listen
+  localhost
+  macaddr
+  mail
+  messagebird-rest
+  mime-types
+  minitest
+  net-http
+  net-imap
+  net-ldap
+  net-pop
+  net-smtp
+  oauth2
+  omniauth-facebook
+  omniauth-github
+  omniauth-gitlab
+  omniauth-google-oauth2
+  omniauth-linkedin-oauth2
+  omniauth-microsoft-office365
+  omniauth-rails_csrf_protection
+  omniauth-saml
+  omniauth-twitter
+  omniauth-weibo-oauth2
+  omniauth_openid_connect
+  openssl
+  overcommit
+  parallel
+  pg (~> 1.5, >= 1.5.4)
+  pry-doc
+  pry-rails
+  pry-remote
+  pry-rescue
+  pry-stack_explorer
+  pry-theme
+  puma
+  pundit
+  pundit-matchers
+  rack-attack
+  rails (~> 8.0.0)
+  rails-controller-testing
+  rake
+  rchardet (>= 1.8.0)
+  redis
+  rotp
+  rspec-rails
+  rspec-retry
+  rszr
+  rubocop
+  rubocop-capybara
+  rubocop-factory_bot
+  rubocop-faker
+  rubocop-graphql
+  rubocop-inflector
+  rubocop-performance
+  rubocop-rails
+  rubocop-rake
+  rubocop-rspec
+  rubocop-rspec_rails
+  ruby-keycloak-admin
+  selenium-webdriver
+  shoulda-matchers
+  simpleidn
+  slack-ruby-client
+  sprockets (~> 4)
+  sprockets-rails
+  tcr
+  telegram-bot-ruby
+  telephone_number
+  terser
+  test-unit
+  thor
+  twilio-ruby
+  twitter_cldr
+  tzinfo-data
+  vcr
+  viewpoint
+  vite_rails
+  webauthn
+  webmock
+  whatsapp_sdk
+  write_xlsx
+  zendesk_api
+
+RUBY VERSION
+   ruby 3.4.9p82
+
+BUNDLED WITH
+   2.6.9

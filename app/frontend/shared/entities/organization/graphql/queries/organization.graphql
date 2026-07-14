@@ -1,0 +1,15 @@
+query organization($organizationId: ID!, $first: Int, $after: String) {
+  organization(organizationId: $organizationId) {
+    ...organizationAttributes
+    ...organizationMembersWithFetchMore
+    policy {
+      update
+    }
+    ticketsCount {
+      open
+      closed
+      openSearchQuery
+      closedSearchQuery
+    }
+  }
+}

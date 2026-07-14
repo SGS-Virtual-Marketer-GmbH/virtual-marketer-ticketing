@@ -1,0 +1,99 @@
+import * as Types from '#shared/graphql/types.ts';
+
+import gql from 'graphql-tag';
+import * as VueApolloComposable from '@vue/apollo-composable';
+import * as VueCompositionApi from 'vue';
+export type ReactiveFunction<TParam> = () => TParam;
+
+export const OnlineNotificationsDocument = gql`
+    query onlineNotifications {
+  onlineNotifications {
+    edges {
+      node {
+        id
+        seen
+        createdAt
+        createdBy {
+          id
+          fullname
+          lastname
+          firstname
+          email
+          vip
+          outOfOffice
+          outOfOfficeStartAt
+          outOfOfficeEndAt
+          active
+          image
+        }
+        typeName
+        objectName
+        meta {
+          createdByAi
+        }
+        metaObject {
+          __typename
+          ... on Ticket {
+            id
+            internalId
+            title
+          }
+          ... on TicketArticle {
+            id
+            internalId
+            ticket {
+              id
+              internalId
+              title
+            }
+            to {
+              raw
+            }
+            bodyWithUrls
+            preferences
+          }
+          ... on OnlineNotificationStandalone {
+            id
+            internalId
+            data {
+              __typename
+              ... on OnlineNotificationStandaloneBulkJobData {
+                total
+                failedCount
+              }
+              ... on OnlineNotificationStandaloneKbAnswerGenerationFailedData {
+                errorMessage
+                ticketTitle
+              }
+            }
+          }
+          ... on KnowledgeBaseAnswerTranslation {
+            id
+            title
+            kbLocale {
+              systemLocale {
+                locale
+              }
+            }
+            answer {
+              id
+            }
+          }
+        }
+      }
+      cursor
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+  }
+}
+    `;
+export function useOnlineNotificationsQuery(options: VueApolloComposable.UseQueryOptions<Types.OnlineNotificationsQuery, Types.OnlineNotificationsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<Types.OnlineNotificationsQuery, Types.OnlineNotificationsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<Types.OnlineNotificationsQuery, Types.OnlineNotificationsQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<Types.OnlineNotificationsQuery, Types.OnlineNotificationsQueryVariables>(OnlineNotificationsDocument, {}, options);
+}
+export function useOnlineNotificationsLazyQuery(options: VueApolloComposable.UseQueryOptions<Types.OnlineNotificationsQuery, Types.OnlineNotificationsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<Types.OnlineNotificationsQuery, Types.OnlineNotificationsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<Types.OnlineNotificationsQuery, Types.OnlineNotificationsQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<Types.OnlineNotificationsQuery, Types.OnlineNotificationsQueryVariables>(OnlineNotificationsDocument, {}, options);
+}
+export type OnlineNotificationsQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<Types.OnlineNotificationsQuery, Types.OnlineNotificationsQueryVariables>;

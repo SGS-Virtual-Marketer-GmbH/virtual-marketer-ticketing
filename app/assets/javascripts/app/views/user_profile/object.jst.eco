@@ -1,0 +1,24 @@
+<div class="profile-details horizontal wrap">
+  <% for row in @userData: %>
+    <% if row.tag is 'richtext': %>
+      <div class="profile-detailsEntry" style="width: 100%;">
+        <label><%- @T(row.display) %></label>
+        <div contenteditable="true" data-name="<%= row.name %>" data-type="update" data-placeholder="<%- @Ti('Add a Note') %>"><%- @user[row.name] %></div>
+      </div>
+    <% else if row.name is 'organization_ids': %>
+      <% if @user[row.name] && @user[row.name].length > 0: %>
+        <div class="profile-detailsEntry">
+          <label><%- @T(row.display) %></label>
+          <ul class="js-organizationList">
+            <li class="hidden list-item-none js-showMoreOrganizations"><a href="#"><%- @T('show more') %></a></li>
+          </ul>
+        </div>
+      <% end %>
+    <% else: %>
+      <div class="profile-detailsEntry">
+        <label><%- @T(row.display) %></label>
+        <%- @P(@user, row.name) %>
+      </div>
+    <% end %>
+  <% end %>
+</div>

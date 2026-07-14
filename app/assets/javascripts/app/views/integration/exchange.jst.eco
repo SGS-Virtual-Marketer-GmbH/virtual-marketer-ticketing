@@ -1,0 +1,103 @@
+<div class="js-lastImport"></div>
+
+<div class="js-authenticationSwitch clearfix">
+  <h2><%- @T('Authentication') %></h2>
+  <p><%- @T('Please select the authentication method that should be used to establish the connection to your Exchange server.') %></p>
+
+    <div class="settings-entry" style="margin-bottom: 0;">
+      <div class="input form-group">
+        <div class="controls controls--select">
+          <select name="authentication_method" class="form-control js-authentication-method">
+            <option value="basic"><%- @T('Basic Authentication') %></option>
+            <option value="oauth"><%- @T('OAuth') %></option>
+          </select>
+          <%- @Icon('arrow-down') %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="js-oAuthContent hide"></div>
+
+<div class="js-notConfigured">
+  <p><%- @T('No %s configured.', 'Exchange') %></p>
+  <button type="submit" class="btn btn--primary js-wizard"><%- @T('Configure') %></button>
+</div>
+<div class="js-summary hide">
+  <h2><%- @T('Settings') %></h2>
+<% if @config.disable_ssl_verify: %>
+  <div class="alert alert--warning" role="alert">
+    <%- @T('Turning off SSL verification is a security risk and should be used only temporary. Use this option at your own risk!') %>
+  </div>
+<% end %>
+  <table class="settings-list" style="width: 100%;">
+    <thead>
+      <tr>
+        <th width="30%"><%- @T('Name') %>
+        <th width="70%"><%- @T('Value') %>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="settings-list-row-control"><%- @T('Endpoint') %>
+        <td class="settings-list-row-control"><%= @config.endpoint %>
+    <% if @config.auth_type != 'oauth': %>
+      <tr>
+        <td class="settings-list-row-control"><%- @T('User') %>
+        <td class="settings-list-row-control"><%= @config.user %>
+      <tr>
+        <td class="settings-list-row-control"><%- @T('Password') %>
+        <td class="settings-list-row-control"><%= @M(@config.password) %>
+    <% end %>
+    <% if @config.disable_ssl_verify: %>
+      <tr>
+        <td class="settings-list-row-control"><%- @T('SSL verification') %>
+        <td class="settings-list-row-control"><%- @T('no') %>
+    <% end %>
+    </tbody>
+  </table>
+
+  <h2><%- @T('Mapping') %></h2>
+
+  <h3><%- @T('Folders') %></h3>
+  <% if _.isEmpty(@folders): %>
+    <table class="settings-list settings-list--stretch settings-list--placeholder">
+      <thead><tr><th><%- @T('No Entries') %>
+    </table>
+  <% else: %>
+    <table class="settings-list" style="width: 100%;">
+      <thead>
+        <tr>
+          <th><%- @T('Folder') %>
+        <% for folder_name in @folders: %>
+          <tr>
+            <td class="settings-list-row-control"><%= folder_name %>
+        <% end %>
+      </thead>
+      <tbody>
+    </table>
+  <% end %>
+
+  <h3><%- @T('User') %></h3>
+  <% if _.isEmpty(@config.attributes): %>
+    <table class="settings-list settings-list--stretch settings-list--placeholder">
+      <thead><tr><th><%- @T('No Entries') %>
+    </table>
+  <% else: %>
+    <table class="settings-list" style="width: 100%;">
+      <thead>
+        <tr>
+          <th width="40%"><%- @T('Exchange') %>
+          <th width="60%"><%- @T('Zammad') %>
+        <% for key, value of @config.attributes: %>
+          <tr>
+            <td class="settings-list-row-control"><%= key %>
+            <td class="settings-list-row-control"><%= value %>
+        <% end %>
+      </thead>
+      <tbody>
+    </table>
+  <% end %>
+
+  <button type="submit" class="btn btn--primary js-wizard"><%- @T('Change') %></button>
+</div>

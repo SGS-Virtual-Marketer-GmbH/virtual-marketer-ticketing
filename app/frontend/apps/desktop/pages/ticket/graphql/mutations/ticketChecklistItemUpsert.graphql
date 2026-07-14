@@ -1,0 +1,33 @@
+mutation ticketChecklistItemUpsert(
+  $checklistId: ID!
+  $checklistItemId: ID
+  $input: TicketChecklistItemInput!
+) {
+  ticketChecklistItemUpsert(
+    checklistId: $checklistId
+    checklistItemId: $checklistItemId
+    input: $input
+  ) {
+    checklistItem {
+      id
+      text
+      checked
+      ticketReference {
+        ticket {
+          id
+          internalId
+          number
+          title
+          state {
+            id
+            name
+          }
+          stateColorCode
+        }
+      }
+    }
+    errors {
+      ...errors
+    }
+  }
+}

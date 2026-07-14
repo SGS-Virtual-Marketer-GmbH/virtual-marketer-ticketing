@@ -1,0 +1,30 @@
+<div>
+  <label><%- @T('Accounted Time') %></label>
+  <div class="accounted-time-value-container">
+    <div class="accounted-time-value-row">
+      <div class="accounted-time-value-item"><%- @T('Total') %></div>
+      <div class="accounted-time-value-item"><%= @timeUnit(@ticket.time_unit) %></div>
+      <% if @displayUnit: %>
+      <div class="accounted-time-value-item">
+        <span class="text-muted"><%- @T(@displayUnit) %></span>
+      </div>
+      <% end %>
+    </div>
+    <% for entry in @list: %>
+    <div class="accounted-time-value-row">
+      <div class="accounted-time-value-item" title="<%- @T(entry[0]) %>"><%- @T(entry[0]) %></div>
+      <div class="accounted-time-value-item"><%= @timeUnit(entry[1]) %></div>
+      <% if @displayUnit: %>
+      <div class="accounted-time-value-item">
+        <span class="text-muted"><%- @T(@displayUnit) %></span>
+      </div>
+      <% end %>
+    </div>
+    <% end %>
+    <% if @showMore: %>
+    <div>
+      <a href="#" class="js-showMoreEntries"><%- @T('show more') %></a>
+    </div>
+    <% end %>
+  </div>
+</div>

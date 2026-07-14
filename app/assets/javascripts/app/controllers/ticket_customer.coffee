@@ -1,0 +1,57 @@
+class App.TicketCustomer extends App.ControllerModal
+  buttonClose: true
+  buttonCancel: true
+  buttonSubmit: true
+  head: __('Change Customer')
+
+  content: ->
+    configure_attributes = {
+      customer_id: { name: 'customer_id', display: __('Customer'), tag: 'user_autocompletion', null: false, placeholder: __('Enter Person or Organization/Company'), minLengt: 2, disableCreateObject: false },
+      organization_id: { name: 'organization_id', display: __('Organization'), tag: 'autocompletion_ajax_customer_organization', multiple: false, null: false, relation: 'Organization', autocapitalize: false, translate: false },
+    }
+    @controller = new App.ControllerForm(
+      model:           App.Ticket
+      mixedAttributes: configure_attributes
+      screen:          'edit'
+      params:          { id: @ticket_id }
+      autofocus:       true,
+      handlersConfig:  [App.TicketZoomFormHandlerMultiOrganization],
+    )
+    @controller.form
+
+  onSubmit: (e) =>
+    params = @formParam(e.target)
+
+    ticket                 = App.Ticket.find(@ticket_id)
+    ticket.customer_id     = params['customer_id']
+    ticket.organization_id = params['organization_id']
+
+    errors = ticket.validate(
+      controllerForm: @controller
+      target: e.target
+    )
+
+    if !_.isEmpty(errors)
+      @log 'error', errors
+      @formValidate(
+        form:   e.target
+        errors: errors
+      )
+      return
+
+    @customer_id     = params['customer_id']
+    @organization_id = params['organization_id']
+
+    callback = =>
+
+      # close modal
+      @close()
+
+      ticket.save(
+        url: ticket.generateURL('update_customer')
+      )
+
+    # load user if not already exists
+    App.User.full(@customer_id, callback)
+    if @organization_id
+      App.Organization.full(@organization_id, callback)

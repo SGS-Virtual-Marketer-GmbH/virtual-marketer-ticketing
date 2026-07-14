@@ -1,0 +1,186 @@
+<% securityPreferences = @article.preferences.security %>
+<% if securityPreferences: %>
+  <% encryptionSuccess = securityPreferences.encryption?.success == true %>
+  <% signSuccess       = securityPreferences.sign?.success == true %>
+  <% encryptionComment = securityPreferences.encryption?.comment %>
+  <% signComment       = securityPreferences.sign?.comment %>
+  <% encryptionWarning = securityPreferences.encryption?.success == false && encryptionComment %>
+  <% signWarning       = securityPreferences.sign?.success == false && signComment %>
+<% end %>
+
+<div class="article-meta-clip top">
+  <div class="article-content-meta top hide">
+    <div class="article-meta top">
+    <% if @article.from: %>
+      <div class="horizontal article-meta-row">
+        <div class="article-meta-key u-textTruncate"><%- @T('From') %></div>
+        <div class="article-meta-value flex contain-text"><%- @AddressLine(@article.from) %></div>
+      </div>
+    <% end %>
+    <% if @article.reply_to: %>
+      <div class="horizontal article-meta-row">
+        <div class="article-meta-key u-textTruncate"><%- @T('Reply-To') %></div>
+        <div class="article-meta-value flex contain-text"><%- @AddressLine(@article.reply_to) %></div>
+      </div>
+    <% end %>
+    <% if @article.to: %>
+      <div class="horizontal article-meta-row">
+        <div class="article-meta-key u-textTruncate"><%- @T('To') %></div>
+        <div class="article-meta-value flex contain-text"><%- @AddressLine(@article.to) %></div>
+      </div>
+    <% end %>
+    <% if @article.cc: %>
+      <div class="horizontal article-meta-row">
+        <div class="article-meta-key u-textTruncate"><%- @T('CC') %></div>
+        <div class="article-meta-value flex contain-text"><%- @AddressLine(@article.cc) %></div>
+      </div>
+    <% end %>
+    <% if @article.subject: %>
+      <div class="horizontal article-meta-row">
+        <div class="article-meta-key u-textTruncate"><%- @T('Subject') %></div>
+        <div class="article-meta-value flex contain-text"><%= @article.subject %></div>
+      </div>
+    <% end %>
+    <% if @article.delivery_status_icon: %>
+      <div class="horizontal article-meta-row">
+        <div class="article-meta-key u-textTruncate"><%- @T('Message Status') %></div>
+        <div class="article-meta-value flex contain-text">
+          <%- @Icon(@article.delivery_status_icon, 'article-meta-icon') %>
+          <%- @T(@article.delivery_status_message) %>
+        </div>
+      </div>
+    <% end %>
+      <% if encryptionSuccess || signSuccess || encryptionWarning || signWarning: %>
+        <div class="horizontal article-meta-row">
+          <div class="article-meta-key u-textTruncate"><%- @T('Security') %></div>
+          <div class="article-meta-value flex contain-text">
+            <%- securityPreferences.type %>:
+            <% if encryptionSuccess || encryptionWarning: %>
+              <span title="<%- @Ti(encryptionComment) %>">
+                <% if encryptionSuccess: %>
+                  <%- @Icon('lock', 'article-meta-icon') %>
+                  <%- @T('Encrypted') %><% if (signSuccess || signWarning): %>,<% end %>
+                <% else: %>
+                  <%- @Icon('encryption-error', 'article-meta-icon') %>
+                  <%- @T('Encryption error') %><% if (signSuccess || signWarning): %>,<% end %>
+                <% end %>
+              </span>
+            <% end %>
+            <% if signSuccess || signWarning: %>
+              <span title="<%- @Ti(signComment) %>">
+                <% if signSuccess: %>
+                  <%- @Icon('signed', 'article-meta-icon') %>
+                  <%- @T('Signed') %>
+                <% else: %>
+                  <%- @Icon('not-signed', 'article-meta-icon') %>
+                  <%- @T('Sign error') %>
+                <% end %>
+              </span>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+<% if encryptionSuccess || signSuccess || encryptionWarning || signWarning || @article.preferences?.whatsapp?.media_error: %>
+  <div class="article-meta-permanent">
+    <% if encryptionWarning || signWarning: %>
+      <div class="alert alert--warning">
+        <%- @Icon('not-signed') %> <%- @T('Security Error') %>
+        <% if signWarning: %>
+          <div class="alert-row"><%- @T('Sign:') %> <%- @T(securityPreferences.sign?.comment) %></div>
+        <% end %>
+        <% if encryptionWarning: %>
+          <div class="alert-row"><%- @T('Encryption:') %> <%- @T(securityPreferences.encryption?.comment) %></div>
+        <% end %>
+        <div class="btn btn--action btn--small js-securityRetryProcess"><%- @T('Retry security process') %></div>
+      </div>
+    <% else if signSuccess || encryptionSuccess: %>
+      <div class="alert alert--blank horizontal">
+        <% if encryptionSuccess: %>
+          <span title="<%- @T('Encrypted') %>"><%- @Icon('lock') %></span>
+        <% end %>
+        <% if signSuccess: %>
+          <span title="<%- @T('Signed') %>"><%- @Icon('signed') %></span>
+        <% end %>
+      </div>
+    <% end %>
+
+  <% if @article.preferences?.whatsapp?.media_error: %>
+    <div class="alert alert--warning">
+      <div class="btn btn--action btn--small js-retryWhatsAppAttachmentDownload"><%- @T('Retry attachment download') %>
+      </div>
+    </div>
+  <% end %>
+
+  </div>
+<% end %>
+<div class="article-content">
+  <% if @article.sender.name isnt 'Agent': %>
+  <%    position = 'left' %>
+  <% else: %>
+  <%    position = 'right' %>
+  <% end %>
+  <div class="js-avatar"></div>
+  <div class="bubble-gap">
+    <div class="internal-border">
+      <div class="textBubble">
+        <div class="bubble-arrow"></div>
+        <% if @article.html: %>
+          <div class="textBubble-content" id="article-content-<%= @article.id %>" data-id="<%= @article.id %>">
+            <div class="richtext-content" dir="auto"><%- @article.html %></div>
+            <div class="textBubble-overflowContainer hide">
+              <div class="btn btn--text js-toggleFold"><%- @T('See more') %></div>
+            </div>
+          </div>
+        <% end %>
+        <% if @article.preferences?.remote_content_removed: %>
+          <div class="remote-content-message js-fetchOriginalFormatting" role="button">
+            <%- @Icon('danger') %> <%- @T('This message contains images or other content hosted by an external source. It was blocked, but you can download the original formatting here.') %>
+          </div>
+        <% end %>
+        <%- @attachments %>
+        <% if @article.preferences?.whatsapp?.reaction?.emoji: %>
+          <div class="article-reaction">
+            <span><%= @article.preferences?.whatsapp?.reaction?.emoji %></span>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="article-meta-clip bottom">
+  <div class="article-content-meta bottom hide">
+    <div class="article-meta bottom">
+    <% if @article.detected_language && @ticket.currentView() is 'agent': %>
+      <div class="horizontal article-meta-row">
+        <div class="article-meta-key"><%- @T('Detected Language') %></div>
+        <div class="article-meta-value"><%- @P(@article, 'detected_language') %></div>
+      </div>
+    <% end %>
+      <div class="horizontal article-meta-row">
+        <div class="article-meta-key"><%- @T('Channel') %></div>
+        <div class="article-meta-value">
+          <% icon = @article.type.name.split(" ")%>
+          <%- @Icon(icon[0], 'article-meta-icon') %>
+          <%- @T(@article.type.name) %>
+          <div class="article-meta-links">
+          <% if @links: %>
+            <% count = 0 %>
+            <% for link in @links: %>
+              <% if count > 0: %>|<% end %>
+              <a class="text-muted" href="<%- link.url %>" target="<%- link.target %>"><%- @T(link.name) %></a>
+              <% count =+ 1 %>
+            <% end %>
+          <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="js-article-actions"></div>
+
+<a href="<%- @C('http_type') %>://<%- @C('fqdn') %>/#ticket/zoom/<%- @article.ticket_id %>/<%- @article.id %>"><small class="task-subline"><%- @humanTime(@article.created_at) %></small></a>

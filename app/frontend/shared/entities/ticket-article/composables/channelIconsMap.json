@@ -1,0 +1,13 @@
+{
+  "chat": "chat",
+  "email": "mail",
+  "facebook": "facebook",
+  "fax": "printer",
+  "note": "note",
+  "phone": "phone",
+  "sms": "message",
+  "telegram": "telegram",
+  "twitter": "twitter",
+  "web": "chat-right-text",
+  "whatsapp": "whatsapp"
+}

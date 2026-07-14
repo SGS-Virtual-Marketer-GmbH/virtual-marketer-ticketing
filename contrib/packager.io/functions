@@ -1,0 +1,473 @@
+#!/bin/bash
+#
+# packager.io postinstall script functions
+#
+
+function debug() {
+  if [ "${DEBUG}" == "yes" ]; then
+    echo "DEBUG MODE ON"
+    set -ex
+  fi
+}
+
+function detect_os () {
+  . /etc/os-release
+
+  if [ "${ID}" == "debian" ] || [ "${ID}" == "ubuntu" ]; then
+    OS="DEBIAN"
+  elif [ "${ID}" == "centos" ] || [ "${ID}" == "fedora" ] || [ "${ID}" == "rhel" ]; then
+    OS="REDHAT"
+  elif [[ "${ID}" =~ suse|sles ]]; then
+    OS="SUSE"
+  else
+    OS="UNKNOWN"
+  fi
+
+  if [ "${DEBUG}" == "yes" ]; then
+    echo "OS is ${OS} based"
+  fi
+}
+
+function detect_docker() {
+  if [ -n "$(grep docker < /proc/1/cgroup)" ]; then
+    DOCKER="yes"
+  else
+    DOCKER="no"
+  fi
+
+  if [ "${DEBUG}" == "yes" ]; then
+    echo "os runs in docker container = ${DOCKER}"
+  fi
+}
+
+function detect_initcmd () {
+  if command -v systemctl > /dev/null 2>&1; then
+    INIT_CMD="systemctl"
+  elif command -v initctl > /dev/null 2>&1; then
+    INIT_CMD="initctl"
+  else
+    function sysvinit () {
+      service $2 $1
+    }
+    INIT_CMD="sysvinit"
+  fi
+
+  if [ "${DOCKER}" == "yes" ]; then
+    INIT_CMD="initctl"
+  fi
+
+  if [ "${DEBUG}" == "yes" ]; then
+    echo "INIT CMD = ${INIT_CMD}"
+  fi
+}
+
+function detect_webserver () {
+  if command -v nginx > /dev/null 2>&1; then
+    WEBSERVER="nginx"
+    WEBSERVER_CMD="nginx"
+    if [ "${OS}" == "DEBIAN" ]; then
+      WEBSERVER_CONF="/etc/nginx/sites-available/zammad.conf"
+    elif [ "${OS}" == "REDHAT" ]; then
+      WEBSERVER_CONF="/etc/nginx/conf.d/zammad.conf"
+    elif [ "${OS}" == "SUSE" ]; then
+      WEBSERVER_CONF="/etc/nginx/vhosts.d/zammad.conf"
+    fi
+  elif command -v apache2 > /dev/null 2>&1; then
+    WEBSERVER="apache2"
+    WEBSERVER_CMD="apache2"
+    if [ "${OS}" == "DEBIAN" ]; then
+      WEBSERVER_CONF="/etc/apache2/sites-available/zammad.conf"
+    fi
+  elif command -v httpd > /dev/null 2>&1; then
+    WEBSERVER="apache2"
+    WEBSERVER_CMD="httpd"
+    if [ "${OS}" == "REDHAT" ]; then
+      WEBSERVER_CONF="/etc/httpd/conf.d/zammad.conf"
+    elif [ "${OS}" == "SUSE" ]; then
+      WEBSERVER_CONF="/etc/apache2/vhosts.d/zammad.conf"
+    fi
+  fi
+
+  if [ "${DEBUG}" == "yes" ]; then
+    echo "Webserver is ${WEBSERVER_CMD}"
+  fi
+}
+
+function create_initscripts () {
+  echo "# (Re)creating init scripts"
+  zammad scale web="${ZAMMAD_WEBS}" websocket="${ZAMMAD_WEBSOCKETS}" worker="${ZAMMAD_WORKERS}"
+
+  echo "# Enabling Zammad on boot"
+  ${INIT_CMD} enable zammad
+}
+
+function start_zammad () {
+  echo "# Starting Zammad"
+  ${INIT_CMD} start zammad
+}
+
+function stop_zammad () {
+  echo "# Stopping Zammad"
+  ${INIT_CMD} stop zammad
+}
+
+function create_database_password () {
+  DB_PASS="$(tr -dc A-Za-z0-9 < /dev/urandom | head -c10)"
+}
+
+function create_postgresql_db () {
+  if command -v postgresql-setup > /dev/null 2>&1; then
+    echo "# Preparing postgresql server"
+
+    # postgresql-setup --initdb uses 'systemctl cat postgresql.service' to look up
+    # PGDATA, which requires the unit to already be registered with systemd. When
+    # postgresql-server is installed in the same DNF transaction as Zammad, systemd
+    # has not yet loaded the new unit (daemon-reload has not run and may not be
+    # callable from a postinstall context), so postgresql-setup fails with
+    # "FATAL: no db datadir (PGDATA) configured". Work around this by reading
+    # PGDATA directly from the unit file on disk and calling initdb ourselves.
+    local pg_service=/usr/lib/systemd/system/postgresql.service
+    local pgdata
+    pgdata="$(grep 'Environment=PGDATA=' "${pg_service}" 2>/dev/null | sed 's/.*PGDATA=//' | cut -d' ' -f1)"
+    pgdata="${pgdata:-/var/lib/pgsql/data}"
+    mkdir -p "${pgdata}"
+    chown postgres:postgres "${pgdata}"
+    chmod 700 "${pgdata}"
+    runuser -u postgres -- initdb -D "${pgdata}"
+  fi
+
+  echo "# Creating postgresql bootstart"
+  ${INIT_CMD} enable postgresql.service
+
+  echo "# Restarting postgresql server"
+
+  # Ensure the PostgreSQL socket directory exists. On RHEL/CentOS it lives under
+  # the tmpfs /run and is normally created by systemd-tmpfiles at boot. When
+  # postgresql-server is installed in the same package transaction as Zammad that
+  # tmpfiles entry has not been processed yet, so the directory is missing and
+  # PostgreSQL cannot create its socket file.
+  if [ ! -d /var/run/postgresql ]; then
+    install -d -m 755 -o postgres -g postgres /var/run/postgresql
+  fi
+  ${INIT_CMD} restart postgresql
+
+  echo "# Creating zammad postgresql user"
+  echo "CREATE USER \"${DB_USER}\" WITH PASSWORD '${DB_PASS}';" | runuser -u postgres -- psql
+
+  echo "# Creating zammad postgresql db"
+  runuser -u postgres -- createdb -E UTF8 "${DB}" -O "${DB_USER}"
+
+  echo "# Grant privileges to new postgresql user"
+  echo "GRANT ALL PRIVILEGES ON DATABASE \"${DB}\" TO \"${DB_USER}\";" | runuser -u postgres -- psql
+}
+
+function update_database_yml () {
+  if [ "${OS}" == "REDHAT" ] || [ "${OS}" == "SUSE" ]; then
+    DB_PASS=""
+  fi
+
+  echo "# Updating database.yml"
+  sed -e "s/.*adapter:.*/  adapter: postgresql/" \
+    -e "s/.*username:.*/  username: ${DB_USER}/" \
+    -e "s/.*password:.*/  password: ${DB_PASS}/" \
+    -e "s/.*database:.*/  database: ${DB}/" < ${ZAMMAD_DIR}/contrib/packager.io/database.yml.pkgr > ${ZAMMAD_DIR}/config/database.yml
+
+  echo "# ... Fixing permission database.yml"
+  chown zammad:zammad ${ZAMMAD_DIR}/config/database.yml
+}
+
+function initialise_database () {
+  zammad run rake db:migrate
+  zammad run rake db:seed
+}
+
+function remove_deprecated_files () {
+  # RPM-based upgrades run %post before removing old-only files, so stale
+  # source files from the previous package version are still present when
+  # Rails boots for db:migrate. Remove known removed files explicitly.
+  # Files listed here were removed in the given release and must be cleaned
+  # up on RPM-based systems before migrations run.
+  if [ "${OS}" == "DEBIAN" ]; then
+    return 0
+  fi
+
+  echo "# Removing deprecated source files from previous package versions..."
+
+  # Removed in 7.1
+  rm -f \
+    "${ZAMMAD_DIR}/app/graphql/gql/concerns/handles_possible_objects.rb" \
+    "${ZAMMAD_DIR}/app/models/channel/filter/match/email_regex.rb" \
+    "${ZAMMAD_DIR}/app/services/service/base_with_current_user.rb" \
+    "${ZAMMAD_DIR}/lib/core_ext/action_dispatch/middleware/cookies.rb" \
+    "${ZAMMAD_DIR}/lib/core_ext/rack/utils.rb" \
+    "${ZAMMAD_DIR}/lib/core_ext/saas/interpolation.rb" \
+    "${ZAMMAD_DIR}/lib/core_ext/saas/lexer.rb" \
+    "${ZAMMAD_DIR}/lib/core_ext/saas/media.rb" \
+    "${ZAMMAD_DIR}/lib/core_ext/saas/selector.rb" \
+    "${ZAMMAD_DIR}/lib/core_ext/saas/static_parser.rb" \
+    "${ZAMMAD_DIR}/lib/core_ext/saas/string_interpolation.rb"
+}
+
+function update_database () {
+  echo "# database.yml found. Updating db..."
+  zammad run rake db:migrate || exit 1
+}
+
+function update_translations () {
+  echo "# Updating translations..."
+  zammad run rails r 'Locale.sync'
+  zammad run rails r 'Translation.sync'
+}
+
+function create_webserver_config () {
+  if [ "${OS}" == "DEBIAN" ]; then
+    if [ ! -f "${WEBSERVER_CONF}" ]; then
+      if [ -f "/etc/${WEBSERVER}/sites-enabled/zammad.conf" ]; then
+        mv /etc/${WEBSERVER}/sites-enabled/zammad.conf ${WEBSERVER_CONF}
+      else
+        cp ${ZAMMAD_DIR}/contrib/${WEBSERVER}/zammad.conf ${WEBSERVER_CONF}
+      fi
+      ln -s ${WEBSERVER_CONF} /etc/${WEBSERVER}/sites-enabled/zammad.conf
+    fi
+    if [ "${WEBSERVER}" == "apache2" ]; then
+      a2enmod proxy
+      a2enmod proxy_http
+      a2enmod proxy_wstunnel
+      a2enmod headers
+    fi
+  else
+    test -f ${WEBSERVER_CONF} || cp ${ZAMMAD_DIR}/contrib/${WEBSERVER}/zammad.conf ${WEBSERVER_CONF}
+  fi
+
+  echo "# Creating webserver bootstart"
+  ${INIT_CMD} enable ${WEBSERVER_CMD}
+
+  echo "# Restarting webserver ${WEBSERVER_CMD} - please check if all required modules are enabled in case webserver fails to start."
+  ${INIT_CMD} restart ${WEBSERVER_CMD}
+}
+
+function enforce_redis () {
+  # For details, see https://github.com/zammad/zammad/issues/5269
+
+  REDIS_URL=$(zammad config:get REDIS_URL)
+  if [ -n "${REDIS_URL}" ]; then
+    echo "# REDIS_URL variable set to ${REDIS_URL}."
+    echo "# Performing connection check."
+    if zammad run ruby -r redis -r hiredis-client -e 'Redis.new(driver: :hiredis, url: ENV["REDIS_URL"]).ping'; then
+      echo "# Connection check successful."
+      return 0
+    else
+      echo "# Connection check unsuccessful."
+      echo "ERROR - No redis server found at ${REDIS_URL}."
+      echo "Please install Redis following the instructions at https://redis.io/docs/getting-started/ or set the REDIS_URL environment variable with the following command."
+      echo "zammad config:set REDIS_URL=redis://your.redis.server:6379\n"
+      echo "Acceptable formats for REDIS_URL are:"
+      echo "redis[s]://[[username]:password@]host[:port][/db-number]"
+      echo "Please fix these issues, then run the package installation again."
+      exit 1
+    fi
+  fi
+
+  echo "# Enforcing Redis..."
+
+  local REDIS_SERVICE_NAME=""
+  if [ "${OS}" == "DEBIAN" ]; then
+      REDIS_SERVICE_NAME="redis-server"
+  elif [ "${OS}" == "SUSE" ]; then
+      REDIS_PID=$(fuser 6379/tcp 2> /dev/null)
+      if [ -z "${REDIS_PID}" ]; then
+        echo -e "# No running instance of Redis detected.\n# Creating systemd-service: redis@zammad.service."
+        if [[ ! -f '/etc/redis/zammad.conf' ]]; then
+          # redis7 (SLES 15) ships default.conf.example; redis 8+ (SLES 16) ships redis.default.conf.template.
+          local redis_conf_src
+          if [[ -f '/etc/redis/redis.default.conf.template' ]]; then
+            redis_conf_src='/etc/redis/redis.default.conf.template'
+          elif [[ -f '/etc/redis/default.conf.example' ]]; then
+            redis_conf_src='/etc/redis/default.conf.example'
+          else
+            echo "ERROR - No Redis configuration template found in /etc/redis/. Please create /etc/redis/zammad.conf manually."
+            echo "Alternatively, point Zammad to an existing Redis server with: zammad config:set REDIS_URL=redis://your.redis.server:6379"
+            echo "Please fix these issues, then run the package installation again."
+            exit 1
+          fi
+          cp "${redis_conf_src}" /etc/redis/zammad.conf
+        fi
+        echo "# Ensuring correct file permissions for /etc/redis/zammad.conf."
+        [[ $(stat -c "%U %G" /etc/redis/zammad.conf) == "root redis" ]] || chown root:redis /etc/redis/zammad.conf
+        REDIS_SERVICE_NAME=redis@zammad.service
+      else
+        REDIS_SERVICE_NAME=$(ps -p $REDIS_PID -o unit=)
+        echo "# Redis service ${REDIS_SERVICE_NAME} detected."
+      fi
+  else
+      if command -v valkey-server > /dev/null 2>&1; then
+        REDIS_SERVICE_NAME="valkey"
+      else
+        REDIS_SERVICE_NAME="redis"
+      fi
+  fi
+
+  if command -v redis-server > /dev/null 2>&1 || command -v valkey-server > /dev/null 2>&1; then
+    echo "# Creating Redis bootstart"
+    ${INIT_CMD} enable ${REDIS_SERVICE_NAME}
+
+    echo "# Starting Redis server"
+    if ${INIT_CMD} restart ${REDIS_SERVICE_NAME}; then
+      echo "# Redis server is running."
+      return 0
+    else
+      echo -e "\nSomething went wrong. Please check any error output above and fix the issues."
+      echo "Then run the package installation again."
+      exit 1
+    fi
+  fi
+}
+
+function setup_elasticsearch () {
+  echo "# Configuring Elasticsearch..."
+
+  ES_CONNECTION="$(zammad run rails r "puts '',Setting.get('es_url')"| tail -n 1 2>> /dev/null)"
+
+  if [ -z "${ES_CONNECTION}" ]; then
+    echo "-- Nevermind, no es_url is set, leaving Elasticsearch untouched ...!"
+    echo "-- The above is all right if you don't want to use Elasticsearch (locally) - if this is not intended, consult https://docs.zammad.org !"
+    return 0
+  fi
+
+  if [[ "$(/usr/share/elasticsearch/bin/elasticsearch --version| cut -c 10)" -gt 7 ]]; then
+    # We're skipping the plugin reinstallation process for ES 8+ as it's part of the ES core
+    return 0
+  fi
+
+  if [ -n "$(/usr/share/elasticsearch/bin/elasticsearch-plugin list | grep mapper-attachments)" ]; then
+    REBUILD_ES_SEARCHINDEX="yes"
+
+    echo "# Deleting old elasticsearch index..."
+    zammad run rake zammad:searchindex:drop
+
+    yes | /usr/share/elasticsearch/bin/elasticsearch-plugin -s remove mapper-attachments
+
+  elif [ -n "$(/usr/share/elasticsearch/bin/elasticsearch-plugin list | grep ingest-attachment)" ]; then
+    yes | /usr/share/elasticsearch/bin/elasticsearch-plugin -s remove ingest-attachment
+  fi
+
+  yes | /usr/share/elasticsearch/bin/elasticsearch-plugin -s install ingest-attachment
+
+  if [ "${ES_CONNECTION}" == "http://127.0.0.1:9200" ] || [ "${ES_CONNECTION}" == "http://localhost:9200" ]; then
+    ${INIT_CMD} restart elasticsearch
+  else
+    echo -e "\n It seems you're running an external Elasticsearch server on ${ES_CONNECTION}"
+    echo -e "\n We'll not touch your Elasticsearch on the local and remote system."
+    echo -e "\n Please get sure to install the 'ingest-attachment' plugin on your Elasticsearch server by:"
+    echo -e "/usr/share/elasticsearch/bin/elasticsearch-plugin -s install ingest-attachment"
+    echo -e "\nAfter this you might need to rebuild the searchindex by:"
+    echo -e "zammad run rake zammad:searchindex:rebuild"
+  fi
+}
+
+function elasticsearch_searchindex_rebuild () {
+  zammad run rails r "Setting.set('es_url', \"${ES_CONNECTION}\")"
+
+  if [ "${REBUILD_ES_SEARCHINDEX}" == "yes" ]; then
+    echo "# (Re)building Elasticsearch searchindex..."
+    nohup zammad run rake zammad:searchindex:rebuild &> ${ZAMMAD_DIR}/log/searchindex-rebuild.log &
+  fi
+}
+
+function detect_local_gemfiles () {
+  if ls ${ZAMMAD_DIR}/Gemfile.local* 1> /dev/null 2>&1; then
+    zammad config:set BUNDLE_DEPLOYMENT=0
+    zammad run bundle config set --local deployment 'false'
+    zammad run bundle install
+  fi
+}
+
+function detect_zammad_packages () {
+  if [ "$(zammad run rails r 'puts Package.count.positive?')" == "true" ]; then
+    echo "# Detected custom packages..."
+    ZAMMAD_PACKAGES="yes"
+  else
+    echo "# No custom packages detected..."
+    ZAMMAD_PACKAGES="no"
+  fi
+}
+
+function zammad_packages_reinstall_all () {
+  detect_zammad_packages
+
+  if [ "${ZAMMAD_PACKAGES}" == "yes" ]; then
+    echo "# Setup custom packages files..."
+    zammad run rake zammad:package:reinstall_all
+    detect_local_gemfiles
+    zammad run rake zammad:package:post_install
+  fi
+}
+
+function update_or_install () {
+
+  if [ -f ${ZAMMAD_DIR}/config/database.yml ]; then
+    remove_deprecated_files
+
+    echo "# Clear cache..."
+    zammad run rails r Rails.cache.clear
+
+    update_database
+
+    update_translations
+
+    zammad_packages_reinstall_all
+  else
+    REBUILD_ES_SEARCHINDEX="yes"
+    create_database_password
+
+    echo "# Installing zammad on postgresql"
+    create_postgresql_db
+
+    update_database_yml
+
+    initialise_database
+  fi
+
+  setup_elasticsearch
+
+  elasticsearch_searchindex_rebuild
+
+  echo "# Enforcing 0600 on database.yml ..."
+  chmod 600 ${ZAMMAD_DIR}/config/database.yml
+}
+
+function set_env_vars () {
+  zammad config:set RUBY_MALLOC_ARENA_MAX=${ZAMMAD_RUBY_MALLOC_ARENA_MAX:=2}
+  zammad config:set RUBY_GC_MALLOC_LIMIT=${ZAMMAD_RUBY_GC_MALLOC_LIMIT:=1077216}
+  zammad config:set RUBY_GC_MALLOC_LIMIT_MAX=${ZAMMAD_RUBY_GC_MALLOC_LIMIT_MAX:=2177216}
+  zammad config:set RUBY_GC_OLDMALLOC_LIMIT=${ZAMMAD_RUBY_GC_OLDMALLOC_LIMIT:=2177216}
+  zammad config:set RUBY_GC_OLDMALLOC_LIMIT_MAX=${ZAMMAD_RUBY_GC_OLDMALLOC_LIMIT_MAX:=3000100}
+  if [[ "$(zammad config:get RAILS_LOG_TO_STDOUT)" == "enabled" ]];then
+    echo 'Setting default Logging to file, set via "zammad config:set RAILS_LOG_TO_STDOUT=true" if you want to log to STDOUT!'
+    zammad config:set RAILS_LOG_TO_STDOUT=
+  fi
+
+}
+
+function final_message () {
+  echo -e "####################################################################################"
+  echo -e "\nAdd your fully qualified domain name or public IP to servername directive of"
+  echo -e "${WEBSERVER}, if this installation is done on a remote server. You have to change:"
+  echo -e "${WEBSERVER_CONF} and restart ${WEBSERVER_CMD} process."
+  echo -e "Otherwise just open http://localhost/ in your browser to start using Zammad.\n"
+  if [ "${OS}" == "REDHAT" ]; then
+    echo -e "\n Remember to enable selinux and firewall rules!\n"
+    echo -e "Use the following commands:"
+    echo -e "	setsebool httpd_can_network_connect on -P"
+    echo -e "	firewall-cmd --zone=public --add-service=http --permanent"
+    echo -e "	firewall-cmd --zone=public --add-service=https --permanent"
+    echo -e "	firewall-cmd --reload\n"
+  elif [ "${OS}" == "SUSE" ]; then
+    echo -e "\n Remember to enable firewall rules!\n"
+    echo -e "Use the following commands:"
+    echo -e "	firewall-cmd --zone=public --add-service=http --permanent"
+    echo -e "	firewall-cmd --zone=public --add-service=https --permanent"
+    echo -e "	firewall-cmd --reload\n"
+  fi
+  echo -e "####################################################################################"
+}

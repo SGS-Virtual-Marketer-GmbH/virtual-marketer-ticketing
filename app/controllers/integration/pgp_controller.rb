@@ -1,0 +1,95 @@
+# Copyright (C) 2012-2026 Zammad Foundation, https://zammad-foundation.org/
+
+class Integration::PGPController < ApplicationController
+  prepend_before_action :authenticate_and_authorize!
+
+  SENSITIVE_FIELDS = %w[passphrase].freeze
+
+  def key_list
+    model_index_render(PGPKey, params)
+  end
+
+  def key_show
+    model_show_render(PGPKey, params)
+  end
+
+  def key_download
+    key = PGPKey.find(params[:id])
+
+    if %w[1 true].include?(params[:secret])
+      raise Exceptions::UnprocessableContent, __('This is not a private PGP key.') if !key.secret
+
+      return send_data(
+        key.key,
+        filename:    "#{key.fingerprint}.asc",
+        type:        'text/plain',
+        disposition: 'attachment'
+      )
+    end
+
+    send_data(
+      export(key),
+      filename:    "#{key.fingerprint}.pub.asc",
+      type:        'text/plain',
+      disposition: 'attachment'
+    )
+  end
+
+  def key_add
+    model_create_render(PGPKey, params_add)
+  end
+
+  def key_delete
+    model_destroy_render(PGPKey, params)
+  end
+
+  def status
+    if !SecureMailing::PGP.required_version?
+      error = __('gpg (GnuPG) 2.2.0 or newer is required')
+    end
+
+    render json: { error: error }.compact
+  end
+
+  def search
+    security_options = SecureMailing::PGP::SecurityOptions.new(ticket: params[:ticket], article: params[:article]).process
+
+    result = {
+      type:       'PGP',
+      encryption: map_result(security_options.encryption),
+      sign:       map_result(security_options.signing),
+    }
+
+    render json: result
+  end
+
+  private
+
+  def map_result(method_result)
+    {
+      success:             method_result.possible?,
+      comment:             method_result.message,
+      commentPlaceholders: method_result.message_placeholders,
+    }
+  end
+
+  def export(key)
+    SecureMailing::PGP::Tool.new.with_private_keyring do |pgp_tool|
+      pgp_tool.import(key.key)
+      pgp_tool.export(key.fingerprint).stdout
+    end
+  end
+
+  def params_add
+    safe_params = params.permit(:file, :private_key, :passphrase, :domain_alias)
+
+    if safe_params[:private_key].present?
+      safe_params[:key] = safe_params.delete(:private_key).strip
+    elsif safe_params[:file].is_a? ActionDispatch::Http::UploadedFile
+      safe_params[:key] = safe_params.delete(:file).tempfile
+    end
+
+    safe_params
+  end
+
+end

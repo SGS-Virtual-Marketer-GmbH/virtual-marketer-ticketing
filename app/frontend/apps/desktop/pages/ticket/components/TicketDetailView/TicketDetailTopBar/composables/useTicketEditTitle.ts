@@ -1,0 +1,32 @@
+// Copyright (C) 2012-2026 Zammad Foundation, https://zammad-foundation.org/
+import {
+  NotificationTypes,
+  useNotifications,
+} from '#shared/components/CommonNotifications/index.ts'
+import { useTicketTitleUpdateMutation } from '#shared/entities/ticket/graphql/mutations/titleUpdate.api.ts'
+import { MutationHandler } from '#shared/server/apollo/handler/index.ts'
+
+import type { ComputedRef } from 'vue'
+
+export const useTicketEditTitle = (ticketId: ComputedRef<string>) => {
+  const { notify } = useNotifications()
+
+  const mutationUpdate = new MutationHandler(useTicketTitleUpdateMutation())
+
+  const updateTitle = async (title: string) => {
+    return mutationUpdate
+      .send({
+        ticketId: ticketId.value,
+        title: title,
+      })
+      .then(() => {
+        notify({
+          type: NotificationTypes.Success,
+          id: 'ticket-updated-successfully',
+          message: __('Ticket updated successfully.'),
+        })
+      })
+  }
+
+  return { updateTitle }
+}

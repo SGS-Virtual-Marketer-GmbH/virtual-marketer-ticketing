@@ -1,0 +1,50 @@
+# Copyright (C) 2012-2026 Zammad Foundation, https://zammad-foundation.org/
+
+class HtmlSanitizer
+  class Strict < Base
+    attr_reader :remote_content_removed
+
+    def initialize(no_images: false)
+      super()
+
+      @no_images              = no_images
+      @remote_content_removed = false
+    end
+
+    def sanitize(string, external: false, timeout: true)
+      return run_sanitization(string, external) if !timeout
+
+      with_timeout(string) do
+        run_sanitization(string, external)
+      end
+    end
+
+    private
+
+    def run_sanitization(string, external)
+      scrubbers = [HtmlSanitizer::Scrubber::TagRemove.new, HtmlSanitizer::Scrubber::QuoteContent.new]
+
+      if @no_images
+        scrubbers << HtmlSanitizer::Scrubber::TagRemove.new(tags: %w[img])
+      end
+
+      scrubbed = ScrubHtml.new(string, scrubbers).scrub!
+
+      wipe_scrubber = HtmlSanitizer::Scrubber::Wipe.new
+
+      string = loop_string(scrubbed.to_html, wipe_scrubber)
+
+      @remote_content_removed = wipe_scrubber.remote_content_removed
+
+      link_scrubber = HtmlSanitizer::Scrubber::Link.new(web_app_url_prefix: web_app_url_prefix, external: external)
+      ScrubHtml.new(string, link_scrubber).scrub!.to_html
+    end
+
+    def web_app_url_prefix
+      fqdn      = Setting.get('fqdn')
+      http_type = Setting.get('http_type')
+
+      "#{http_type}://#{fqdn}/#".downcase
+    end
+  end
+end

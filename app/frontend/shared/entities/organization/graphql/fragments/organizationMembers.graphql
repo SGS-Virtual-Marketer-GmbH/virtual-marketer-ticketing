@@ -1,0 +1,22 @@
+fragment organizationMembers on Organization {
+  allMembers(first: $membersCount) {
+    edges {
+      node {
+        id
+        internalId
+        image
+        firstname
+        lastname
+        fullname
+        email
+        phone
+        outOfOffice
+        outOfOfficeStartAt
+        outOfOfficeEndAt
+        active
+        vip
+      }
+    }
+    totalCount
+  }
+}

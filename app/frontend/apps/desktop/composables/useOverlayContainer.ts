@@ -1,0 +1,286 @@
+// Copyright (C) 2012-2026 Zammad Foundation, https://zammad-foundation.org/
+
+import { last, noop } from 'lodash-es'
+import SparkMD5 from 'spark-md5'
+import {
+  computed,
+  defineAsyncComponent,
+  ref,
+  onUnmounted,
+  getCurrentInstance,
+  onMounted,
+  nextTick,
+  type AsyncComponentLoader,
+  type Component,
+  type Ref,
+} from 'vue'
+import { useRoute, type RouteLocationNormalizedLoadedGeneric } from 'vue-router'
+
+import { destroyComponent, pushComponent } from '#shared/components/DynamicInitializer/manage.ts'
+import testFlags from '#shared/utils/testFlags.ts'
+
+export interface OverlayContainerOptions {
+  name: string
+  component: () => Promise<Component>
+  prefetch?: boolean
+  /**
+   * If true, dialog will focus the element that opened it.
+   * If dialog is opened without a user interaction, you should set it to false.
+   * @default true
+   */
+  refocus?: boolean
+  beforeOpen?: (uniqueId?: string) => Awaited<unknown>
+  afterClose?: (uniqueId?: string) => Awaited<unknown>
+  /**
+   * If true, no page context will be added to the name, e.g. for confirmation dialogs.
+   * @default false
+   */
+  global?: boolean
+}
+
+export type OverlayContainerType = 'dialog' | 'flyout'
+
+export interface OverlayContainerMeta {
+  mounted: Map<string, number>
+  options: Map<string, OverlayContainerOptions>
+  opened: Ref<Set<string>>
+  lastFocusedElements: Record<string, HTMLElement>
+}
+
+export const getRouteIdentifier = (route: RouteLocationNormalizedLoadedGeneric) => {
+  if (route.meta.pageKey) return route.meta.pageKey
+
+  // If no params exists, just use the name.
+  if (!route.params || !Object.keys(route.params).length) {
+    return route.name ? String(route.name) : route.path
+  }
+
+  const paramHash = SparkMD5.hash(JSON.stringify(route.params))
+
+  return `${String(route.name)}_${paramHash}`
+}
+
+const overlayContainerMeta: Record<OverlayContainerType, OverlayContainerMeta> = {
+  dialog: {
+    mounted: new Map<string, number>(),
+    options: new Map<string, OverlayContainerOptions>(),
+    opened: ref(new Set<string>()),
+    lastFocusedElements: {},
+  },
+  flyout: {
+    mounted: new Map<string, number>(),
+    options: new Map<string, OverlayContainerOptions>(),
+    opened: ref(new Set<string>()),
+    lastFocusedElements: {},
+  },
+}
+
+export const getOpenedOverlayContainers = (type: OverlayContainerType) =>
+  overlayContainerMeta[type].opened.value
+
+export const isOverlayContainerOpened = (type: OverlayContainerType, name?: string) =>
+  name
+    ? overlayContainerMeta[type].opened.value.has(name)
+    : overlayContainerMeta[type].opened.value.size > 0
+
+export const currentOverlayContainersOpen = computed(() => {
+  const openContainers: Partial<Record<OverlayContainerType, string | undefined>> = {}
+
+  Object.keys(overlayContainerMeta).forEach((type) => {
+    openContainers[type as OverlayContainerType] = last(
+      Array.from(overlayContainerMeta[type as OverlayContainerType].opened.value),
+    )
+  })
+
+  return openContainers
+})
+
+export const getOverlayContainerMeta = (type: OverlayContainerType) => {
+  return {
+    options: overlayContainerMeta[type].options,
+    opened: overlayContainerMeta[type].opened,
+  }
+}
+
+// Handle the current reference of the overlay container for the different situations.
+// It could be that the usage is more then once, that it should not be removed completely.
+const getOverlayReferenceCount = (type: OverlayContainerType, name: string): number => {
+  return overlayContainerMeta[type].mounted.get(name) || 0
+}
+
+const addOverlayReference = (
+  type: OverlayContainerType,
+  name: string,
+  options: OverlayContainerOptions,
+) => {
+  const refCount = getOverlayReferenceCount(type, name)
+  overlayContainerMeta[type].mounted.set(name, refCount + 1)
+  overlayContainerMeta[type].options.set(name, options)
+}
+
+const removeOverlayReference = (type: OverlayContainerType, name: string): void => {
+  const refCount = getOverlayReferenceCount(type, name)
+  const newRefCount = refCount - 1
+
+  if (newRefCount > 0) {
+    overlayContainerMeta[type].mounted.set(name, newRefCount)
+  } else {
+    overlayContainerMeta[type].mounted.delete(name)
+  }
+}
+
+const getOverlayContainerOptions = (type: OverlayContainerType, name: string) => {
+  const options = overlayContainerMeta[type].options.get(name)
+
+  if (!options) {
+    console.error(`[${type}] getOverlayContainerOptions ERROR: ${name}`, {
+      availableOptions: Array.from(overlayContainerMeta[type].options.keys()),
+      mounted: Array.from(overlayContainerMeta[type].mounted.entries()),
+    })
+    throw new Error(
+      `Overlay container '${name}' from type '${type}' was not initialized with 'useOverlayContainer'.`,
+    )
+  }
+
+  return options
+}
+
+export const closeOverlayContainer = async (type: OverlayContainerType, name: string) => {
+  const [realName, uniqueId] = name.split(':')
+
+  if (!overlayContainerMeta[type].opened.value.has(name)) return
+
+  const options = getOverlayContainerOptions(type, realName)
+
+  await destroyComponent(type, name)
+
+  overlayContainerMeta[type].opened.value.delete(name)
+
+  if (options.afterClose) {
+    await options.afterClose(uniqueId)
+  }
+
+  const controllerElement =
+    (document.querySelector(
+      `[aria-haspopup="${type}"][aria-controls="${type}-${name}"]`,
+    ) as HTMLElement | null) || overlayContainerMeta[type].lastFocusedElements[name]
+  if (controllerElement && 'focus' in controllerElement)
+    controllerElement.focus({ preventScroll: true })
+
+  nextTick(() => {
+    testFlags.set(`${name}.closed`)
+  })
+}
+
+export const openOverlayContainer = async (
+  type: OverlayContainerType,
+  name: string,
+  props: Record<string, unknown>,
+) => {
+  const options = getOverlayContainerOptions(type, name)
+
+  let uniqueName = name
+  if (props.uniqueId) {
+    uniqueName = `${name}:${props.uniqueId}`
+  }
+
+  if (options.refocus) {
+    overlayContainerMeta[type].lastFocusedElements[uniqueName] =
+      document.activeElement as HTMLElement
+  }
+
+  overlayContainerMeta[type].opened.value.add(uniqueName)
+
+  if (options.beforeOpen) {
+    await options.beforeOpen(props.uniqueId as string | undefined)
+  }
+
+  const component = defineAsyncComponent(options.component as AsyncComponentLoader)
+
+  await pushComponent(type, uniqueName, component, props)
+
+  return new Promise<void>((resolve) => {
+    options.component().finally(() => {
+      resolve()
+      nextTick(() => {
+        testFlags.set(`${uniqueName}.opened`)
+      })
+    })
+  })
+}
+
+export const useOverlayContainer = (
+  type: OverlayContainerType,
+  options: OverlayContainerOptions,
+) => {
+  const { name } = options
+
+  const vm = getCurrentInstance()
+
+  if (!vm) {
+    throw new Error(
+      `Overlay container '${name}' from type '${type}' was not initialized inside setup context.`,
+    )
+  }
+
+  options.refocus ??= true
+
+  const route = useRoute()
+
+  const currentName = options.global ? name : `${name}_${getRouteIdentifier(route)}`
+
+  overlayContainerMeta[type].options.set(currentName, options)
+
+  const isOpened = computed(() => overlayContainerMeta[type].opened.value.has(currentName))
+
+  onMounted(() => {
+    addOverlayReference(type, currentName, options)
+  })
+
+  onUnmounted(async () => {
+    removeOverlayReference(type, currentName)
+
+    await closeOverlayContainer(type, currentName)
+
+    // Only delete the overlay options when no components are using it anymore
+    if (!overlayContainerMeta[type].mounted.has(currentName)) {
+      overlayContainerMeta[type].options.delete(currentName)
+    }
+  })
+
+  const open = (props: Record<string, unknown> = {}) => {
+    return openOverlayContainer(type, currentName, props)
+  }
+
+  const close = () => {
+    return closeOverlayContainer(type, currentName)
+  }
+
+  const toggle = (props: Record<string, unknown> = {}) => {
+    if (isOpened.value) {
+      return closeOverlayContainer(type, currentName)
+    }
+    return openOverlayContainer(type, currentName, props)
+  }
+
+  let pendingPrefetch: Promise<unknown>
+  const prefetch = async () => {
+    if (pendingPrefetch) return pendingPrefetch
+    pendingPrefetch = options.component().catch(noop)
+    return pendingPrefetch
+  }
+
+  if (options.prefetch) {
+    prefetch()
+  }
+
+  return {
+    overlayContainerMeta,
+    isOpened,
+    name: currentName,
+    open,
+    close,
+    toggle,
+    prefetch,
+  }
+}

@@ -1,0 +1,69 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://graph.facebook.com/me/accounts?access_token=<FACEBOOK_ADMIN_ACCESS_TOKEN>
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday v2.7.4
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Etag:
+      - '"712c33445a284f5577da84ea19c5daf964ffa763"'
+      Content-Type:
+      - application/json; charset=UTF-8
+      Vary:
+      - Accept-Encoding
+      - Origin
+      Cross-Origin-Resource-Policy:
+      - cross-origin
+      X-App-Usage:
+      - '{"call_count":0,"total_cputime":0,"total_time":0}'
+      X-Fb-Rlafr:
+      - '0'
+      Access-Control-Allow-Origin:
+      - "*"
+      Facebook-Api-Version:
+      - v16.0
+      Strict-Transport-Security:
+      - max-age=15552000; preload
+      Pragma:
+      - no-cache
+      Cache-Control:
+      - private, no-cache, no-store, must-revalidate
+      Expires:
+      - Sat, 01 Jan 2000 00:00:00 GMT
+      X-Fb-Request-Id:
+      - A2qe_IV5h1S5GYT2KKz0HmR
+      X-Fb-Trace-Id:
+      - BnTdlg7C8Gl
+      X-Fb-Rev:
+      - '1007457464'
+      X-Fb-Debug:
+      - ITOWqqHRyXBqRsNlL8D7C2PZeyQ/7nxsD2+ikjK8HoOU++mgssYxDNcLs5iiPeSQI7dSFOAv70hlaeoEqH0nYg==
+      Date:
+      - Tue, 09 May 2023 10:59:01 GMT
+      Alt-Svc:
+      - h3=":443"; ma=86400
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1270'
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":[{"access_token":"***","category":"Information Technology Company","category_list":[{"id":"1130035050388269","name":"Information
+        Technology Company"}],"name":"<FACEBOOK_PAGE_2_NAME>","id":"<FACEBOOK_PAGE_2_ID>","tasks":["ADVERTISE","ANALYZE","CREATE_CONTENT","MESSAGING","MODERATE","MANAGE"]},{"access_token":"***","category":"Information
+        Technology Company","category_list":[{"id":"1130035050388269","name":"Information
+        Technology Company"}],"name":"<FACEBOOK_PAGE_1_NAME>","id":"<FACEBOOK_PAGE_1_ID>","tasks":["ADVERTISE","ANALYZE","CREATE_CONTENT","MESSAGING","MODERATE","MANAGE"]}],"paging":{"cursors":{"before":"QVFIUlJ0cHRCY3ZAvSHZAuLVNfUWl5WmlsanZAfTEgwdnNxaEZAZASDFLbWZAPSjRjdHN4MG5KUDV6eDBVOE5XTVRlZAzFGTG9vRDA0bTdrNDdvaUdjVms5QkVnM2dn","after":"QVFIUnpVZAGkxc0NsQ0dEOGlFakpuc2puYzNYT1FFQzlwNjJIWmdzMWpIUEVWNmJqQnFsNHNqQWNRWDhSTmMweTV0bWpLcVc0Y1lkUHVUUlRPWkdyRmlvbkdB"}}}'
+  recorded_at: Tue, 09 May 2023 10:59:01 GMT
+recorded_with: VCR 6.1.0

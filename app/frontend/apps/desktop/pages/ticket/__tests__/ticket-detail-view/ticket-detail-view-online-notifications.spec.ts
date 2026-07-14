@@ -1,0 +1,101 @@
+// Copyright (C) 2012-2026 Zammad Foundation, https://zammad-foundation.org/
+
+import { within } from '@testing-library/vue'
+
+import { visitView } from '#tests/support/components/visitView.ts'
+import { mockPermissions } from '#tests/support/mock-permissions.ts'
+import { nullableMock } from '#tests/support/utils.ts'
+
+import { mockOnlineNotificationsQuery } from '#shared/entities/online-notification/graphql/queries/onlineNotifications.mocks.ts'
+import { getOnlineNotificationsCountSubscriptionHandler } from '#shared/entities/online-notification/graphql/subscriptions/onlineNotificationsCount.mocks.ts'
+import { mockTicketQuery } from '#shared/entities/ticket/graphql/queries/ticket.mocks.ts'
+import { createDummyTicket } from '#shared/entities/ticket-article/__tests__/mocks/ticket.ts'
+import { convertToGraphQLId } from '#shared/graphql/utils.ts'
+
+describe('Ticket detail: sidebar - online notifications', () => {
+  beforeEach(() => {
+    mockPermissions(['ticket.agent'])
+
+    mockTicketQuery({
+      ticket: createDummyTicket(),
+    })
+  })
+
+  describe('when there are notifications', () => {
+    beforeEach(async () => {
+      mockOnlineNotificationsQuery({
+        onlineNotifications: {
+          edges: [
+            {
+              node: {
+                id: convertToGraphQLId('OnlineNotification', 1),
+                seen: false,
+                typeName: 'create',
+                objectName: 'Ticket',
+                metaObject: {
+                  id: convertToGraphQLId('Ticket', 1),
+                  internalId: 1,
+                  title: 'Test ticket',
+                },
+              },
+            },
+          ],
+        },
+      })
+    })
+
+    it('shows no count and notifications', async () => {
+      const view = await visitView('/tickets/1')
+
+      await getOnlineNotificationsCountSubscriptionHandler().trigger({
+        onlineNotificationsCount: {
+          unseenCount: 1,
+        },
+      })
+
+      const notificationsButton = await view.findByLabelText('Show notifications')
+
+      await view.events.click(notificationsButton)
+
+      const list = await view.findByRole('region')
+
+      expect(within(list).getByText('created ticket', { exact: false })).toBeInTheDocument()
+
+      expect(view.getByRole('status', { name: 'Unseen notifications count' })).toHaveTextContent(
+        '1',
+      )
+    })
+  })
+
+  describe('when there are no notifications', () => {
+    beforeEach(() => {
+      mockOnlineNotificationsQuery({
+        onlineNotifications: {
+          edges: nullableMock([]),
+        },
+      })
+    })
+
+    it('shows no count and notifications', async () => {
+      const view = await visitView('/tickets/1')
+
+      await getOnlineNotificationsCountSubscriptionHandler().trigger({
+        onlineNotificationsCount: {
+          unseenCount: 0,
+        },
+      })
+
+      const notificationsButton = await view.findByLabelText('Show notifications')
+
+      await view.events.click(notificationsButton)
+
+      const list = await view.findByRole('region', { name: 'Show notifications' })
+
+      expect(within(list).getByText('No unread notifications.')).toBeInTheDocument()
+
+      expect(
+        view.queryByRole('status', { name: 'Unseen notifications count' }),
+      ).not.toBeInTheDocument()
+    })
+  })
+})

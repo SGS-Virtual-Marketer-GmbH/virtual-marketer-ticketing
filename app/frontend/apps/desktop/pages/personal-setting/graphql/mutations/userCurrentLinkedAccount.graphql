@@ -1,0 +1,8 @@
+mutation userCurrentRemoveLinkedAccount($provider: EnumAuthenticationProvider!, $uid: String!) {
+  userCurrentRemoveLinkedAccount(provider: $provider, uid: $uid) {
+    success
+    errors {
+      ...errors
+    }
+  }
+}

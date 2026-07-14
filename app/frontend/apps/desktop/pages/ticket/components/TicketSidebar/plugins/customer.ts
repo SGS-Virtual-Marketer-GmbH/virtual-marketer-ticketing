@@ -1,0 +1,31 @@
+// Copyright (C) 2012-2026 Zammad Foundation, https://zammad-foundation.org/
+
+import {
+  TicketSidebarScreenType,
+  type TicketSidebarContext,
+} from '#desktop/pages/ticket/types/sidebar.ts'
+
+import TicketSidebarCustomer from '../TicketSidebarCustomer/TicketSidebarCustomer.vue'
+
+import type { TicketSidebarPlugin } from './types.ts'
+
+export default <TicketSidebarPlugin>{
+  title: __('Customer'),
+  component: TicketSidebarCustomer,
+  permissions: ['ticket.agent'],
+  screens: [TicketSidebarScreenType.TicketDetailView, TicketSidebarScreenType.TicketCreate],
+  views: ['agent'],
+  icon: 'user',
+  order: 1000,
+  available: (context: TicketSidebarContext) => {
+    // Consider the sidebar available only if a customer ID has been set to a numeric ID.
+    //   In case of a number value, it's definitely a valid customer ID.
+    //   In case of a string value, it can be a numeric value masked as a string, so we can try to parse it.
+    //   If not, it's probably an unknown email address, and therefore we have a customer to show.
+    return (
+      context.formValues.customer_id &&
+      (typeof context.formValues.customer_id === 'number' ||
+        !Number.isNaN(parseInt(context.formValues.customer_id as string, 10)))
+    )
+  },
+}

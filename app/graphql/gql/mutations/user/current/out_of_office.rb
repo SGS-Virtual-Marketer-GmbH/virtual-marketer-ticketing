@@ -1,0 +1,21 @@
+# Copyright (C) 2012-2026 Zammad Foundation, https://zammad-foundation.org/
+
+module Gql::Mutations
+  class User::Current::OutOfOffice < BaseMutation
+    description 'Update user profile out of office settings'
+
+    argument :input, Gql::Types::Input::OutOfOfficeInputType, description: 'Out of Office settings'
+
+    field :success, Boolean, description: 'Profile out of office settings updated successfully?'
+
+    requires_permission 'user_preferences.out_of_office+ticket.agent'
+
+    def resolve(input:)
+      Service::User::OutOfOffice
+        .with_current_user(context.current_user)
+        .execute(**input)
+
+      { success: true }
+    end
+  end
+end

@@ -1,0 +1,20 @@
+subscription ticketAIAssistanceSummaryUpdates($ticketId: ID!, $locale: String!) {
+  ticketAIAssistanceSummaryUpdates(ticketId: $ticketId, locale: $locale) {
+    summary {
+      customerRequest
+      conversationSummary
+      openQuestions
+      upcomingEvents
+      customerMood
+      customerEmotion
+    }
+    error {
+      message
+      exception
+    }
+    analytics {
+      ...AIAssistantAnalyticsMeta
+      isUnread
+    }
+  }
+}

@@ -1,0 +1,656 @@
+# Copyright (C) 2012-2026 Zammad Foundation, https://zammad-foundation.org/
+
+class CreateTicket < ActiveRecord::Migration[4.2]
+  def up
+    create_table :ticket_state_types do |t|
+      t.column :name,                 :string, limit: 250, null: false
+      t.column :note,                 :string, limit: 250, null: true
+      t.column :updated_by_id,        :integer,            null: false
+      t.column :created_by_id,        :integer,            null: false
+      t.timestamps limit: 3, null: false
+    end
+    add_index :ticket_state_types, [:name], unique: true
+    add_foreign_key :ticket_state_types, :users, column: :created_by_id
+    add_foreign_key :ticket_state_types, :users, column: :updated_by_id
+
+    create_table :ticket_states do |t|
+      t.references :state_type, null: false
+      t.column :name,                 :string, limit: 250,  null: false
+      t.column :next_state_id,        :integer,             null: true
+      t.column :ignore_escalation,    :boolean,             null: false, default: false
+      t.column :default_create,       :boolean,             null: false, default: false
+      t.column :default_follow_up,    :boolean,             null: false, default: false
+      t.column :default_close,        :boolean,             null: false, default: false
+      t.column :note,                 :string, limit: 250,  null: true
+      t.column :active,               :boolean,             null: false, default: true
+      t.column :updated_by_id,        :integer,             null: false
+      t.column :created_by_id,        :integer,             null: false
+      t.timestamps limit: 3, null: false
+    end
+    add_index :ticket_states, [:name], unique: true
+    add_index :ticket_states, [:default_create]
+    add_index :ticket_states, [:default_follow_up]
+    add_index :ticket_states, [:default_close]
+    add_foreign_key :ticket_states, :ticket_state_types, column: :state_type_id
+    add_foreign_key :ticket_states, :users, column: :created_by_id
+    add_foreign_key :ticket_states, :users, column: :updated_by_id
+
+    create_table :ticket_priorities do |t|
+      t.column :name,                 :string, limit: 250, null: false
+      t.column :default_create,       :boolean,            null: false, default: false
+      t.column :ui_icon,              :string, limit: 100, null: true
+      t.column :ui_color,             :string, limit: 100, null: true
+      t.column :note,                 :string, limit: 250, null: true
+      t.column :active,               :boolean,            null: false, default: true
+      t.column :updated_by_id,        :integer,            null: false
+      t.column :created_by_id,        :integer,            null: false
+      t.timestamps limit: 3, null: false
+    end
+    add_index :ticket_priorities, [:name], unique: true
+    add_index :ticket_priorities, [:default_create]
+    add_foreign_key :ticket_priorities, :users, column: :created_by_id
+    add_foreign_key :ticket_priorities, :users, column: :updated_by_id
+
+    create_table :tickets do |t|
+      t.references :group,                                                null: false
+      t.references :priority,                                             null: false
+      t.references :state,                                                null: false
+      t.references :organization,                                         null: true
+      t.column :number,                           :string,    limit: 60,  null: false
+      t.column :title,                            :string,    limit: 250, null: false
+      t.column :owner_id,                         :integer,               null: false
+      t.column :customer_id,                      :integer,               null: false
+      t.column :note,                             :string,    limit: 250, null: true
+      t.column :first_response_at,                :timestamp, limit: 3,   null: true
+      t.column :first_response_escalation_at,     :timestamp, limit: 3,   null: true
+      t.column :first_response_in_min,            :integer,               null: true
+      t.column :first_response_diff_in_min,       :integer,               null: true
+      t.column :close_at,                         :timestamp, limit: 3,   null: true
+      t.column :close_escalation_at,              :timestamp, limit: 3,   null: true
+      t.column :close_in_min,                     :integer,               null: true
+      t.column :close_diff_in_min,                :integer,               null: true
+      t.column :update_escalation_at,             :timestamp, limit: 3,   null: true
+      t.column :update_in_min,                    :integer,               null: true
+      t.column :update_diff_in_min,               :integer,               null: true
+      t.column :last_close_at,                    :timestamp, limit: 3,   null: true
+      t.column :last_contact_at,                  :timestamp, limit: 3,   null: true
+      t.column :last_contact_agent_at,            :timestamp, limit: 3,   null: true
+      t.column :last_contact_customer_at,         :timestamp, limit: 3,   null: true
+      t.column :last_owner_update_at,             :timestamp, limit: 3,   null: true
+      t.column :create_article_type_id,           :integer,               null: true
+      t.column :create_article_sender_id,         :integer,               null: true
+      t.column :article_count,                    :integer,               null: true
+      t.column :escalation_at,                    :timestamp, limit: 3,   null: true
+      t.column :pending_time,                     :timestamp, limit: 3,   null: true
+      t.column :type,                             :string,    limit: 100, null: true
+      t.column :time_unit,                        :decimal, precision: 6, scale: 2, null: true
+      t.column :preferences,                      :text, limit: 500.kilobytes + 1, null: true
+      t.column :ai_agent_running,                 :boolean, default: false, null: false
+      t.column :updated_by_id,                    :integer,               null: false
+      t.column :created_by_id,                    :integer,               null: false
+      t.timestamps limit: 3, null: false
+    end
+    add_index :tickets, [:state_id]
+    add_index :tickets, [:priority_id]
+    add_index :tickets, [:group_id]
+    add_index :tickets, [:owner_id]
+    add_index :tickets, [:customer_id]
+    add_index :tickets, %i[customer_id state_id created_at]
+    add_index :tickets, [:number], unique: true
+    add_index :tickets, [:title]
+    add_index :tickets, [:created_at]
+    add_index :tickets, [:updated_at]
+    add_index :tickets, [:first_response_at]
+    add_index :tickets, [:first_response_escalation_at]
+    add_index :tickets, [:first_response_in_min]
+    add_index :tickets, [:first_response_diff_in_min]
+    add_index :tickets, [:close_at]
+    add_index :tickets, [:close_escalation_at]
+    add_index :tickets, [:close_in_min]
+    add_index :tickets, [:close_diff_in_min]
+    add_index :tickets, [:escalation_at]
+    add_index :tickets, [:update_in_min]
+    add_index :tickets, [:update_diff_in_min]
+    add_index :tickets, [:last_contact_at]
+    add_index :tickets, [:last_contact_agent_at]
+    add_index :tickets, [:last_contact_customer_at]
+    add_index :tickets, [:last_owner_update_at]
+    add_index :tickets, [:create_article_type_id]
+    add_index :tickets, [:create_article_sender_id]
+    add_index :tickets, [:created_by_id]
+    add_index :tickets, [:pending_time]
+    add_index :tickets, [:type]
+    add_index :tickets, [:time_unit]
+    add_index :tickets, %i[group_id state_id]
+    add_index :tickets, %i[group_id state_id owner_id]
+    add_index :tickets, %i[group_id state_id updated_at]
+    add_index :tickets, %i[group_id state_id owner_id updated_at], name: 'index_tickets_on_group_id_state_id_owner_id_updated_at'
+    add_index :tickets, %i[group_id state_id created_at]
+    add_index :tickets, %i[group_id state_id owner_id created_at], name: 'index_tickets_on_group_id_state_id_owner_id_created_at'
+    add_index :tickets, %i[group_id state_id close_at]
+    add_index :tickets, %i[group_id state_id owner_id close_at], name: 'index_tickets_on_group_id_state_id_owner_id_close_at'
+    add_index :tickets, [:ai_agent_running]
+    add_foreign_key :tickets, :groups
+    add_foreign_key :tickets, :users, column: :owner_id
+    add_foreign_key :tickets, :users, column: :customer_id
+    add_foreign_key :tickets, :ticket_priorities, column: :priority_id
+    add_foreign_key :tickets, :ticket_states, column: :state_id
+    add_foreign_key :tickets, :organizations
+    add_foreign_key :tickets, :users, column: :created_by_id
+    add_foreign_key :tickets, :users, column: :updated_by_id
+
+    create_table :ticket_article_types do |t|
+      t.column :name,                 :string, limit: 250, null: false
+      t.column :note,                 :string, limit: 250, null: true
+      t.column :communication,        :boolean,            null: false, default: false
+      t.column :active,               :boolean,            null: false, default: true
+      t.column :updated_by_id,        :integer,            null: false
+      t.column :created_by_id,        :integer,            null: false
+      t.timestamps limit: 3, null: false
+    end
+    add_index :ticket_article_types, [:name], unique: true
+    add_foreign_key :ticket_article_types, :users, column: :created_by_id
+    add_foreign_key :ticket_article_types, :users, column: :updated_by_id
+
+    create_table :ticket_article_senders do |t|
+      t.column :name,                 :string, limit: 250, null: false
+      t.column :note,                 :string, limit: 250, null: true
+      t.column :updated_by_id,        :integer,            null: false
+      t.column :created_by_id,        :integer,            null: false
+      t.timestamps limit: 3, null: false
+    end
+    add_index :ticket_article_senders, [:name], unique: true
+    add_foreign_key :ticket_article_senders, :users, column: :created_by_id
+    add_foreign_key :ticket_article_senders, :users, column: :updated_by_id
+
+    create_table :ticket_articles do |t|
+      t.references :ticket,                                    null: false
+      t.references :type,                                      null: false
+      t.references :sender,                                    null: false
+      t.column :detected_language,    :string, limit: 8,       null: true
+      t.column :from,                 :string, limit: 3000,    null: true
+      t.column :to,                   :string, limit: 3000,    null: true
+      t.column :cc,                   :string, limit: 3000,    null: true
+      t.column :subject,              :string, limit: 3000,    null: true
+      t.column :reply_to,             :string, limit: 300,     null: true
+      t.column :message_id,           :string, limit: 3000,    null: true
+      t.column :message_id_md5,       :string, limit: 32,      null: true
+      t.column :in_reply_to,          :string, limit: 3000,    null: true
+      t.column :content_type,         :string, limit: 20,      null: false, default: 'text/plain'
+      t.column :body,                 :text,   limit: 20.megabytes + 1, null: false
+      t.column :internal,             :boolean, null: false, default: false
+      t.column :preferences,          :text, limit: 500.kilobytes + 1, null: true
+      t.column :updated_by_id,        :integer,                null: false
+      t.column :created_by_id,        :integer,                null: false
+      t.column :origin_by_id,         :integer
+      t.timestamps limit: 3, null: false
+    end
+    add_index :ticket_articles, [:ticket_id]
+    add_index :ticket_articles, [:message_id_md5]
+    add_index :ticket_articles, %i[message_id_md5 type_id], name: 'index_ticket_articles_message_id_md5_type_id'
+    add_index :ticket_articles, [:created_by_id]
+    add_index :ticket_articles, [:created_at]
+    add_index :ticket_articles, [:internal]
+    add_index :ticket_articles, [:type_id]
+    add_index :ticket_articles, [:sender_id]
+    add_foreign_key :ticket_articles, :tickets
+    add_foreign_key :ticket_articles, :ticket_article_types, column: :type_id
+    add_foreign_key :ticket_articles, :ticket_article_senders, column: :sender_id
+    add_foreign_key :ticket_articles, :users, column: :created_by_id
+    add_foreign_key :ticket_articles, :users, column: :updated_by_id
+    add_foreign_key :ticket_articles, :users, column: :origin_by_id
+
+    create_table :ticket_article_flags do |t|
+      t.references :ticket_article,                      null: false
+      t.column :key,                 :string, limit: 50, null: false
+      t.column :value,               :string, limit: 50, null: true
+      t.column :created_by_id,       :integer,           null: false
+      t.timestamps limit: 3, null: false
+    end
+    add_index :ticket_article_flags, %i[ticket_article_id created_by_id], name: 'index_ticket_article_flags_on_articles_id_and_created_by_id'
+    add_index :ticket_article_flags, %i[ticket_article_id key]
+    add_index :ticket_article_flags, [:ticket_article_id]
+    add_index :ticket_article_flags, [:created_by_id]
+    add_foreign_key :ticket_article_flags, :ticket_articles, column: :ticket_article_id
+    add_foreign_key :ticket_article_flags, :users, column: :created_by_id
+
+    create_table :ticket_time_accounting_types do |t|
+      t.column :name,                 :string, limit: 250, null: false
+      t.column :note,                 :string, limit: 250, null: true
+      t.column :active,               :boolean,            null: false, default: true
+      t.column :updated_by_id,        :integer,            null: false
+      t.column :created_by_id,        :integer,            null: false
+      t.timestamps limit: 3, null: false
+    end
+
+    add_index :ticket_time_accounting_types, [:name], unique: true
+
+    add_foreign_key :ticket_time_accounting_types, :users, column: :created_by_id
+    add_foreign_key :ticket_time_accounting_types, :users, column: :updated_by_id
+
+    create_table :ticket_time_accountings do |t|
+      t.references :ticket,                                       null: false
+      t.references :ticket_article,                               null: true
+      t.column :time_unit,      :decimal, precision: 6, scale: 2, null: false
+      t.column :type_id,        :integer,                         null: true
+      t.column :created_by_id,  :integer,                         null: false
+      t.timestamps limit: 3, null: false
+    end
+    add_index :ticket_time_accountings, [:ticket_id]
+    add_index :ticket_time_accountings, [:ticket_article_id]
+    add_index :ticket_time_accountings, [:created_by_id]
+    add_index :ticket_time_accountings, [:time_unit]
+    add_foreign_key :ticket_time_accountings, :tickets
+    add_foreign_key :ticket_time_accountings, :ticket_articles
+    add_foreign_key :ticket_time_accountings, :users, column: :created_by_id
+    add_foreign_key :ticket_time_accountings, :ticket_time_accounting_types, column: :type_id
+
+    create_table :ticket_counters do |t|
+      t.column :content,              :string, limit: 100, null: false
+      t.column :generator,            :string, limit: 100, null: false
+    end
+    add_index :ticket_counters, [:generator], unique: true
+
+    create_table :overviews do |t|
+      t.column :name,                 :string,  limit: 250,    null: false
+      t.column :link,                 :string,  limit: 250,    null: false
+      t.column :prio,                 :integer,                null: false
+      t.column :condition,            :text, limit: 500.kilobytes + 1, null: false
+      t.column :order,                :string,  limit: 2500,   null: false
+      t.column :group_by,             :string,  limit: 250,    null: true
+      t.column :group_direction,      :string,  limit: 250,    null: true
+      t.column :organization_shared,  :boolean,                null: false, default: false
+      t.column :out_of_office,        :boolean,                null: false, default: false
+      t.column :view,                 :string, limit: 1000, null: false
+      t.column :active,               :boolean,                null: false, default: true
+      t.column :updated_by_id,        :integer,                null: false
+      t.column :created_by_id,        :integer,                null: false
+      t.timestamps limit: 3, null: false
+    end
+    add_index :overviews, [:name]
+    add_foreign_key :overviews, :users, column: :created_by_id
+    add_foreign_key :overviews, :users, column: :updated_by_id
+
+    create_table :overviews_roles, id: false do |t|
+      t.references :overview
+      t.references :role
+    end
+    add_index :overviews_roles, [:overview_id]
+    add_index :overviews_roles, [:role_id]
+    add_foreign_key :overviews_roles, :overviews
+    add_foreign_key :overviews_roles, :roles
+
+    create_table :overviews_users, id: false do |t|
+      t.references :overview
+      t.references :user
+    end
+    add_index :overviews_users, [:overview_id]
+    add_index :overviews_users, [:user_id]
+    add_foreign_key :overviews_users, :overviews
+    add_foreign_key :overviews_users, :users
+
+    create_table :overviews_groups, id: false do |t|
+      t.references :overview
+      t.references :group
+    end
+    add_index :overviews_groups, [:overview_id]
+    add_index :overviews_groups, [:group_id]
+    add_foreign_key :overviews_groups, :overviews
+    add_foreign_key :overviews_groups, :groups
+
+    create_table :triggers do |t|
+      t.column :name,                     :string, limit: 250, null: false
+      t.column :condition,                :text, limit: 500.kilobytes + 1, null: false
+      t.column :perform,                  :text, limit: 500.kilobytes + 1, null: false
+      t.column :disable_notification,     :boolean,               null: false, default: true
+      t.column :localization,             :string, limit: 20,     null: true # thx to ApplicationModel::CanCreatesAndUpdates ...
+      t.column :timezone,                 :string, limit: 250,    null: true
+      t.column :note,                     :string, limit: 250,    null: true
+      t.column :activator,                :string, limit: 50,     null: false, default: 'action'
+      t.column :execution_condition_mode, :string, limit: 50,     null: false, default: 'selective'
+      t.column :active,                   :boolean,               null: false, default: true
+      t.column :updated_by_id,            :integer,               null: false
+      t.column :created_by_id,            :integer,               null: false
+      t.timestamps limit: 3, null: false
+    end
+    add_index :triggers, [:name], unique: true
+    add_index :triggers, %i[active activator]
+    add_foreign_key :triggers, :users, column: :created_by_id
+    add_foreign_key :triggers, :users, column: :updated_by_id
+
+    create_table :link_types do |t|
+      t.column :name,         :string, limit: 250,   null: false
+      t.column :note,         :string, limit: 250,   null: true
+      t.column :active,       :boolean,              null: false, default: true
+      t.timestamps limit: 3, null: false
+    end
+    add_index :link_types, [:name], unique: true
+
+    create_table :link_objects do |t|
+      t.column :name,         :string, limit: 250,   null: false
+      t.column :note,         :string, limit: 250,   null: true
+      t.column :active,       :boolean,              null: false, default: true
+      t.timestamps limit: 3, null: false
+    end
+    add_index :link_objects, [:name], unique: true
+
+    create_table :links do |t|
+      t.references :link_type,                            null: false
+      t.column :link_object_source_id,        :integer,   null: false
+      t.column :link_object_source_value,     :integer,   null: false
+      t.column :link_object_target_id,        :integer,   null: false
+      t.column :link_object_target_value,     :integer,   null: false
+      t.timestamps limit: 3, null: false
+    end
+    add_index :links, %i[link_object_source_id link_object_source_value link_object_target_id link_object_target_value link_type_id], unique: true, name: 'links_uniq_total'
+    add_foreign_key :links, :link_types
+
+    create_table :postmaster_filters do |t|
+      t.column :name,           :string, limit: 250,    null: false
+      t.column :channel,        :string, limit: 250,    null: false
+      t.column :match,          :text, limit: 500.kilobytes + 1, null: false
+      t.column :perform,        :text, limit: 500.kilobytes + 1, null: false
+      t.column :active,         :boolean,               null: false, default: true
+      t.column :note,           :string, limit: 250,    null: true
+      t.column :updated_by_id,  :integer,               null: false
+      t.column :created_by_id,  :integer,               null: false
+      t.timestamps limit: 3, null: false
+    end
+    add_index :postmaster_filters, [:channel]
+    add_foreign_key :postmaster_filters, :users, column: :created_by_id
+    add_foreign_key :postmaster_filters, :users, column: :updated_by_id
+
+    create_table :text_modules do |t|
+      t.column :name,                 :string,  limit: 250,  null: false
+      t.column :keywords,             :string,  limit: 500,  null: true
+      t.column :content,              :text,    limit: 10.megabytes + 1, null: false
+      t.column :note,                 :string,  limit: 250,  null: true
+      t.column :active,               :boolean,              null: false, default: true
+      t.column :updated_by_id,        :integer,              null: false
+      t.column :created_by_id,        :integer,              null: false
+      t.timestamps limit: 3, null: false
+    end
+    add_index :text_modules, [:name]
+    add_foreign_key :text_modules, :users, column: :created_by_id
+    add_foreign_key :text_modules, :users, column: :updated_by_id
+
+    create_table :text_modules_groups, id: false do |t|
+      t.references :text_module
+      t.references :group
+    end
+    add_index :text_modules_groups, [:text_module_id]
+    add_index :text_modules_groups, [:group_id]
+    add_foreign_key :text_modules_groups, :text_modules
+    add_foreign_key :text_modules_groups, :groups
+
+    create_table :templates do |t|
+      t.column :name,                 :string,  limit: 250,  null: false
+      t.column :options,              :text,    limit: 10.megabytes + 1, null: false
+      t.column :active,               :boolean, null: false, default: true
+      t.column :updated_by_id,        :integer, null: false
+      t.column :created_by_id,        :integer, null: false
+      t.timestamps limit: 3, null: false
+    end
+    add_index :templates, [:name]
+    add_foreign_key :templates, :users, column: :created_by_id
+    add_foreign_key :templates, :users, column: :updated_by_id
+
+    create_table :channels do |t|
+      t.references :group,                             null: true
+      t.column :area,           :string, limit: 100,   null: false
+      t.column :options,        :text,   limit: 500.kilobytes + 1,  null: true
+      t.column :active,         :boolean,              null: false, default: true
+      t.column :preferences,    :string, limit: 2000,  null: true
+      t.column :last_log_in,    :text,   limit: 500.kilobytes + 1, null: true
+      t.column :last_log_out,   :text,   limit: 500.kilobytes + 1, null: true
+      t.column :status_in,      :string, limit: 100,   null: true
+      t.column :status_out,     :string, limit: 100,   null: true
+      t.column :updated_by_id,  :integer,              null: false
+      t.column :created_by_id,  :integer,              null: false
+      t.timestamps limit: 3, null: false
+    end
+    add_index :channels, [:area]
+    add_foreign_key :channels, :groups
+    add_foreign_key :channels, :users, column: :created_by_id
+    add_foreign_key :channels, :users, column: :updated_by_id
+
+    create_table :slas do |t|
+      t.references :calendar,                                   null: false
+      t.column :name,                 :string, limit: 150,      null: true
+      t.column :first_response_time,  :integer,                 null: true
+      t.column :response_time,        :integer,                 null: true
+      t.column :update_time,          :integer,                 null: true
+      t.column :solution_time,        :integer,                 null: true
+      t.column :condition,            :text, limit: 500.kilobytes + 1, null: true
+      t.column :updated_by_id,        :integer,                 null: false
+      t.column :created_by_id,        :integer,                 null: false
+      t.timestamps limit: 3, null: false
+    end
+    add_index :slas, [:name], unique: true
+    add_foreign_key :slas, :users, column: :created_by_id
+    add_foreign_key :slas, :users, column: :updated_by_id
+
+    create_table :macros do |t|
+      t.string  :name,                   limit: 250, null: true
+      t.text    :perform,                limit: 500.kilobytes + 1, null: false
+      t.boolean :active,                                null: false, default: true
+      t.string  :ux_flow_next_up,                       null: false, default: 'none'
+      t.string  :note, limit: 250, null: true
+      t.integer :updated_by_id,                         null: false
+      t.integer :created_by_id,                         null: false
+      t.timestamps limit: 3, null: false
+    end
+    add_index :macros, [:name], unique: true
+    add_foreign_key :macros, :users, column: :created_by_id
+    add_foreign_key :macros, :users, column: :updated_by_id
+
+    create_table :chats do |t|
+      t.string  :name, limit: 250, null: true
+      t.integer :max_queue, null: false, default: 5
+      t.string  :note, limit: 250, null: true
+      t.boolean :active,                              null: false, default: true
+      t.boolean :public,                              null: false, default: false
+      t.string  :block_ip,               limit: 5000, null: true
+      t.string  :block_country,          limit: 5000, null: true
+      t.string  :allowed_websites,   limit: 5000, null: true
+      t.string  :preferences,            limit: 5000, null: true
+      t.integer :updated_by_id,                       null: false
+      t.integer :created_by_id,                       null: false
+      t.timestamps limit: 3, null: false
+    end
+    add_index :chats, [:name], unique: true
+    add_foreign_key :chats, :users, column: :created_by_id
+    add_foreign_key :chats, :users, column: :updated_by_id
+
+    create_table :chat_sessions do |t|
+      t.references :chat,                             null: false
+      t.string  :session_id,                          null: false
+      t.string  :name,                   limit: 250,  null: true
+      t.string  :state,                  limit:  50,  null: false, default: 'waiting' # running, closed
+      t.references :user,                             null: true
+      t.text    :preferences, limit: 100.kilobytes + 1, null: true
+      t.integer :updated_by_id,                       null: true
+      t.integer :created_by_id,                       null: true
+      t.timestamps limit: 3, null: false
+    end
+    add_index :chat_sessions, [:session_id]
+    add_index :chat_sessions, [:state]
+    add_index :chat_sessions, [:user_id]
+    add_index :chat_sessions, [:chat_id]
+    add_foreign_key :chat_sessions, :chats
+    add_foreign_key :chat_sessions, :users
+    add_foreign_key :chat_sessions, :users, column: :created_by_id
+    add_foreign_key :chat_sessions, :users, column: :updated_by_id
+
+    create_table :chat_messages do |t|
+      t.references :chat_session, null: false
+      t.text    :content, limit: 20.megabytes + 1, null: false
+      t.integer :created_by_id, null: true
+      t.timestamps limit: 3, null: false
+    end
+    add_index :chat_messages, [:chat_session_id]
+    add_foreign_key :chat_messages, :chat_sessions
+    add_foreign_key :chat_messages, :users, column: :created_by_id
+
+    create_table :chat_agents do |t|
+      t.boolean :active,                              null: false, default: true
+      t.integer :concurrent,                          null: false, default: 5
+      t.integer :updated_by_id,                       null: false
+      t.integer :created_by_id,                       null: false
+      t.timestamps limit: 3, null: false
+    end
+    add_index :chat_agents, [:active]
+    add_index :chat_agents, [:updated_by_id], unique: true
+    add_index :chat_agents, [:created_by_id], unique: true
+    add_foreign_key :chat_agents, :users, column: :created_by_id
+    add_foreign_key :chat_agents, :users, column: :updated_by_id
+
+    create_table :report_profiles do |t|
+      t.column :name,           :string, limit: 150, null: true
+      t.column :condition,      :text, limit: 500.kilobytes + 1, null: true
+      t.column :active,         :boolean,               null: false, default: true
+      t.column :updated_by_id,  :integer,               null: false
+      t.column :created_by_id,  :integer,               null: false
+      t.timestamps limit: 3, null: false
+    end
+    add_index :report_profiles, [:name], unique: true
+    add_foreign_key :report_profiles, :users, column: :created_by_id
+    add_foreign_key :report_profiles, :users, column: :updated_by_id
+
+    create_table :report_profiles_roles, id: false do |t|
+      t.references :profile, null: false, foreign_key: { to_table: :report_profiles }, index: true
+      t.references :role, null: false, foreign_key: true, index: true
+    end
+
+    create_table :webhooks do |t|
+      t.column :name,                       :string, limit: 250,              null: false
+      t.column :endpoint,                   :string, limit: 2000,             null: false
+      t.column :http_method,                :string, limit: 10,               null: false, default: 'post'
+      t.column :signature_token,            :string, limit: 200,              null: true
+      t.column :ssl_verify,                 :boolean,                         null: false, default: true
+      t.column :basic_auth_username,        :string, limit: 250,              null: true
+      t.column :basic_auth_password,        :string, limit: 250,              null: true
+      t.column :bearer_token,               :string, limit: 2500,             null: true
+      t.column :note,                       :string, limit: 500,              null: true
+      t.column :pre_defined_webhook_type,   :string, limit: 250,              null: true
+      t.column :customized_payload,         :boolean,                         null: false, default: false
+      t.column :custom_payload,             :text, limit: 500.kilobytes + 1,  null: true
+      t.column :preferences,                :text, limit: 500.kilobytes + 1,  null: true
+      t.column :active,                     :boolean,                         null: false, default: true
+      t.column :updated_by_id,              :integer,                         null: false
+      t.column :created_by_id,              :integer,                         null: false
+      t.timestamps limit: 3, null: false
+    end
+
+    create_table :ticket_shared_draft_zooms do |t|
+      t.references :ticket, null: false, foreign_key: { to_table: :tickets }
+      t.text       :new_article
+      t.text       :ticket_attributes
+      t.column :created_by_id, :integer, null: false
+      t.column :updated_by_id, :integer, null: false
+      t.timestamps limit: 3
+    end
+
+    create_table :ticket_shared_draft_starts do |t|
+      t.references :group, null: false, foreign_key: { to_table: :groups }
+      t.string     :name
+      t.text       :content
+      t.column :created_by_id, :integer, null: false
+      t.column :updated_by_id, :integer, null: false
+      t.timestamps limit: 3
+    end
+
+    create_table :checklists do |t|
+      t.string :name,      limit: 250,     null: false, default: ''
+      t.string :sorted_item_ids, null: false, array: true, default: []
+      t.references :created_by, null: false, foreign_key: { to_table: :users }
+      t.references :updated_by, null: false, foreign_key: { to_table: :users }
+      t.timestamps limit: 3, null: false
+    end
+
+    change_table :tickets do |t|
+      t.references :checklist, null: true, foreign_key: true, index: { unique: true }
+    end
+
+    create_table :checklist_items do |t|
+      t.text :text,             null: false, default: ''
+      t.boolean :checked,       null: false, default: false
+      t.references :checklist,  null: false, foreign_key: true
+      t.references :created_by, null: false, foreign_key: { to_table: :users }
+      t.references :updated_by, null: false, foreign_key: { to_table: :users }
+      t.references :ticket,     null: true,  foreign_key: true
+      t.timestamps limit: 3,    null: false
+    end
+    add_index :checklist_items, [:checked]
+
+    create_table :checklist_templates do |t|
+      t.string  :name,      limit: 250,     null: false, default: ''
+      t.boolean :active,    default: true,  null: false
+      t.string :sorted_item_ids, null: false, array: true, default: []
+      t.references :created_by, null: false, foreign_key: { to_table: :users }
+      t.references :updated_by, null: false, foreign_key: { to_table: :users }
+      t.timestamps limit: 3, null: false
+    end
+    add_index :checklist_templates, [:active]
+
+    create_table :checklist_template_items do |t|
+      t.text :text, null: false, default: ''
+      t.references :checklist_template,  null: false, foreign_key: true
+      t.references :created_by, null: false, foreign_key: { to_table: :users }
+      t.references :updated_by, null: false, foreign_key: { to_table: :users }
+      t.timestamps limit: 3, null: false
+    end
+
+    create_table :ticket_daily_event_locks do |t|
+      t.date :date, null: false
+      t.string :lock_type, null: false
+      t.string :lock_activator, null: false
+      t.references :ticket, null: false, type: :integer, foreign_key: { to_table: :tickets }
+      t.references :related_object, polymorphic: true, type: :integer, null: true
+
+      t.index %i[date lock_type lock_activator ticket_id related_object_type related_object_id],
+              name:   'index_daily_event_locks_on_unique_fields',
+              unique: true
+
+      t.timestamps limit: 3
+    end
+  end
+
+  def self.down
+    drop_table :report_profiles_roles
+    drop_table :checklist_template_items
+    drop_table :checklist_templates
+    drop_table :checklist_items
+    drop_table :checklists
+    drop_table :report_profiles
+    drop_table :chat_sessions
+    drop_table :chat_messages
+    drop_table :chat_agents
+    drop_table :chats
+    drop_table :macros
+    drop_table :slas
+    drop_table :channels
+    drop_table :templates
+    drop_table :text_modules_groups
+    drop_table :text_modules
+    drop_table :postmaster_filters
+    drop_table :triggers
+    drop_table :links
+    drop_table :link_types
+    drop_table :link_objects
+    drop_table :overviews
+    drop_table :ticket_counters
+    drop_table :ticket_time_accounting
+    drop_table :ticket_article_flags
+    drop_table :ticket_articles
+    drop_table :ticket_article_types
+    drop_table :ticket_article_senders
+    drop_table :tickets
+    drop_table :ticket_priorities
+    drop_table :ticket_states
+    drop_table :ticket_state_types
+    drop_table :webhooks
+    drop_table :ticket_shared_draft_zooms
+    drop_table :ticket_shared_draft_starts
+  end
+end

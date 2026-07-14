@@ -1,0 +1,156 @@
+# Workaround to enable usage of mixed SSH and Docker GitLab CI runners
+.template_lint:
+  stage: lint
+  extends:
+    - .job_rules_default
+
+.template_lint_rails:
+  extends:
+    - .template_lint
+  services:
+    - !reference [.services, postgresql]
+  before_script:
+    - !reference [.scripts, source_rvm]
+    - !reference [.scripts, bundle_install]
+    - !reference [.scripts, configure_environment]
+    - !reference [.scripts, zammad_db_init]
+  variables:
+    ZAMMAD_SAFE_MODE: 1
+
+# Must be a separate job because it uses a custom image.
+'lint: shellcheck':
+  extends:
+    - .template_lint
+  image: koalaman/shellcheck-alpine:stable
+  cache: []
+  before_script: []
+  script:
+    - shellcheck -S warning $(find . -name "*.sh" -o -name "functions" | egrep -v "/vendor|node_modules/")
+  after_script: []
+
+'lint: i18n & rails':
+  extends:
+    - .template_lint_rails
+  cache: !reference [.cache, read_only_full]
+  script:
+    - !reference [.scripts, pnpm_install]
+    - echo "Checking .po file syntax…"
+    - for FILE in i18n/*.pot i18n/*.po; do echo "Checking $FILE"; msgfmt -o /dev/null -c $FILE; done
+    - echo "Checking .pot catalog consistency…"
+    - bundle exec rails generate zammad:translation_catalog --check
+    - echo "Checking consistency of Settings types file…"
+    - bundle exec rails generate zammad:setting_types --check
+    - echo "Rails zeitwerk:check autoloader check…"
+    - bundle exec rails zeitwerk:check
+    - .gitlab/check_graphql_api_consistency.sh
+    - echo "Checking consistency of setting types API"
+    - bundle exec rails generate zammad:setting_types --check
+
+'lint: ruby & security':
+  extends:
+    - .template_lint
+  before_script:
+    - !reference [.scripts, source_rvm]
+    - !reference [.scripts, bundle_install]
+  after_script: []
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - tmp/brakeman-report.html
+    when: on_failure
+  script:
+    - echo "Rubocop check…"
+    - bundle exec .dev/rubocop/validate_todos.rb
+    - bundle exec rubocop --parallel
+    - echo "bundler-audit security check…"
+    - gem exec bundle-audit update
+    - gem exec bundle-audit
+    - echo "Brakeman security check…"
+    - bundle exec brakeman -o /dev/stdout -o tmp/brakeman-report.html
+    - echo "Checking if yard can generate documentation…"
+    - bundle exec yard --no-output --no-progress
+    - echo "Verify that vendored gems are not world writable"
+    - GEM_FILES=$(find vendor/ -name "*.rb" -perm -002)
+    - if [[ ! -z "$GEM_FILES" ]]; then echo $GEM_FILES; exit 1; fi # Raise error if files were found.
+    - echo "Finally, ensure cleanup.sh passes…"
+    - script/build/cleanup.sh
+
+'lint: markdown, coffee & css':
+  extends:
+    - .template_lint
+  cache: !reference [.cache, read_only_nodejs]
+  before_script:
+    - !reference [.scripts, pnpm_install]
+  script:
+    - echo "Coffeelint check…"
+    - coffeelint --rules ./.dev/coffeelint/rules/* app/
+    - echo "Stylelint check…"
+    - pnpm lint:css
+    - echo "Markdownlint check…"
+    - pnpm lint:md
+
+'lint: js':
+  extends:
+    - .template_lint
+  cache:
+    - !reference [.cache, read_only_nodejs]
+    - !reference [.cache, read_write_eslint]
+  before_script:
+    - !reference [.scripts, pnpm_install]
+    - !reference [.scripts, source_rvm]
+  script:
+    - echo "TypeScript compiler check…"
+    - pnpm lint:ts
+    - echo "ESLint check…"
+    - pnpm lint:js
+    - echo "Oxfmt check…"
+    - pnpm format:check
+    - pnpm analyse:vite-bundle -t list -o ./tmp/vite-bundle-stats.yml
+    - .gitlab/verify_vite_bundle_size.rb
+    # Artifacts are stored for failed jobs
+  artifacts:
+    expire_in: 1 week
+    when: on_failure
+    paths:
+      - tmp/vite-bundle-stats.yml
+
+# Must be a separate job because it may fail and is only executed manually.
+'lint: orphaned ruby gems':
+  extends:
+    - .template_lint_rails
+  allow_failure: true
+  rules:
+    - !reference [.job_rules, variable_filters]
+    - when: manual
+  script:
+    - bundle exec rake zammad:ci:bundle:orphaned 6
+
+'update CI variables':
+  extends:
+    - .template_lint_rails
+  rules:
+    - !reference [.job_rules, variable_filters]
+    - if: $CI_PIPELINE_SOURCE != "schedule"
+      when: manual
+      allow_failure: true
+    - when: on_success
+  script:
+    - bundle exec rake zammad:ci:update_ci_variables
+
+'lint: secret_detection':
+  extends: .template_lint
+  image:
+    name: 'zricethezav/gitleaks:latest'
+    entrypoint: ['']
+  cache: []
+  before_script: []
+  script:
+    # Since we clone with GIT_DEPTH=1, the commit has the entire codebase as a diff.
+    # Otherwise, we'd need to use --no-git to scan the entire codebase, but that is slower
+    #   as it also traverses directories not scanned by git.
+    - gitleaks detect --report-path secret-detection-report.json --verbose
+  after_script: []
+  # # GitLab can show this in a security widget, but that seems to be useless at this point (offers empty file for download).
+  # artifacts:
+  #   reports:
+  #     secret_detection: secret-detection-report.json

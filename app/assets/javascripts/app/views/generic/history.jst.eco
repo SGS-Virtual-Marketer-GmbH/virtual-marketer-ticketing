@@ -1,0 +1,31 @@
+<div>
+<a href="#" data-type="sortorder"><%- @T( 'Change order' ) %></a>
+
+<hr>
+
+<% for item in @items: %>
+  <div><%- @humanTime(item.created_at) %></div>
+  <div class="history-row-list">
+    <% for source in item.sources: %>
+      <% for source_user in source.users: %>
+        <span<% if !source.sourceable_name && source_user.id != 1: %> class="user-popover" data-id="<%= source_user.id %>"<% end %>>
+        <% if source.sourceable_name: %>
+          <%- @T(source.sourceable_type) %>: <%- @T(source.sourceable_name) %>
+        <% else if source_user.id == 1: %>
+          <%- @T('System') %>
+        <% else: %>
+          <%= source_user.object.displayName() %>
+        <% end %>
+        </span>
+        <ul>
+          <% for content in source_user.records: %>
+          <li><%- content %></li>
+          <% end %>
+        </ul>
+     <% end %>
+    <% end %>
+  </div>
+  <hr>
+<% end %>
+
+</div>

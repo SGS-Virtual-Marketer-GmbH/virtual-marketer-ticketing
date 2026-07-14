@@ -1,0 +1,132 @@
+{
+  "clientId": "#KEYCLOAK_ZAMMAD_BASE_URL/auth/saml/metadata",
+  "name": "Zammad",
+  "description": "",
+  "rootUrl": "",
+  "adminUrl": "",
+  "baseUrl": "",
+  "surrogateAuthRequired": false,
+  "enabled": true,
+  "alwaysDisplayInConsole": false,
+  "clientAuthenticatorType": "client-secret",
+  "secret": "**********",
+  "redirectUris": [
+    "#KEYCLOAK_ZAMMAD_BASE_URL/auth/saml/callback"
+  ],
+  "webOrigins": [
+    "#KEYCLOAK_ZAMMAD_BASE_URL"
+  ],
+  "notBefore": 0,
+  "bearerOnly": false,
+  "consentRequired": false,
+  "standardFlowEnabled": true,
+  "implicitFlowEnabled": false,
+  "directAccessGrantsEnabled": false,
+  "serviceAccountsEnabled": false,
+  "publicClient": false,
+  "frontchannelLogout": true,
+  "protocol": "saml",
+  "attributes": {
+    "saml.assertion.signature": "true",
+    "client.secret.creation.time": "1697048024",
+    "saml.force.post.binding": "true",
+    "saml.encrypt": "true",
+    "post.logout.redirect.uris": "+",
+    "saml_assertion_consumer_url_post": "#KEYCLOAK_ZAMMAD_BASE_URL/auth/saml/callback",
+    "saml.server.signature": "false",
+    "saml.server.signature.keyinfo.ext": "false",
+    "saml.signing.certificate": "#KEYCLOAK_ZAMMAD_CERTIFICATE",
+    "saml.artifact.binding.identifier": "NzG42pzk2nEJxq+Sj8jqpxslW0Q=",
+    "saml_single_logout_service_url_redirect": "#KEYCLOAK_ZAMMAD_BASE_URL/auth/saml/slo",
+    "saml.artifact.binding": "false",
+    "saml.signature.algorithm": "RSA_SHA256",
+    "saml_force_name_id_format": "false",
+    "saml.client.signature": "true",
+    "saml.encryption.certificate": "#KEYCLOAK_ZAMMAD_CERTIFICATE",
+    "saml.authnstatement": "true",
+    "display.on.consent.screen": "false",
+    "saml_name_id_format": "email",
+    "saml.allow.ecp.flow": "false",
+    "saml_signature_canonicalization_method": "http://www.w3.org/2001/10/xml-exc-c14n#",
+    "saml.onetimeuse.condition": "false",
+    "saml.server.signature.keyinfo.xmlSigKeyInfoKeyNameTransformer": "NONE",
+    "saml.encryption.algorithm": "",
+    "saml.encryption.digestMethod": "",
+    "saml.encryption.maskGenerationFunction": "",
+    "saml.encryption.keyAlgorithm": "http://www.w3.org/2001/04/xmlenc#rsa-1_5"
+  },
+  "authenticationFlowBindingOverrides": {},
+  "fullScopeAllowed": true,
+  "nodeReRegistrationTimeout": -1,
+  "protocolMappers": [
+    {
+      "name": "uid",
+      "protocol": "saml",
+      "protocolMapper": "saml-user-attribute-mapper",
+      "consentRequired": false,
+      "config": {
+        "user.attribute": "uid",
+        "aggregate.attrs": "false",
+        "friendly.name": "Unique Identifier",
+        "attribute.name": "uid"
+      }
+    },
+    {
+      "name": "email",
+      "protocol": "saml",
+      "protocolMapper": "saml-user-attribute-mapper",
+      "consentRequired": false,
+      "config": {
+        "attribute.nameformat": "Basic",
+        "user.attribute": "email",
+        "friendly.name": "Email address",
+        "attribute.name": "email"
+      }
+    },
+    {
+      "name": "name",
+      "protocol": "saml",
+      "protocolMapper": "saml-user-attribute-mapper",
+      "consentRequired": false,
+      "config": {
+        "attribute.nameformat": "Basic",
+        "user.attribute": "username",
+        "friendly.name": "Full name",
+        "attribute.name": "name"
+      }
+    },
+    {
+      "name": "first_name",
+      "protocol": "saml",
+      "protocolMapper": "saml-user-attribute-mapper",
+      "consentRequired": false,
+      "config": {
+        "attribute.nameformat": "Basic",
+        "user.attribute": "firstName",
+        "friendly.name": "Given name",
+        "attribute.name": "first_name"
+      }
+    },
+    {
+      "name": "last_name",
+      "protocol": "saml",
+      "protocolMapper": "saml-user-attribute-mapper",
+      "consentRequired": false,
+      "config": {
+        "attribute.nameformat": "Basic",
+        "user.attribute": "lastName",
+        "friendly.name": "Family name",
+        "attribute.name": "last_name"
+      }
+    }
+  ],
+  "defaultClientScopes": [
+    "role_list"
+  ],
+  "optionalClientScopes": [],
+  "access": {
+    "view": true,
+    "configure": true,
+    "manage": true
+  }
+}

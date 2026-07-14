@@ -1,0 +1,8 @@
+<tr class="js-entry">
+  <td style="width: 50%" class="settings-list-control-cell js-ldapList">
+  <td style="width: 35%" class="settings-list-control-cell js-roleList">
+  <td style="width: 10%" class="settings-list-control-cell js-recursive">
+  <td class="settings-list-row-control">
+    <div class="btn btn--text js-remove">
+      <%- @Icon('trash') %> <%- @T('Remove') %>
+    </div>

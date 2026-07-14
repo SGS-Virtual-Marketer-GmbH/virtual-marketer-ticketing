@@ -1,0 +1,8 @@
+mutation ticketLiveUserUpsert($id: ID!, $app: EnumTaskbarApp!, $editing: Boolean!) {
+  ticketLiveUserUpsert(id: $id, app: $app, editing: $editing) {
+    success
+    errors {
+      ...errors
+    }
+  }
+}

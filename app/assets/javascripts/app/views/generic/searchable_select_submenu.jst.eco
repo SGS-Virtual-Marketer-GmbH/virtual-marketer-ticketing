@@ -1,0 +1,11 @@
+<ul class="dropdown-submenu js-optionsSubmenu" role="menu" data-parent-value="<%= @parentValue %>" data-level="<%= @level %>" hidden>
+  <% if @title: %>
+  <li role="button" class="dropdown-controls js-back" title="<%- @T('Go Back') %>">
+    <%- @Icon('arrow-left') %>
+    <div class="dropdown-title">
+      <%= @title %>
+    </div>
+  </li>
+  <% end %>
+  <%- @options %>
+</ul>

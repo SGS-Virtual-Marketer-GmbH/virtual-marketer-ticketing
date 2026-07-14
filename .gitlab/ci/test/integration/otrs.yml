@@ -1,0 +1,38 @@
+.template_integration_otrs:
+  extends:
+    - .template_integration
+  script:
+    - !reference [.scripts, zammad_db_init]
+    - bundle exec rspec spec/integration/otrs_spec.rb
+  services:
+    - !reference [.services, postgresql]
+    - !reference [.services, redis]
+    - !reference [.services, memcached]
+    - name: $CI_REGISTRY/docker/zammad-ci-otrsimport-db:$OTRS_CONTAINER_TAG
+      alias: zammad-ci-otrsimport-db
+    - name: $CI_REGISTRY/docker/zammad-ci-otrsimport-app:$OTRS_CONTAINER_TAG
+      alias: zammad-ci-otrsimport-app
+  variables:
+    IMPORT_OTRS_ENDPOINT: 'http://zammad-ci-otrsimport-app/otrs/public.pl?Action=ZammadMigrator'
+    TZ: 'Europe/Berlin' # Required for the zammad-ci-otrsimport-app containers
+
+.template_integration_otrs_manual:
+  extends:
+    - .template_integration_otrs
+  rules:
+    - !reference [.job_rules, variable_filters]
+    - when: manual
+      allow_failure: true
+
+rspec:integration:otrs:6:
+  extends:
+    - .template_integration_otrs
+  variables:
+    OTRS_CONTAINER_TAG: 'otrs6'
+
+rspec:integration:otrs:manual:
+  extends:
+    - .template_integration_otrs_manual
+  parallel:
+    matrix:
+      - OTRS_CONTAINER_TAG: [otrs5, otrs4, otrs33, otrs32, otrs31]

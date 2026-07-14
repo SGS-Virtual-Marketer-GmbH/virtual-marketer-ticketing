@@ -1,0 +1,5 @@
+query ticketHistory($ticketId: ID!) {
+  ticketHistory(ticketId: $ticketId) {
+    ...HistoryGroup
+  }
+}

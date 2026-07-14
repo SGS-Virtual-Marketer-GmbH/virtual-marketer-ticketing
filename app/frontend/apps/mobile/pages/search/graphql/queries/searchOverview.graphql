@@ -1,0 +1,85 @@
+query search($search: String!, $onlyIn: EnumSearchableModels!, $limit: Int = 30) {
+  search(search: $search, onlyIn: $onlyIn, limit: $limit) {
+    totalCount
+    items {
+      __typename
+      ... on Ticket {
+        id
+        internalId
+        title
+        number
+        state {
+          id
+          name
+        }
+        priority {
+          name
+          defaultCreate
+          uiColor
+        }
+        customer {
+          id
+          internalId
+          fullname
+        }
+        updatedAt
+        updatedBy {
+          id
+          fullname
+        }
+        stateColorCode
+      }
+      ... on User {
+        id
+        internalId
+        firstname
+        lastname
+        image
+        active
+        outOfOffice
+        outOfOfficeStartAt
+        outOfOfficeEndAt
+        vip
+        organization {
+          id
+          internalId
+          name
+        }
+        updatedAt
+        updatedBy {
+          id
+          fullname
+        }
+        ticketsCount {
+          open
+          closed
+        }
+      }
+      ... on Organization {
+        id
+        internalId
+        members(first: 2) {
+          edges {
+            node {
+              id
+              fullname
+            }
+          }
+          totalCount
+        }
+        active
+        name
+        vip
+        updatedAt
+        updatedBy {
+          id
+          fullname
+        }
+        ticketsCount {
+          open
+          closed
+        }
+      }
+    }
+  }
+}

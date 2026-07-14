@@ -1,0 +1,35 @@
+{
+  "id": "zammad-deps",
+  "version": "1.0.0",
+  "name": "Zammad Dependency Installer",
+  "description": "Installs dependencies required for Zammad.",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "andyyaldoo.vscode-json",
+        "anthropic.claude-code",
+        "bradlc.vscode-tailwindcss",
+        "dariofuzinato.vue-peek",
+        "davidanson.vscode-markdownlint",
+        "dbaeumer.vscode-eslint",
+        "dotjoshjohnson.xml",
+        "eamodio.gitlens",
+        "ezforo.copy-relative-path-and-line-numbers",
+        "jock.svg",
+        "kaiwood.endwise",
+        "mde.select-highlight-minimap",
+        "oxc.oxc-vscode",
+        "redhat.vscode-yaml",
+        "shardulm94.trailing-spaces",
+        "shopify.ruby-lsp",
+        "slb235.vscode-coffeelint",
+        "streetsidesoftware.code-spell-checker",
+        "timonwong.shellcheck",
+        "vitest.explorer",
+        "vue.volar"
+      ]
+    }
+  },
+  "privileged": true,
+  "installsAfter": ["ghcr.io/devcontainers/features/go"]
+}

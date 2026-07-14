@@ -1,0 +1,83 @@
+<!-- Copyright (C) 2012-2026 Zammad Foundation, https://zammad-foundation.org/ -->
+
+<script setup lang="ts">
+import { computed } from 'vue'
+
+import type { BadgeVariant } from '#shared/components/CommonBadge/types.ts'
+import type { Sizes } from '#shared/components/CommonLabel/types.ts'
+import { useSessionStore } from '#shared/stores/session.ts'
+
+import {
+  NavigationMenuDensity,
+  type NavigationMenuEntry,
+} from '#desktop/components/NavigationMenu/types.ts'
+
+interface Props {
+  items: NavigationMenuEntry[]
+  density?: NavigationMenuDensity
+  countVariant?: BadgeVariant
+  countSize?: Sizes
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  density: NavigationMenuDensity.Comfortable,
+  countVariant: 'info',
+  countSize: 'xs',
+})
+
+const { user } = useSessionStore()
+
+const availableItems = computed(() => props.items.filter((entry) => entry.show?.(user) ?? true))
+
+const paddingClasses = computed(() =>
+  props.density === NavigationMenuDensity.Dense ? 'px-2 py-1' : 'px-2 py-3',
+)
+</script>
+
+<template>
+  <nav class="flex p-0">
+    <ul class="m-0 flex basis-full flex-col gap-1 p-0">
+      <li v-for="entry in availableItems" :key="entry.id || entry.label">
+        <slot v-bind="{ entry, paddingClasses, countSize, countVariant }">
+          <CommonLink
+            class="flex items-center gap-1 rounded-lg! text-sm text-gray-100 focus-visible-app-default hover:bg-blue-600 hover:text-black! hover:no-underline! dark:text-neutral-400 dark:hover:bg-blue-900 dark:hover:text-white!"
+            :class="[paddingClasses]"
+            exact-active-class="bg-blue-800! w-full text-white! hover:text-white!"
+            internal
+            :link="entry.route"
+          >
+            <template #default="{ isActive }">
+              <CommonIcon
+                v-if="entry.icon"
+                size="small"
+                aria-hidden="true"
+                class="h-4 shrink-0"
+                :class="entry.iconColor"
+                :name="entry.icon"
+              />
+              <CommonLabel
+                class="block! w-0 grow truncate text-current!"
+                :aria-label="$t(entry.title)"
+              >
+                {{ $t(entry.label) }}
+              </CommonLabel>
+              <CommonBadge
+                v-if="entry.count !== undefined"
+                class="leading-snug font-bold"
+                :size="countSize"
+                :variant="countVariant"
+                :class="{
+                  'bg-transparent! text-white!': isActive,
+                  'cursor-pointer': !!entry.route,
+                }"
+                rounded
+              >
+                {{ entry.count }}
+              </CommonBadge>
+            </template>
+          </CommonLink>
+        </slot>
+      </li>
+    </ul>
+  </nav>
+</template>

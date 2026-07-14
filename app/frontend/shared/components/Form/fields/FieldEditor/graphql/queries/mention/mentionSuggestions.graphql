@@ -1,0 +1,14 @@
+query mentionSuggestions($query: String!, $groupId: ID!) {
+  mentionSuggestions(query: $query, groupId: $groupId) {
+    id
+    internalId
+    fullname
+    email
+    image
+    vip
+    outOfOffice
+    outOfOfficeStartAt
+    outOfOfficeEndAt
+    active
+  }
+}

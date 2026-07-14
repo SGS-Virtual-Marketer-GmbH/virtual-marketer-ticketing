@@ -1,0 +1,109 @@
+# Copyright (C) 2012-2026 Zammad Foundation, https://zammad-foundation.org/
+
+class FormUpdater::Updater
+  include Mixin::RequiredSubPaths
+
+  # Context from GraphQL or possibly other environments.
+  # It must respond to :current_user and :current_user? for session information (see Gql::Context::CurrentUserAware).
+  # It may respond to :schema with an object providing :id_for_object to perform ID mappings like in Gql::ZammadSchema.
+  attr_reader :context, :current_user, :relation_fields, :meta, :data, :id, :object, :result, :flags
+
+  def initialize(context:, relation_fields:, meta:, data:, id: nil)
+    @context         = context
+    @meta            = meta
+    @data            = data
+    @id              = id
+    @current_user    = context[:current_user]
+
+    @result = {}
+    @flags  = {}
+
+    # Build lookup for relation fields for better usage.
+    @relation_fields = relation_fields.to_h do |relation_field|
+      [relation_field[:name], relation_field.to_h]
+    end
+  end
+
+  def object_type
+    raise NotImplementedError
+  end
+
+  def self.updaters
+    descendants
+  end
+
+  def self.requires_authentication
+    true
+  end
+
+  def self.required_permissions
+    []
+  end
+
+  def authorized?
+    if self.class.required_permissions.present? && !current_user.permissions?(self.class.required_permissions)
+      return false
+    end
+
+    # The authorized function needs to be implemented for any updaters which have a `id`.
+    if id
+      @object = Gql::ZammadSchema.authorized_object_from_id id, type: object_type, user: current_user
+    end
+
+    true
+  end
+
+  def resolve
+    validate_workflows if self.class.include?(FormUpdater::Concerns::ChecksCoreWorkflow)
+    resolve_relation_fields if relation_fields.present?
+
+    handle_updater_flags if self.class.method_defined?(:handle_updater_flags)
+
+    {
+      fields: result,
+      flags:  flags
+    }
+  end
+
+  private
+
+  def resolve_relation_fields
+    relation_fields.each do |name, relation_field|
+      relation_resolver = get_relation_resolver(relation_field)
+
+      result_initialize_field(name)
+
+      result[relation_field[:name]][:options] = relation_resolver.options
+
+      ensure_field_value_int(result[relation_field[:name]])
+    end
+  end
+
+  def ensure_field_value_int(field)
+    return if field[:value].blank?
+
+    field[:value] = field[:value].to_i
+  end
+
+  RELATION_CLASS_PREFIX = 'FormUpdater::Relation::'.freeze
+
+  def get_relation_resolver(relation_field)
+    relation_class = "#{RELATION_CLASS_PREFIX}#{relation_field[:name].humanize}".safe_constantize
+    if !relation_class
+      relation_class = "#{RELATION_CLASS_PREFIX}#{relation_field[:relation]}".constantize
+    end
+
+    relation_class.new(
+      context:      context,
+      current_user: current_user,
+      data:         data,
+      filter_ids:   relation_field[:filter_ids],
+    )
+  rescue
+    raise "Cannot resolve relation type #{relation_field[:relation]} (#{relation_field[:name]})."
+  end
+
+  def result_initialize_field(name)
+    result[name] ||= {}
+  end
+end

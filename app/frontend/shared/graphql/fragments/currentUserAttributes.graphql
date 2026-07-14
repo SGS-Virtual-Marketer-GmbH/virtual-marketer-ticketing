@@ -1,0 +1,14 @@
+fragment currentUserAttributes on User {
+  ...userAttributes
+  authorizations {
+    id
+    provider
+    uid
+    username
+  }
+  email
+  permissions {
+    names
+  }
+  hasBetaUiSwitchAvailable
+}

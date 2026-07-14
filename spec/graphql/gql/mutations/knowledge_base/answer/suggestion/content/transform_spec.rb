@@ -1,0 +1,104 @@
+# Copyright (C) 2012-2026 Zammad Foundation, https://zammad-foundation.org/
+
+require 'rails_helper'
+
+RSpec.describe Gql::Mutations::KnowledgeBase::Answer::Suggestion::Content::Transform, current_user_id: 1, type: :graphql do
+  context 'when fetching content', authenticated_as: :agent do
+    let(:agent)    { create(:agent) }
+    let(:customer) { create(:customer) }
+
+    let(:knowledge_base_answer) { create(:knowledge_base_answer, :published, :with_image, :with_attachment) }
+    let(:knowledge_base_answer_translation) { knowledge_base_answer.translation }
+
+    let(:mutation) do
+      <<~MUTATION
+        mutation knowledgeBaseAnswerSuggestionContentTransform(
+          $translationId: ID!
+          $formId: FormId!
+        ) {
+          knowledgeBaseAnswerSuggestionContentTransform(
+            translationId: $translationId
+            formId: $formId
+          ) {
+            body
+            attachments {
+              id
+              name
+              size
+              type
+              preferences
+            }
+            errors {
+              message
+              field
+            }
+          }
+        }
+      MUTATION
+    end
+
+    let(:variables) { { translationId: Gql::ZammadSchema.id_from_object(knowledge_base_answer_translation), formId: '5570fac8-8868-40b7-89e7-1cdabbd954ba' } }
+
+    before do
+      gql.execute(mutation, variables: variables)
+    end
+
+    context 'with authenticated session' do
+      let(:copied_attachments)          { Store.list(object: 'UploadCache', o_id: '5570fac8-8868-40b7-89e7-1cdabbd954ba') }
+      let(:copied_inline_attachments)   { copied_attachments.select(&:inline?) }
+      let(:copied_attached_attachments) { copied_attachments.reject(&:inline?) }
+
+      it 'converts inline images to base64 data' do
+        expect(gql.result.data[:body]).to include("src=\"/api/v1/attachments/#{copied_inline_attachments.first.id}")
+      end
+
+      it 'contains attachments' do
+        attachment = copied_attached_attachments.first
+        expect(gql.result.data[:attachments]).to match_array(include(
+                                                               id:          Gql::ZammadSchema.id_from_object(attachment),
+                                                               name:        attachment.filename,
+                                                               size:        attachment.size.to_i,
+                                                               type:        attachment.preferences['Content-Type'],
+                                                               preferences: attachment.preferences,
+                                                             ))
+      end
+
+      context 'with not existing translation' do
+        let(:variables) { { translationId: Gql::ZammadSchema.id_from_object(knowledge_base_answer), formId: '5570fac8-8868-40b7-89e7-1cdabbd954ba' } }
+
+        it 'raises an error' do
+          expect(gql.result.error_type).to eq(ActiveRecord::RecordNotFound)
+        end
+      end
+    end
+
+    context 'when agent has no KB category access to an internal answer', authenticated_as: :restricted_agent do
+      let(:restricted_agent)               { create(:agent) }
+      let(:internal_knowledge_base_answer) { create(:knowledge_base_answer, :internal, :with_image, :with_attachment) }
+      let(:variables)                      { { translationId: Gql::ZammadSchema.id_from_object(internal_knowledge_base_answer.translation), formId: '5570fac8-8868-40b7-89e7-1cdabbd954ba' } }
+
+      before do
+        KnowledgeBase::PermissionsUpdate.new(internal_knowledge_base_answer.category).update!(restricted_agent.roles.first => 'none')
+        gql.execute(mutation, variables: variables)
+      end
+
+      it 'raises a forbidden error' do
+        expect(gql.result.error_type).to eq(Exceptions::Forbidden)
+      end
+    end
+
+    context 'without proper permissions', authenticated_as: :admin do
+      let(:admin) { create(:admin_only) }
+
+      it 'raises an error' do
+        expect(gql.result.error_type).to eq(Exceptions::Forbidden)
+      end
+    end
+
+    context 'without authenticated session', authenticated_as: :customer do
+      it 'fails with error type' do
+        expect(gql.result.error_type).to eq(Exceptions::Forbidden)
+      end
+    end
+  end
+end

@@ -1,0 +1,9 @@
+mutation ticketUpdateBulk($selector: TicketBulkSelectorInput!, $perform: TicketBulkPerformInput!) {
+  ticketUpdateBulk(selector: $selector, perform: $perform) {
+    async
+    total
+    failedCount
+    inaccessibleTicketIds
+    invalidTicketIds
+  }
+}

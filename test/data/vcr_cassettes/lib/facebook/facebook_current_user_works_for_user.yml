@@ -1,0 +1,65 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://graph.facebook.com/me?access_token=<FACEBOOK_ADMIN_ACCESS_TOKEN>
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday v2.7.4
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Etag:
+      - '"54792326a6e15374d264b1adce56bcde4e23b76c"'
+      Content-Type:
+      - application/json; charset=UTF-8
+      Vary:
+      - Origin
+      Cross-Origin-Resource-Policy:
+      - cross-origin
+      X-App-Usage:
+      - '{"call_count":0,"total_cputime":0,"total_time":0}'
+      X-Fb-Rlafr:
+      - '0'
+      Access-Control-Allow-Origin:
+      - "*"
+      Facebook-Api-Version:
+      - v16.0
+      Strict-Transport-Security:
+      - max-age=15552000; preload
+      Pragma:
+      - no-cache
+      Cache-Control:
+      - private, no-cache, no-store, must-revalidate
+      Expires:
+      - Sat, 01 Jan 2000 00:00:00 GMT
+      X-Fb-Request-Id:
+      - AmRE5Za6oRIzgk448rprxIG
+      X-Fb-Trace-Id:
+      - B96QeAjYXVc
+      X-Fb-Rev:
+      - '1007457467'
+      X-Fb-Debug:
+      - eaeh4jChcZP6ELWPaeuYW2235mWZBx7UH1eSs1sM71/VyDDDeTBvWuTjntaOXbEiDD525JYCcWz1cbO+0Da7wQ==
+      Date:
+      - Tue, 09 May 2023 10:59:01 GMT
+      Alt-Svc:
+      - h3=":443"; ma=86400
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '46'
+    body:
+      encoding: UTF-8
+      string: '{"name":"<FACEBOOK_ADMIN_FIRSTNAME> <FACEBOOK_ADMIN_LASTNAME>","id":"<FACEBOOK_ADMIN_USER_ID>"}'
+  recorded_at: Tue, 09 May 2023 10:59:01 GMT
+recorded_with: VCR 6.1.0

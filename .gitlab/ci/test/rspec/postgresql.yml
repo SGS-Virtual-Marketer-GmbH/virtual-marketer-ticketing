@@ -1,0 +1,12 @@
+.template_rspec_postgresql:
+  extends:
+    - .template_rspec
+  services:
+  - !reference [.services, postgresql]
+  - !reference [.services, redis]
+  - !reference [.services, memcached]
+
+rspec:
+  extends:
+    - .template_rspec_postgresql
+  parallel: 8

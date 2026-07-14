@@ -1,0 +1,127 @@
+// Copyright (C) 2012-2026 Zammad Foundation, https://zammad-foundation.org/
+
+export default {
+  'vip-user': 'crown',
+  'vip-organization': 'crown-silver',
+  organization: 'buildings',
+  'inactive-organization': 'buildings-slash',
+  'input-cancel': 'close-small',
+  facebook: 'facebook',
+  github: 'github',
+  gitlab: 'gitlab',
+  google: 'google',
+  linkedin: 'linkedin',
+  sso: 'key',
+  microsoft: 'microsoft',
+  saml: 'saml',
+  twitter: 'twitter',
+  weibo: 'sina-weibo',
+  tooltip: 'info',
+
+  'common-alert-danger': 'x-circle',
+  'common-alert-dismiss': 'x-lg',
+  'common-alert-info': 'info-circle',
+  'common-alert-success': 'check-circle-outline',
+  'common-alert-warning': 'exclamation-triangle',
+
+  'common-notification-warn': 'exclamation-triangle',
+  'common-notification-success': 'check-circle-outline',
+  'common-notification-error': 'x-circle',
+  'common-notification-info': 'info-circle',
+
+  'ticket-escalating': 'warning-triangle',
+  'ticket-state-circle': 'check-circle-no',
+
+  'encryption-enabled': 'lock',
+  'encryption-disabled': 'unlock',
+  'sign-enabled': 'patch-check',
+  'sign-disabled': 'patch-x',
+
+  'remove-attachment': 'x-lg',
+
+  // editor, some of them are the same
+  'text-style-underline': 'type-underline',
+  'text-style-bold': 'type-bold',
+  'text-style-italic': 'type-italic',
+  'text-style-strikethrough': 'type-strikethrough',
+  'editor-inline-image': 'image',
+  'editor-inline-link': 'link-45deg',
+  'text-style-h': 'type-h',
+  'text-style-h1': 'type-h1',
+  'text-style-h2': 'type-h2',
+  'text-style-h3': 'type-h3',
+  'editor-ordered-list': 'list-ol',
+  'editor-bullet-list': 'list-ul',
+  'editor-remove-formatting': 'remove-formatting',
+  'editor-mention-user': 'at',
+  'editor-mention-knowledge-base': 'book',
+  'editor-mention-text-module': 'text-modules',
+  'editor-table': 'table',
+  'editor-code': 'code',
+  'editor-code-block': 'code-square',
+  'editor-code-slash': 'code-slash',
+  'editor-indent-right': 'text-indent-right',
+  'editor-indent-left': 'text-indent-left',
+  'editor-text-color': 'color',
+  'editor-action-checkmark': 'check2',
+  'editor-insert-divider': 'insert-hr',
+
+  '2fa-security-keys': 'key',
+  '2fa-authenticator-app': 'phone',
+
+  'form-field-link': 'box-arrow-up-right',
+
+  // File input field
+  attachment: 'paperclip',
+  template: 'file-text',
+  library: 'file-text',
+  photos: 'file-image',
+  audio: 'file-music',
+  video: 'file-play',
+  calendar: 'file-calendar',
+  'mail-file': 'file-email',
+
+  'phone-in': 'telephone-inbound',
+  'phone-out': 'telephone-outbound',
+  'mail-out': 'envelope',
+  mail: 'envelope',
+  note: 'pencil-square',
+  phone: 'telephone',
+  message: 'sms',
+
+  // these aliases are used in shared context, but they refer to the same name
+  search: 'search',
+  loading: 'spinner',
+  show: 'eye',
+  hide: 'eye-slash',
+
+  // WhatsApp status icons
+  read: 'check-double-circle',
+  delivered: 'check-all',
+  send: 'check2',
+
+  // Icons in shared article security composables
+  'signing-success': 'patch-check',
+  'signing-fail': 'patch-x',
+  'encryption-success': 'lock',
+  'encryption-fail': 'unlock',
+
+  // Article actions
+  'lock-open': 'unlock',
+  trash: 'trash3',
+  'reply-alt': 'reply-all',
+  web: 'chat-right-text',
+
+  // Conflicting names
+  mobile: 'phone',
+
+  // Avatar indicator
+  'avatar-indicator-inactive': 'user-inactive',
+  'avatar-indicator-without-access': 'no-notifications',
+  'avatar-indicator-out-of-office': 'vacation2',
+  'avatar-indicator-editing-desktop': 'pencil',
+  'avatar-indicator-editing-mobile': 'phone-pencil',
+  'avatar-indicator-desktop': 'avatar-indicator-desktop',
+  'avatar-indicator-mobile': 'phone',
+  'avatar-indicator-idle': 'user-idle-2',
+}

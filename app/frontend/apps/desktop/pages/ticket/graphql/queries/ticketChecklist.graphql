@@ -1,0 +1,18 @@
+query ticketChecklist($ticketId: ID!) {
+  ticketChecklist(ticketId: $ticketId) {
+    id
+    name
+    completed
+    incomplete
+    items {
+      id
+      text
+      checked
+      ticketReference {
+        ticket {
+          ...referencingTicket
+        }
+      }
+    }
+  }
+}

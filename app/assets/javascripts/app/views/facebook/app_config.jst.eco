@@ -1,0 +1,34 @@
+<div class="alert alert--danger hidden" role="alert"></div>
+<p>
+  <%- @T('You can find a tutorial on how to manage a %s in our online documentation %l.', 'Facebook App', 'https://admin-docs.zammad.org/en/latest/channels/facebook.html') %>
+</p>
+<fieldset>
+  <h2><%- @T('Enter your %s App Keys', 'Facebook') %></h2>
+  <div class="input form-group">
+    <div class="formGroup-label">
+      <label for="application_id"><%- @T('Facebook APP ID') %> <span>*</span></label>
+    </div>
+    <div class="controls">
+      <input id="application_id" type="text" name="application_id" value="<% if @external_credential && @external_credential.credentials: %><%= @external_credential.credentials.application_id %><% end %>" class="form-control" required autocomplete="off">
+    </div>
+  </div>
+  <div class="input form-group">
+    <div class="formGroup-label">
+      <label for="application_secret"><%- @T('Facebook App Secret') %> <span>*</span></label>
+    </div>
+    <div class="controls">
+      <input id="application_secret" type="password" name="application_secret" value="<% if @external_credential && @external_credential.credentials: %><%= @external_credential.credentials.application_secret %><% end %>" class="form-control" required autocomplete="off">
+    </div>
+  </div>
+  <h2><%- @T('Your callback URL') %></h2>
+  <div class="input form-group">
+    <div class="controls controls--button ignore-readonly">
+      <input readonly type="text" value="<%= @callbackUrl %>" class="form-control js-select js-permanentReadonly">
+      <div class="controls-button u-clickable js-copy" role="button" aria-label="<%- @T('Copy to clipboard') %>">
+        <span class="controls-button-inner">
+          <%- @Icon('clipboard') %>
+        </span>
+      </div>
+    </div>
+  </div>
+</fieldset>

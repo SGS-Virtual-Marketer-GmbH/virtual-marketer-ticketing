@@ -1,0 +1,26 @@
+query ticketExternalReferencesIssueTrackerItemList(
+  $issueTrackerType: EnumTicketExternalReferencesIssueTrackerType!
+  $ticketId: ID
+  $issueTrackerLinks: [UriHttpString!]
+) {
+  ticketExternalReferencesIssueTrackerItemList(
+    issueTrackerType: $issueTrackerType
+    input: { issueTrackerLinks: $issueTrackerLinks, ticketId: $ticketId }
+  ) {
+    assignees
+    issueId
+    issueType {
+      color
+      name
+    }
+    labels {
+      color
+      textColor
+      title
+    }
+    milestone
+    state
+    title
+    url
+  }
+}

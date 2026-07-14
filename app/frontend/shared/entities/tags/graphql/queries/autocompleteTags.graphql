@@ -1,0 +1,6 @@
+query autocompleteSearchTag($input: AutocompleteSearchTagInput!) {
+  autocompleteSearchTag(input: $input) {
+    value
+    label
+  }
+}

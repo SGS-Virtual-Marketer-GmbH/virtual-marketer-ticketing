@@ -1,0 +1,83 @@
+// Copyright (C) 2012-2026 Zammad Foundation, https://zammad-foundation.org/
+
+import { onKeyStroke } from '@vueuse/core'
+import { ref, type Ref, type ShallowRef } from 'vue'
+
+import { getFocusableElements } from '#shared/utils/getFocusableElements.ts'
+
+export const useTrapTab = <T extends HTMLElement>(
+  container: Readonly<ShallowRef<T | null>>,
+  noAutoActivation = false,
+) => {
+  const trapFocus = (e: KeyboardEvent) => {
+    const focusableElements = getFocusableElements(container.value)
+    const firstFocusableElement = focusableElements[0]
+    const lastFocusableElement = focusableElements[focusableElements.length - 1]
+
+    if (e.shiftKey) {
+      // if shift key pressed for shift + tab combination
+      if (document.activeElement === firstFocusableElement) {
+        lastFocusableElement.focus() // add focus for the last focusable element
+        e.preventDefault()
+      }
+      return
+    }
+
+    if (document.activeElement === lastFocusableElement) {
+      // if focused has reached to last focusable element then focus first focusable element after pressing tab
+      firstFocusableElement.focus() // add focus for the first focusable element
+      e.preventDefault()
+    }
+  }
+
+  const active = ref(!noAutoActivation)
+
+  const activateTabTrap = () => {
+    active.value = true
+  }
+
+  const deactivateTabTrap = () => {
+    active.value = false
+  }
+
+  onKeyStroke(
+    (e) => {
+      if (!active.value) return
+
+      const isTab = e.key === 'Tab' || e.keyCode === 9
+
+      if (!isTab) return
+
+      trapFocus(e)
+    },
+    { target: container as Ref<EventTarget> },
+  )
+
+  const moveNextFocusToTrap = () => {
+    if (!container.value) return
+
+    const firstElementToShiftFocusOnFirstNode = document.createElement('div')
+    firstElementToShiftFocusOnFirstNode.tabIndex = 0
+    firstElementToShiftFocusOnFirstNode.style.outline = 'none'
+
+    requestAnimationFrame(() => {
+      container.value?.prepend(firstElementToShiftFocusOnFirstNode)
+      firstElementToShiftFocusOnFirstNode.focus()
+
+      // We delay removal of the pseudo element to ensure that focus has shifted.
+      firstElementToShiftFocusOnFirstNode.addEventListener(
+        'blur',
+        () => {
+          firstElementToShiftFocusOnFirstNode.remove()
+        },
+        { once: true },
+      )
+    })
+  }
+
+  return {
+    activateTabTrap,
+    deactivateTabTrap,
+    moveNextFocusToTrap,
+  }
+}

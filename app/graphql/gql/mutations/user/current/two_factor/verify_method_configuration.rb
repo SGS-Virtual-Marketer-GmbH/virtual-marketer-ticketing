@@ -1,0 +1,35 @@
+# Copyright (C) 2012-2026 Zammad Foundation, https://zammad-foundation.org/
+
+module Gql::Mutations
+  class User::Current::TwoFactor::VerifyMethodConfiguration < BaseMutation
+    include Gql::Concerns::HandlesPasswordRevalidationToken
+
+    description 'Verifies two factor authentication method configuration.'
+
+    argument :method_name, Gql::Types::Enum::TwoFactor::AuthenticationMethodType, description: 'Name of the method which should be verified.'
+    argument :payload, GraphQL::Types::JSON, description: 'Payload for the method authentication configuration.'
+    argument :configuration, GraphQL::Types::JSON, description: 'Initiated configuration of the authentication method.'
+
+    field :recovery_codes, [String], description: 'One-time two-factor authentication codes'
+
+    requires_permission 'user_preferences.two_factor_authentication'
+
+    def resolve(method_name:, token:, payload:, configuration:)
+      token_object = verify_token!(token)
+
+      result = Service::User::TwoFactor::VerifyMethodConfiguration
+        .with_current_user(context.current_user)
+        .execute(
+          method_name:,
+          payload:       payload.is_a?(Hash) ? payload.symbolize_keys! : payload,
+          configuration: configuration.symbolize_keys!
+        )
+
+      token_object.destroy
+
+      result
+    rescue Service::User::TwoFactor::VerifyMethodConfiguration::Failed => e
+      error_response({ message: e })
+    end
+  end
+end

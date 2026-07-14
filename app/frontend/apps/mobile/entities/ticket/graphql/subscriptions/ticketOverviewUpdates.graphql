@@ -1,0 +1,18 @@
+subscription ticketOverviewUpdates(
+  $ignoreUserConditions: Boolean = false
+  $withTicketCount: Boolean!
+) {
+  ticketOverviewUpdates(ignoreUserConditions: $ignoreUserConditions) {
+    ticketOverviews {
+      ...overviewAttributes
+      viewColumns {
+        key
+        value
+      }
+      orderColumns {
+        key
+        value
+      }
+    }
+  }
+}

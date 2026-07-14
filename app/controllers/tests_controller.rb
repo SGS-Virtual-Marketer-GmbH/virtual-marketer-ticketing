@@ -1,0 +1,48 @@
+# Copyright (C) 2012-2026 Zammad Foundation, https://zammad-foundation.org/
+
+class TestsController < ApplicationController
+
+  prepend_before_action -> { authentication_check_only }
+
+  layout 'tests', except: %i[wait raised_exception]
+
+  def show
+    @filename = params[:name]
+
+    if lookup_context.exists? @filename, 'tests'
+      render @filename
+    elsif @filename.starts_with? 'form'
+      render 'form'
+    else
+      render
+    end
+  end
+
+  # GET /tests/wait
+  def wait
+    sleep params[:sec].to_i
+    result = { success: true }
+    render json: result
+  end
+
+  # GET /tests/raised_exception
+  def error_raised_exception
+    origin     = params.fetch(:origin)
+    exception  = params.fetch(:exception, 'StandardError')
+    message    = params.fetch(:message, 'no message provided')
+
+    # Emulate the originating controller.
+    params[:controller] = origin if origin
+
+    klass = exception.safe_constantize
+
+    error = if klass == Exceptions::ApplicationModel
+              klass.new(Ticket.first, message)
+            else
+              klass.new(message)
+            end
+
+    raise error
+  end
+
+end

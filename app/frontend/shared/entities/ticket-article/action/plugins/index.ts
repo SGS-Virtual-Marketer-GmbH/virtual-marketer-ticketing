@@ -1,0 +1,73 @@
+// Copyright (C) 2012-2026 Zammad Foundation, https://zammad-foundation.org/
+
+import type { TicketArticle, TicketById } from '#shared/entities/ticket/types.ts'
+import { getTicketView } from '#shared/entities/ticket/utils/getTicketView.ts'
+import { useApplicationStore } from '#shared/stores/application.ts'
+import type { AppName } from '#shared/types/app.ts'
+
+import type {
+  TicketTypeAddOptions,
+  TicketActionAddOptions,
+  TicketArticleActionPlugin,
+  TicketViewPolicyMap,
+  AppSpecificTicketArticleType,
+} from './types.ts'
+
+const pluginsModules = import.meta.glob<TicketArticleActionPlugin>(
+  ['./*.ts', '!./initialize.ts', '!./types.ts', '!./__tests__/**/*.ts'],
+  {
+    eager: true,
+    import: 'default',
+  },
+)
+
+export const articleActionPlugins = Object.values(pluginsModules).sort(
+  (p1, p2) => p1.order - p2.order,
+)
+
+const createFilter = (options: TicketTypeAddOptions, app: AppName) => {
+  return (object: { view: TicketViewPolicyMap; apps: AppName[] }) => {
+    if (!object.apps.includes(app)) return false
+    const view = object.view[options.view.ticketView]
+    if (!view || !view.length) return false
+    if (view.includes('read')) return true
+    return options.view.isTicketEditable && view.includes('change')
+  }
+}
+
+export const createArticleActions = (
+  ticket: TicketById,
+  article: TicketArticle,
+  app: AppName,
+  _options: Pick<TicketActionAddOptions, 'onDispose' | 'recalculate'>,
+) => {
+  const application = useApplicationStore()
+  const options = {
+    ..._options,
+    view: getTicketView(ticket),
+    config: application.config,
+  }
+  const filterByView = createFilter(options, app)
+  return articleActionPlugins
+    .flatMap((p) => p.addActions?.(ticket, article, options) || [])
+    .filter(filterByView)
+}
+
+export const createArticleTypes = (
+  ticket: TicketById,
+  app: AppName,
+): AppSpecificTicketArticleType[] => {
+  const application = useApplicationStore()
+  const options: TicketTypeAddOptions = {
+    view: getTicketView(ticket),
+    config: application.config,
+  }
+  const filterByView = createFilter(options, app)
+  return (
+    articleActionPlugins
+      .flatMap((p) => p.addTypes?.(ticket, options) || [])
+      .filter(filterByView)
+      // oxlint-disable-next-line no-unused-vars
+      .map(({ apps, ...type }) => type)
+  )
+}

@@ -1,0 +1,165 @@
+{
+  "enabledManagers": ["bundler", "npm", "github-actions", "devcontainer", "custom.regex"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^\\.gitlab/ci/.*\\.yml$/"
+      ],
+      "matchStrings": ["DEVCONTAINERS_CLI_VERSION: '(?<currentValue>[^']+)'"],
+      "depNameTemplate": "@devcontainers/cli",
+      "datasourceTemplate": "npm"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^lib/form_spam_protection/captcha/.*\\.rb$/"
+      ],
+      "matchStrings": ["cdn\\.jsdelivr\\.net/npm/(?<depName>[^@]+)@(?<currentValue>[^/]+)/"],
+      "datasourceTemplate": "npm"
+    }
+  ],
+  "bundler": {
+    "lockFileMaintenance": {
+      "enabled": true,
+      "extends": ["schedule:weekly"],
+      "branchTopic": "lock-file-maintenance-ruby",
+      "commitMessageExtra": "(Ruby)"
+    }
+  },
+  "devcontainer": {
+    "managerFilePatterns": [
+      "/^\\.devcontainer/[^/]+/devcontainer\\.json$/"
+    ]
+  },
+  "npm": {
+    "lockFileMaintenance": {
+      "enabled": true,
+      "extends": ["schedule:weekly"],
+      "branchTopic": "lock-file-maintenance-js",
+      "commitMessageExtra": "(JS)"
+    }
+  },
+  "minimumReleaseAge": "3 days",
+  "packageRules": [
+    {
+      "matchManagers": ["devcontainer"],
+      "assignees": ["fl"]
+    },
+    {
+      "matchCategories": ["ci"],
+      "assignees": ["fl"]
+    },
+    {
+      "matchCategories": ["ruby"],
+      "assignees": ["fl"],
+      "addLabels": ["ruby"],
+      "rangeStrategy": "in-range-only"
+    },
+    {
+      "matchCategories": ["js"],
+      "assignees": ["fl"],
+      "addLabels": ["javascript"],
+      "rangeStrategy": "bump"
+    },
+    {
+      "matchCategories": ["js"],
+      "matchFileNames": ["public/**"],
+      "enabled": false
+    },
+    {
+      "matchCategories": ["js"],
+      "matchDepTypes": ["engines", "peerDependencies"],
+      "enabled": false
+    },
+    {
+      "matchCategories": ["js"],
+      "matchFileNames": [".cypress/package.json"],
+      "labels": ["cypress"]
+    },
+    {
+      "matchCategories": ["js"],
+      "groupName": "Eslint packages",
+      "groupSlug": "eslint",
+      "matchPackageNames": ["/eslint/"]
+    },
+    {
+      "matchCategories": ["js"],
+      "groupName": "Stylelint packages",
+      "groupSlug": "stylelint",
+      "matchPackageNames": ["/stylelint/"]
+    },
+    {
+      "matchCategories": ["js"],
+      "matchPackageNames": ["typescript", "type-fest", "/^@types/"],
+      "groupName": "Typescript/Types packages",
+      "groupSlug": "typescript"
+    },
+    {
+      "matchCategories": ["js"],
+      "matchPackageNames": [
+        "vitest",
+        "jsdom",
+        "@vue/test-utils",
+        "@pinia/testing",
+        "/^@testing-library/",
+        "/mock/"
+      ],
+      "groupName": "Test related packages",
+      "groupSlug": "test-related"
+    },
+    {
+      "matchCategories": ["js"],
+      "groupName": "Vite packages",
+      "groupSlug": "vite-related",
+      "matchPackageNames": ["/^vite/", "/^@vitejs/", "!vitest"]
+    },
+    {
+      "matchCategories": ["js"],
+      "groupName": "Formkit packages",
+      "groupSlug": "formkit-related",
+      "matchPackageNames": ["/^@formkit/", "!@formkit/drag-and-drop"]
+    },
+    {
+      "matchCategories": ["js"],
+      "matchPackageNames": [
+        "pinia",
+        "/^@vue/",
+        "/^vue/",
+        "!@vue/eslint-config-typescript",
+        "!@vuepic/vue-datepicker"
+      ],
+      "groupName": "Vue packages",
+      "groupSlug": "vue"
+    },
+    {
+      "matchPackageNames": ["@vue/eslint-config-typescript"],
+      "groupName": "Vue ESLint Configs",
+      "groupSlug": "vue-eslint-configs"
+    },
+    {
+      "matchCategories": ["js"],
+      "matchPackageNames": [
+        "prosemirror-model",
+        "prosemirror-state",
+        "/^@tiptap/",
+        "/^prosemirror/"
+      ],
+      "groupName": "Tiptap packages",
+      "groupSlug": "tiptap-related"
+    },
+    {
+      "matchCategories": ["js"],
+      "matchPackageNames": [
+        "postcss",
+        "postcss-html",
+        "sass",
+        "autoprefixer",
+        "/tailwind/",
+        "!@formkit/tailwindcss"
+      ],
+      "groupName": "Tailwind/Styling packages",
+      "groupSlug": "tailwind-styling-related"
+    }
+  ]
+}

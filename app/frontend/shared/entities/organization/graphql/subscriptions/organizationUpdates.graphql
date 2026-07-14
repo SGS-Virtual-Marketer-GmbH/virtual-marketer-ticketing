@@ -1,0 +1,22 @@
+subscription organizationUpdates(
+  $organizationId: ID!
+  $first: Int
+  $after: String
+  $initial: Boolean = false
+) {
+  organizationUpdates(organizationId: $organizationId, initial: $initial) {
+    organization {
+      ...organizationAttributes
+      ...organizationMembersWithFetchMore
+      policy {
+        update
+      }
+      ticketsCount {
+        open
+        closed
+        openSearchQuery
+        closedSearchQuery
+      }
+    }
+  }
+}

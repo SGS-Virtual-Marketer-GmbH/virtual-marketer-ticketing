@@ -1,0 +1,62 @@
+<div class="page-header">
+  <div class="page-header-title">
+    <h1><%- @T(@head) %><% if @subHead || @subHead is undefined: %> <small><%- @T(@subHead || 'Management') %></small><% end %></h1>
+  </div>
+  <div class="page-header-meta">
+    <% if @leftButtons: %>
+      <% for button in @leftButtons: %>
+        <a data-type="<%= button['data-type'] %>" class="btn <%= button.class %>" href="<%= button.href %>"><%- @T(button.name) %></a>
+      <% end %>
+    <% end %>
+    <% if @showDescription: %>
+      <a class="btn js-description"><%- @T('Description') %></a>
+    <% end %>
+    <% if @buttons: %>
+      <% for button in @buttons: %>
+        <% if button.menu: %>
+          <div class="buttonDropdown dropdown">
+            <button data-type="<%= button['data-type'] %>" class="btn btn--split--first <%= button.class %>" href="<%= button.href %>"><%- @T(button.name) %></button>
+            <button class="btn btn--slim btn--split--last <%= button.class %>" data-toggle="dropdown" data-bs-auto-close="outside"><%- @Icon('arrow-down') %></button>
+            <ul class="dropdown-menu dropdown-menu" role="menu" aria-labelledby="userAction">
+            <% for item in button.menu: %>
+              <li class="<%= item.class %>" role="menuitem" data-type="<%= item['data-type'] %>"><%- @T(item.name) %></li>
+            <% end %>
+            </ul>
+          </div>
+        <% else: %>
+          <a data-type="<%= button['data-type'] %>" class="btn <%= button.class %>" href="<%= button.href %>"><%- @T(button.name) %></a>
+        <% end %>
+      <% end %>
+    <% end %>
+  </div>
+</div>
+
+<div class="page-content">
+<% if @topAlert and typeof @topAlert is 'function' and not _.isEmpty(alert = @topAlert()): %>
+  <div class="alert alert--<%= alert.type %>">
+    <%- @T(alert.message) %>
+  </div>
+<% end %>
+<% if @searchBar and not @hideSearchBar: %>
+  <div class="searchfield">
+    <input class="js-search form-control" name="search" value="<%= @searchQuery %>" placeholder="<%- @Ti(@searchPlaceholder) %>" type="search">
+    <%- @Icon('magnifier') %>
+  </div>
+<% end %>
+<% if @filterMenu: %>
+<% for filter in @filterMenu: %>
+  <div class="userSearch horizontal">
+    <div class="userSearch-label"><%- @T(filter.name) %>:</div>
+    <div class="tabs tabs-wide">
+      <% for filter in filter.data: %>
+        <div class="tab" data-id="<%= filter.id %>"><%- @Ti(filter.name) %></div>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+<% end %>
+
+  <div class="table-overview"></div>
+</div>
+
+<div class="page-footer"></div>
