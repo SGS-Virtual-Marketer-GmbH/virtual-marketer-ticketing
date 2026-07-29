@@ -17,8 +17,10 @@ x-shared:
       context: .
       dockerfile: Dockerfile
       args:
-        COMMIT_SHA: 56022118071f89cba3cfa7aae286ed58e7782ac0
-    restart: "no"
+        # Pass the real revision at build time so the About dialog is accurate:
+        #   COMMIT_SHA=$(git rev-parse HEAD) docker compose -f docker-compose.local.yml build
+        COMMIT_SHA: ${COMMIT_SHA:-unknown}
+    restart: unless-stopped
     volumes:
       - zammad-storage:/opt/zammad/storage
     depends_on:
@@ -42,7 +44,7 @@ services:
   zammad-memcached:
     command: memcached -m 256M
     image: memcached:1.6.42-alpine
-    restart: "no"
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "nc", "-z", "127.0.0.1", "11211"]
       interval: 10s
@@ -65,7 +67,7 @@ services:
       POSTGRES_USER: zammad
       POSTGRES_PASSWORD: zammad
     image: postgres:17.10-alpine
-    restart: "no"
+    restart: unless-stopped
     volumes:
       - postgresql-data:/var/lib/postgresql/data
     healthcheck:
@@ -87,7 +89,7 @@ services:
 
   zammad-redis:
     image: redis:8.8-alpine
-    restart: "no"
+    restart: unless-stopped
     volumes:
       - redis-data:/data
     healthcheck:
