@@ -1,0 +1,9 @@
+# Rasterizer dependency — install with:
+#   (cd contrib/branding && npm install @resvg/resvg-js)
+node_modules/
+package-lock.json
+package.json
+
+# Intermediates; the installed copies in the tree are what ships.
+build/
+preview/

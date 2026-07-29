@@ -71,7 +71,7 @@ const { transitions } = useTransitionConfig()
       >
         <span class="ltr:mr-1 rtl:ml-1">{{ $t('Powered by') }}</span>
         <CommonLink
-          link="https://zammad.org"
+          link="https://virtual-marketer.de"
           open-in-new-tab
           external
           class="flex items-center gap-1 text-neutral-500 hover:text-neutral-500!"
@@ -91,7 +91,7 @@ const { transitions } = useTransitionConfig()
               />
             </Transition>
           </div>
-          {{ $t('Zammad') }}
+          {{ $t('Virtual Marketer') }}
         </CommonLink>
       </footer>
     </div>

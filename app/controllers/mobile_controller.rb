@@ -10,13 +10,13 @@ class MobileController < ApplicationController
   end
 
   def manifest
-    name = Setting.get('organization').presence || Setting.get('product_name').presence || 'Zammad'
+    name = Setting.get('organization').presence || Setting.get('product_name').presence || 'Virtual Marketer Ticketing'
 
     render(
       layout:       false,
       json:         {
         id:               '/mobile/',
-        short_name:       'Zammad',
+        short_name:       'Virtual Marketer',
         name:             name,
         # TODO
         # dir: "ltr",

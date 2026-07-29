@@ -161,8 +161,8 @@ generate email with S/MIME
     end
 
     # rubocop:disable Zammad/DetectTranslatableString
-    mail['X-Powered-By'] = 'Zammad - Helpdesk/Support (https://zammad.org/)'
-    mail['X-Mailer'] = 'Zammad Mail Service'
+    mail['X-Powered-By'] = 'Virtual Marketer Ticketing - Helpdesk/Support (https://virtual-marketer.de/)'
+    mail['X-Mailer'] = 'Virtual Marketer Ticketing Mail Service'
     # rubocop:enable Zammad/DetectTranslatableString
 
     # Disallow reactions in Microsoft mail clients,

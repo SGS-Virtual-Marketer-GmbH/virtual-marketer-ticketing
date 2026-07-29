@@ -12,7 +12,7 @@ const application = useApplicationStore()
   >
     <CommonLink
       v-if="application.hasCustomProductBranding"
-      link="https://zammad.org"
+      link="https://virtual-marketer.de"
       external
       open-in-new-tab
       class="ltr:mr-1 rtl:ml-1"
@@ -20,8 +20,8 @@ const application = useApplicationStore()
       <img :src="'/assets/images/icons/logo.svg'" :alt="$t('Logo')" class="h-6 w-6" />
     </CommonLink>
     <span class="ltr:mr-1 rtl:ml-1">{{ $t('Powered by') }}</span>
-    <CommonLink link="https://zammad.org" external open-in-new-tab class="font-medium">
-      {{ $t('Zammad') }}
+    <CommonLink link="https://virtual-marketer.de" external open-in-new-tab class="font-medium">
+      {{ $t('Virtual Marketer') }}
     </CommonLink>
   </footer>
 </template>
