@@ -1,6 +1,23 @@
 ---
 # Local test compose for the rebranded Virtual Marketer Ticketing (Zammad) build.
 # Builds the app image from local source instead of pulling the upstream Zammad image.
+#
+# ---------------------------------------------------------------------------
+# DO NOT RUN THIS ON A DEVELOPER LAPTOP.
+#
+# The full stack (Rails + scheduler + websocket + Postgres + Redis + memcached)
+# plus a Zendesk import is enough to exhaust memory and swap on a 16GB machine
+# and take the desktop down with it. It has done exactly that here.
+#
+# Use a real server instead: see the deployment repo's compose file, which
+# is sized for a host with headroom and includes Elasticsearch.
+#
+# This file is kept only for building/inspecting the image locally
+# (`docker compose -f docker-compose.local.yml build`), not for running it.
+#
+# Note `restart: "no"` throughout — deliberate, so an accidental `up` cannot
+# survive a reboot and quietly resume eating the machine.
+# ---------------------------------------------------------------------------
 x-shared:
   zammad-service: &zammad-service
     environment: &zammad-environment
@@ -20,7 +37,7 @@ x-shared:
         # Pass the real revision at build time so the About dialog is accurate:
         #   COMMIT_SHA=$(git rev-parse HEAD) docker compose -f docker-compose.local.yml build
         COMMIT_SHA: ${COMMIT_SHA:-unknown}
-    restart: unless-stopped
+    restart: "no"
     volumes:
       - zammad-storage:/opt/zammad/storage
     depends_on:
@@ -44,7 +61,7 @@ services:
   zammad-memcached:
     command: memcached -m 256M
     image: memcached:1.6.42-alpine
-    restart: unless-stopped
+    restart: "no"
     healthcheck:
       test: ["CMD", "nc", "-z", "127.0.0.1", "11211"]
       interval: 10s
@@ -67,7 +84,7 @@ services:
       POSTGRES_USER: zammad
       POSTGRES_PASSWORD: zammad
     image: postgres:17.10-alpine
-    restart: unless-stopped
+    restart: "no"
     volumes:
       - postgresql-data:/var/lib/postgresql/data
     healthcheck:
@@ -89,7 +106,7 @@ services:
 
   zammad-redis:
     image: redis:8.8-alpine
-    restart: unless-stopped
+    restart: "no"
     volumes:
       - redis-data:/data
     healthcheck:
