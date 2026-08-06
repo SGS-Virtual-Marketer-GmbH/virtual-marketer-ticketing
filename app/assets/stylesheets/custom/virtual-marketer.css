@@ -1,0 +1,283 @@
+/*
+ * Virtual Marketer design language.
+ *
+ * Loaded automatically via `require_tree ./custom/` in application.css, which
+ * is upstream's designated extension point — so this survives a merge instead
+ * of being a patch on zammad.scss that has to be reapplied every upgrade.
+ *
+ * Two parts:
+ *   1. the palette, overriding Zammad's CSS custom properties so the whole
+ *      app recolours consistently rather than login-only
+ *   2. layout and typography polish for the login / public pages, which are
+ *      the first thing anyone sees
+ *
+ * Palette is taken from vm-customer-web-ui's tailwind.config.js so the
+ * helpdesk matches the rest of the Virtual Marketer surface exactly:
+ *   vm-red #94152b · vm-red-dark #700f2b · vm-blue #66a3ce · #a3cce9
+ */
+
+:root {
+  --vm-red: #94152b;
+  --vm-red-dark: #700f2b;
+  --vm-red-soft: rgba(148, 21, 43, 0.08);
+  --vm-blue: #66a3ce;
+  --vm-blue-light: #a3cce9;
+
+  --vm-gray-100: #f7fafc;
+  --vm-gray-200: #edf2f7;
+  --vm-gray-300: #e2e8f0;
+  --vm-gray-500: #a0aec0;
+  --vm-gray-700: #4a5568;
+  --vm-gray-800: #2d3748;
+  --vm-gray-900: #1a202c;
+
+  --vm-radius: 10px;
+  --vm-radius-lg: 16px;
+  --vm-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 4px 16px rgba(16, 24, 40, 0.08);
+  --vm-shadow-lg: 0 8px 40px rgba(16, 24, 40, 0.14);
+
+  /* Zammad's own tokens, repointed. Recolours buttons, links, highlights and
+     focus rings across the entire app in one place. */
+  --button-primary-background: var(--vm-red);
+  --button-primary-background-active: var(--vm-red-dark);
+  --text-button-primary: var(--vm-red);
+  --text-button-primary-active: var(--vm-red-dark);
+  --text-link: var(--vm-red);
+  --text-nav: var(--vm-red);
+  --highlight: var(--vm-blue);
+  --focus-shadow-color: rgba(148, 21, 43, 0.28);
+}
+
+/* --------------------------------------------------------------- login --- */
+
+.login.fullscreen,
+.fullscreen.signup,
+.fullscreen.password_reset {
+  /* Soft brand wash instead of flat grey. Kept very low-contrast so the card
+     stays the focal point. */
+  background:
+    radial-gradient(1100px 520px at 15% -10%, rgba(102, 163, 206, 0.16), transparent 60%),
+    radial-gradient(900px 480px at 88% 8%, rgba(148, 21, 43, 0.12), transparent 62%),
+    var(--vm-gray-100);
+  min-height: 100vh;
+}
+
+.login .fullscreen-body,
+.signup .fullscreen-body,
+.password_reset .fullscreen-body {
+  max-width: 460px;
+}
+
+/* "Log in to <fqdn>" — upstream renders this as a bare paragraph above the
+   card. Demote it: the logo already says where you are. */
+.login .fullscreen-body > p:first-child {
+  color: var(--vm-gray-500);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+.login .hero-unit,
+.signup .hero-unit,
+.password_reset .hero-unit {
+  background: #fff;
+  border: 1px solid var(--vm-gray-200);
+  border-radius: var(--vm-radius-lg);
+  box-shadow: var(--vm-shadow-lg);
+  padding: 44px 40px 36px;
+}
+
+.login .company-logo,
+.signup .company-logo {
+  display: block;
+  margin: 0 auto 32px;
+  /* Wide lockup (mark + wordmark), so constrain by width not height. */
+  max-width: 260px;
+  width: 100%;
+  height: auto;
+}
+
+/* ---------------------------------------------------------- form fields --- */
+
+.login .form-control,
+.signup .form-control,
+.password_reset .form-control {
+  background: var(--vm-gray-100);
+  border: 1px solid var(--vm-gray-300);
+  border-radius: var(--vm-radius);
+  padding: 12px 14px;
+  font-size: 15px;
+  color: var(--vm-gray-900);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  width: 100%;
+}
+
+.login .form-control:focus,
+.signup .form-control:focus,
+.password_reset .form-control:focus {
+  background: #fff;
+  border-color: var(--vm-red);
+  box-shadow: 0 0 0 3px var(--focus-shadow-color);
+  outline: none;
+}
+
+.login .formGroup-label label,
+.signup .formGroup-label label,
+.password_reset .formGroup-label label {
+  color: var(--vm-gray-700);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.login .form-group,
+.signup .form-group,
+.password_reset .form-group {
+  margin-bottom: 18px;
+}
+
+/* -------------------------------------------------------------- buttons --- */
+
+.login .btn--primary,
+.signup .btn--primary,
+.password_reset .btn--primary {
+  background: var(--vm-red);
+  border: 1px solid var(--vm-red);
+  border-radius: var(--vm-radius);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 12px 20px;
+  width: 100%;
+  transition: background 0.15s ease, transform 0.06s ease, box-shadow 0.15s ease;
+  box-shadow: 0 1px 2px rgba(148, 21, 43, 0.2);
+}
+
+.login .btn--primary:hover,
+.signup .btn--primary:hover,
+.password_reset .btn--primary:hover {
+  background: var(--vm-red-dark);
+  border-color: var(--vm-red-dark);
+  box-shadow: 0 4px 14px rgba(148, 21, 43, 0.28);
+}
+
+.login .btn--primary:active,
+.signup .btn--primary:active {
+  transform: translateY(1px);
+}
+
+.login a,
+.signup a,
+.password_reset a {
+  color: var(--vm-red);
+  text-decoration: none;
+}
+
+.login a:hover,
+.signup a:hover,
+.password_reset a:hover {
+  color: var(--vm-red-dark);
+  text-decoration: underline;
+}
+
+/* --------------------------------------------------------------- alerts --- */
+
+.login .alert,
+.signup .alert,
+.password_reset .alert {
+  border-radius: var(--vm-radius);
+  border: 1px solid transparent;
+  padding: 12px 14px;
+  font-size: 14px;
+}
+
+.login .alert--danger,
+.signup .alert--danger,
+.password_reset .alert--danger {
+  background: var(--vm-red-soft);
+  border-color: rgba(148, 21, 43, 0.24);
+  color: var(--vm-red-dark);
+}
+
+/* ------------------------------------------------------------- powered --- */
+
+/* Upstream stacks a logo + wordmark here. We already show the logo on the
+   card, so keep this as a quiet footer line. */
+.login .poweredBy,
+.signup .poweredBy {
+  color: var(--vm-gray-500);
+  font-size: 12px;
+  margin-top: 26px;
+  text-align: center;
+}
+
+.login .poweredBy a,
+.signup .poweredBy a {
+  color: var(--vm-gray-700);
+}
+
+.login .poweredBy .icon,
+.signup .poweredBy .icon {
+  opacity: 0.65;
+}
+
+/* ---------------------------------------------------------- dark scheme --- */
+
+/* Zammad ships a dark theme; the login page should not stay blinding white
+   when the rest of the app is dark. */
+@media (prefers-color-scheme: dark) {
+  .login.fullscreen,
+  .fullscreen.signup,
+  .fullscreen.password_reset {
+    background:
+      radial-gradient(1100px 520px at 15% -10%, rgba(102, 163, 206, 0.12), transparent 60%),
+      radial-gradient(900px 480px at 88% 8%, rgba(148, 21, 43, 0.16), transparent 62%),
+      var(--vm-gray-900);
+  }
+
+  .login .hero-unit,
+  .signup .hero-unit,
+  .password_reset .hero-unit {
+    background: var(--vm-gray-800);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .login .form-control,
+  .signup .form-control,
+  .password_reset .form-control {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: var(--vm-gray-100);
+  }
+
+  .login .form-control:focus,
+  .signup .form-control:focus,
+  .password_reset .form-control:focus {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: var(--vm-blue);
+    box-shadow: 0 0 0 3px rgba(102, 163, 206, 0.22);
+  }
+
+  .login .formGroup-label label,
+  .signup .formGroup-label label,
+  .password_reset .formGroup-label label {
+    color: var(--vm-gray-500);
+  }
+
+  .login a,
+  .signup a,
+  .password_reset a {
+    color: var(--vm-blue-light);
+  }
+
+  /* Die Wortmarke im Lockup ist fuer helle Karten dunkel gesetzt — auf der
+     dunklen Karte muss sie invertiert werden, sonst ist sie unsichtbar. */
+  .login .company-logo,
+  .signup .company-logo {
+    filter: invert(1) hue-rotate(180deg);
+  }
+}

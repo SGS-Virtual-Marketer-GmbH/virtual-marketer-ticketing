@@ -182,6 +182,26 @@ def build():
         f'<g transform="translate({mark_w + gap} {(mh - wm_cap) / 2})">{wm_full}</g>',
     )
 
+    # 5. Login lockup — colour mark + dark wordmark, side by side.
+    #
+    # The login page is the one place the brand has to introduce itself, so it
+    # gets the full lockup rather than the bare mark. Distinct from full-logo:
+    # that one is flat currentColor for themed chrome, this keeps the mark in
+    # colour because it sits on a known white card.
+    lock_h = 64.0
+    mark_scale = lock_h / mh0
+    mark_w = mw * mark_scale
+    gap = 18.0
+    wm_cap = 22.0
+    wm_lock, wm_lock_w = wordmark_paths(WORDMARK_TEXT, wm_cap)
+    total = mark_w + gap + wm_lock_w
+    out["lockup.svg"] = svg_doc(
+        round(total), round(lock_h), f"0 0 {total} {lock_h}",
+        f'<g transform="scale({mark_scale}) translate({-mx0} {-my0})">{colour_inner}</g>'
+        f'<g transform="translate({mark_w + gap} {(lock_h - wm_cap) / 2})"'
+        f' style="color:#2d3748">{wm_lock}</g>',
+    )
+
     for name, content in out.items():
         (BUILD / name).write_text(content)
         print(f"  built {name} ({len(content)} bytes)")
@@ -191,10 +211,12 @@ def build():
 # Where each generated asset gets installed. One source -> many Zammad slots.
 TARGETS = {
     "mark-colour.svg": [
-        "public/assets/images/logo.svg",            # product_logo disk fallback
         "public/assets/images/icons/logo.svg",
         "logo.svg",                                 # repo root
     ],
+    # product_logo's disk fallback — this is what the LOGIN page renders, so
+    # it gets the full lockup (mark + wordmark), not the bare mark.
+    "lockup.svg": ["public/assets/images/logo.svg"],
     "mark-flat.svg": [
         "app/frontend/apps/desktop/initializer/assets/logo.svg",
         "app/frontend/apps/desktop/initializer/assets/logo-flat.svg",
