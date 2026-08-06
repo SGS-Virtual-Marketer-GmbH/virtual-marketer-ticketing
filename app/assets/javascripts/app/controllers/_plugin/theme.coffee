@@ -14,8 +14,16 @@ class App.Theme extends App.Controller
       theme: @currentTheme()
     )
 
+  # Virtual Marketer is a light brand — the palette, the logo lockup and the
+  # printed material are all built on a light surface. So "auto" resolves to
+  # light regardless of the operating system's preference, instead of handing
+  # anyone on a dark-mode desktop a product that does not look like the brand.
+  #
+  # This is the DEFAULT, not a lock: a user who explicitly picks dark in their
+  # profile still gets dark, because currentTheme() checks the stored
+  # preference before it ever reaches here.
   auto: ->
-    if window.matchMedia('(prefers-color-scheme: dark)').matches then 'dark' else 'light'
+    'light'
 
   currentTheme: (theme) =>
     theme ||= App.Session.get('preferences')?.theme

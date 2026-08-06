@@ -1,7 +1,17 @@
 <style>
+/*
+ * The boot splash renders before any theme is known — no user preferences have
+ * been fetched yet, so `data-theme` is not on <html> and none of the app's
+ * tokens exist. Upstream hardcoded a near-black surface here.
+ *
+ * Virtual Marketer is a light brand, and getPreferredTheme() in
+ * apps/desktop/stores/theme.ts now resolves "auto" to light, so a dark splash
+ * would flash black for the two seconds of boot and then snap to white. These
+ * two values are the light theme's --background-primary and --text-normal.
+ */
 :root {
-  --background-primary: rgb(25 25 25);
-  --text-contrast: rgb(255 255 255);
+  --background-primary: #f7fafc;
+  --text-contrast: #2d3748;
 }
 </style>
 

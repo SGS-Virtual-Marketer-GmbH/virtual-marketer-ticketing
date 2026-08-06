@@ -14,11 +14,13 @@ type AppThemeName = EnumAppearanceTheme.Light | EnumAppearanceTheme.Dark
 
 const getRoot = () => document.querySelector(':root') as HTMLElement
 
-const getPreferredTheme = (): AppThemeName => {
-  return window.matchMedia('(prefers-color-scheme: dark)').matches
-    ? EnumAppearanceTheme.Dark
-    : EnumAppearanceTheme.Light
-}
+// Virtual Marketer is a light brand — see the same override in
+// app/assets/javascripts/app/controllers/_plugin/theme.coffee, which has to
+// agree with this one or the two UIs disagree about what "auto" means.
+//
+// Only the DEFAULT changes. An explicit dark preference is read from
+// session.user.preferences.theme and still wins.
+const getPreferredTheme = (): AppThemeName => EnumAppearanceTheme.Light
 
 const sanitizeTheme = (theme: string): AppThemeName => {
   if (['dark', 'light'].includes(theme)) return theme as AppThemeName
@@ -65,11 +67,11 @@ export const useThemeStore = defineStore(
     const preferredColorScheme = usePreferredColorScheme()
 
     const isDarkMode = computed(() => {
-      if (currentTheme.value === EnumAppearanceTheme.Auto) {
-        return preferredColorScheme.value === 'no-preference'
-          ? false // if no system preference, default to light mode
-          : preferredColorScheme.value === EnumAppearanceTheme.Dark
-      }
+      // "auto" means light here, not "follow the OS" — see getPreferredTheme.
+      // This has to stay in step with it: components read isDarkMode to pick
+      // asset variants, so a disagreement shows up as a dark logo on a light
+      // surface rather than as an obvious bug.
+      if (currentTheme.value === EnumAppearanceTheme.Auto) return false
       return currentTheme.value === EnumAppearanceTheme.Dark
     })
 

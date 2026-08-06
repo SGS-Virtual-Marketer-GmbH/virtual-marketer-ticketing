@@ -285,6 +285,72 @@ def patch_sprite():
     sprite.write_text(text)
 
 
+def patch_spinner():
+    """Replace the boot splash's animated logo.
+
+    app/views/init/spinner-loading.html.erb is server-rendered ERB with the
+    logo inlined as SVG, and it is what fills the screen for the whole time the
+    Vue desktop/mobile app is booting — session check, config, current user,
+    locale, theme — before `app.mount('#app')` runs. Because it must render
+    with zero network requests, it cannot reference any of the asset files the
+    rest of this script installs, which is exactly why upstream's bird survived
+    the first pass of the rebrand.
+
+    Upstream animates 34 separate tiles fading in on staggered keyframes. Our
+    mark is one shape, so it gets a single breathing pulse instead — same
+    "something is happening" signal, a fraction of the markup.
+
+    The `.error` class that shared/stores/application.ts adds on a failed boot
+    sets `animation: none !important` on the SVG and its children, so the pulse
+    stops and the blur applies exactly as before.
+    """
+    tpl = ROOT / "app" / "views" / "init" / "spinner-loading.html.erb"
+    if not tpl.exists():
+        print("  ! skip spinner-loading.html.erb (missing)")
+        return
+
+    svg = (BUILD / "mark-colour.svg").read_text()
+    vb = re.search(r'viewBox="([^"]+)"', svg).group(1)
+    inner = svg[svg.index(">", svg.index("<svg")) + 1: svg.rindex("</svg>")]
+    inner = re.sub(r"<title>.*?</title>", "", inner, flags=re.S).strip()
+
+    replacement = (
+        f'<svg class="loading-animation" width="82px" height="82px"'
+        f' xmlns="http://www.w3.org/2000/svg" viewBox="{vb}"'
+        ' shape-rendering="geometricPrecision" role="presentation">\n'
+        "      <style>\n"
+        "        #vmt-boot-mark {\n"
+        "          transform-origin: 50% 50%;\n"
+        "          animation: vmt-boot-pulse 1600ms ease-in-out infinite;\n"
+        "        }\n"
+        "        @keyframes vmt-boot-pulse {\n"
+        "          0%   { opacity: .45; transform: scale(.94) }\n"
+        "          50%  { opacity: 1;   transform: scale(1) }\n"
+        "          100% { opacity: .45; transform: scale(.94) }\n"
+        "        }\n"
+        "        @media (prefers-reduced-motion: reduce) {\n"
+        "          #vmt-boot-mark { animation: none; opacity: 1 }\n"
+        "        }\n"
+        "      </style>\n"
+        f'      <g id="vmt-boot-mark">{inner}</g>\n'
+        "    </svg>"
+    )
+
+    text = tpl.read_text()
+    text, n = re.subn(
+        r'<svg class="loading-animation".*?</svg>',
+        lambda _m: replacement,
+        text,
+        count=1,
+        flags=re.S,
+    )
+    if not n:
+        print("  ! loading-animation svg not found in spinner-loading.html.erb")
+        return
+    tpl.write_text(text)
+    print("  -> app/views/init/spinner-loading.html.erb")
+
+
 def install():
     for name, dests in TARGETS.items():
         for dest in dests:
@@ -322,6 +388,7 @@ def install():
     print("  -> public/favicon.ico (16-256px)")
 
     patch_sprite()
+    patch_spinner()
 
 
 if __name__ == "__main__":

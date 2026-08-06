@@ -36,7 +36,7 @@
   --vm-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 4px 16px rgba(16, 24, 40, 0.08);
   --vm-shadow-lg: 0 8px 40px rgba(16, 24, 40, 0.14);
 
-  /* Zammad's own tokens, repointed. Recolours buttons, links, highlights and
+  /* Upstream's own tokens, repointed. Recolours buttons, links, highlights and
      focus rings across the entire app in one place. */
   --button-primary-background: var(--vm-red);
   --button-primary-background-active: var(--vm-red-dark);
@@ -46,6 +46,42 @@
   --text-nav: var(--vm-red);
   --highlight: var(--vm-blue);
   --focus-shadow-color: rgba(148, 21, 43, 0.28);
+
+  /* The navigation rail and the tab bar. Upstream keeps these dark even in the
+     light theme, and so do we — but in a neutral slate rather than upstream's
+     blue-grey, so the red accent reads as the only colour in the chrome.
+
+     Deliberately NOT made light: every rule for this area assumes light text
+     on a dark surface (--menu-text, --menu-text-active, the icon fills), so
+     inverting the surface alone would leave white-on-white labels. */
+  --background-tertiary: #232935;
+  --background-quaternary: #1a202c;
+  --background-active: var(--vm-red);
+  --menu-background-active: var(--vm-red);
+  --menu-switch-background: #12161f;
+  --border-highlight: var(--vm-blue);
+  --shadow-highlight: rgba(102, 163, 206, 0.35);
+
+  /* Content surfaces. Kept close to upstream — the VM wash belongs on the
+     login page, not behind a working ticket list. */
+  --background-primary: var(--vm-gray-100);
+  --background-primary-alt: var(--vm-gray-200);
+}
+
+/* Selected rows, active tabs and the "unread" markers all key off --highlight,
+   which upstream renders as a blue fill with white text. Blue is a VM colour,
+   so this stays — but the primary call to action must be red, and a few places
+   hardcode upstream's magenta instead of using the token. */
+.btn--primary,
+.btn.btn--primary {
+  background: var(--vm-red);
+  border-color: var(--vm-red);
+}
+
+.btn--primary:hover,
+.btn.btn--primary:hover {
+  background: var(--vm-red-dark);
+  border-color: var(--vm-red-dark);
 }
 
 /* --------------------------------------------------------------- login --- */
@@ -227,57 +263,22 @@
 
 /* ---------------------------------------------------------- dark scheme --- */
 
-/* Zammad ships a dark theme; the login page should not stay blinding white
-   when the rest of the app is dark. */
-@media (prefers-color-scheme: dark) {
-  .login.fullscreen,
-  .fullscreen.signup,
-  .fullscreen.password_reset {
-    background:
-      radial-gradient(1100px 520px at 15% -10%, rgba(102, 163, 206, 0.12), transparent 60%),
-      radial-gradient(900px 480px at 88% 8%, rgba(148, 21, 43, 0.16), transparent 62%),
-      var(--vm-gray-900);
-  }
+/* There deliberately is no `@media (prefers-color-scheme: dark)` block here.
+ *
+ * Virtual Marketer is a light brand, so "auto" resolves to light rather than
+ * following the operating system — see getPreferredTheme() in
+ * apps/desktop/stores/theme.ts and App.Theme#auto in
+ * controllers/_plugin/theme.coffee. A dark login page on a dark-mode desktop
+ * would contradict the app it leads into.
+ *
+ * A user who explicitly chooses dark in their profile still gets the dark
+ * theme; that runs off `[data-theme='dark']`, which the rules below cover for
+ * the one asset that cannot adapt on its own.
+ */
 
-  .login .hero-unit,
-  .signup .hero-unit,
-  .password_reset .hero-unit {
-    background: var(--vm-gray-800);
-    border-color: rgba(255, 255, 255, 0.08);
-  }
-
-  .login .form-control,
-  .signup .form-control,
-  .password_reset .form-control {
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(255, 255, 255, 0.12);
-    color: var(--vm-gray-100);
-  }
-
-  .login .form-control:focus,
-  .signup .form-control:focus,
-  .password_reset .form-control:focus {
-    background: rgba(255, 255, 255, 0.07);
-    border-color: var(--vm-blue);
-    box-shadow: 0 0 0 3px rgba(102, 163, 206, 0.22);
-  }
-
-  .login .formGroup-label label,
-  .signup .formGroup-label label,
-  .password_reset .formGroup-label label {
-    color: var(--vm-gray-500);
-  }
-
-  .login a,
-  .signup a,
-  .password_reset a {
-    color: var(--vm-blue-light);
-  }
-
-  /* Die Wortmarke im Lockup ist fuer helle Karten dunkel gesetzt — auf der
-     dunklen Karte muss sie invertiert werden, sonst ist sie unsichtbar. */
-  .login .company-logo,
-  .signup .company-logo {
-    filter: invert(1) hue-rotate(180deg);
-  }
+/* The lockup's wordmark is set dark for light cards. On the dark theme it has
+   to be inverted or it disappears into the surface. */
+[data-theme='dark'] .login .company-logo,
+[data-theme='dark'] .signup .company-logo {
+  filter: invert(1) hue-rotate(180deg);
 }

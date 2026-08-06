@@ -505,7 +505,7 @@ msgid ""
 "mailbox into Zammad."
 msgstr ""
 "%s E-Mail(s) wurden in Ihrem Posteingang gefunden. Sie werden alle aus Ihrem "
-"Postfach zu Zammad verschoben."
+"Postfach zu Virtual Marketer Ticketing verschoben."
 
 #: app/assets/javascripts/app/models/user.coffee:222
 #: app/frontend/shared/composables/activity-message/activityMessageBuilder/builders/user.ts:29
@@ -816,7 +816,7 @@ msgstr ""
 "**Service Level Agreements**, kurz **SLAs**, helfen Ihnen dabei, bestimmte "
 "Reaktionszeiten für die Anfragen Ihrer Kunden einzuhalten. So können Sie "
 "Ziele, wie das Beantworten jeder Anfrage innerhalb von acht Stunden, "
-"definieren. Wenn Sie Gefahr laufen die Ziele zu verpassen, wird Zammad Sie "
+"definieren. Wenn Sie Gefahr laufen die Ziele zu verpassen, wird Virtual Marketer Ticketing Sie "
 "alarmieren.\n"
 "\n"
 "Die folgenden drei Metriken können Sie als Ziele konfigurieren: "
@@ -983,7 +983,7 @@ msgstr ""
 #: app/assets/javascripts/app/controllers/_plugin/maintenance.coffee:141
 msgid "A new version of Zammad is available, please reload your browser."
 msgstr ""
-"Eine neue Version von Zammad ist verfügbar. Bitte laden Sie baldmöglichst "
+"Eine neue Version von Virtual Marketer Ticketing ist verfügbar. Bitte laden Sie baldmöglichst "
 "neu."
 
 #: app/frontend/shared/composables/useAppMaintenanceCheck.ts:80
@@ -2073,13 +2073,13 @@ msgstr "Alle Kollegen sind beschäftigt."
 msgid ""
 "All computers and browsers from which you logged in to Zammad appear here."
 msgstr ""
-"Alle Computer und Browser, von denen Sie sich in Zammad angemeldet haben, "
+"Alle Computer und Browser, von denen Sie sich in Virtual Marketer Ticketing angemeldet haben, "
 "werden hier angezeigt."
 
 #: app/assets/javascripts/app/views/profile/devices.jst.eco:7
 msgid "All computers and browsers that have access to your Zammad appear here."
 msgstr ""
-"Alle Computer und Browser, die Zugriff auf Ihr Zammad haben, werden hier "
+"Alle Computer und Browser, die Zugriff auf Ihr Virtual Marketer Ticketing haben, werden hier "
 "angezeigt."
 
 #: app/models/ai/agent/type/ticket_group_dispatcher.rb:24
@@ -2173,7 +2173,7 @@ msgstr "Auch über E-Mail benachrichtigen"
 msgid ""
 "Alternative FQDN for callbacks if you operate Zammad in an internal network."
 msgstr ""
-"Alternativer FQDN für Callbacks, wenn Zammad in einem internem Netzwerk "
+"Alternativer FQDN für Callbacks, wenn Virtual Marketer Ticketing in einem internem Netzwerk "
 "eingesetzt wird."
 
 #: app/helpers/knowledge_base_breadcrumb_helper.rb:20
@@ -2187,7 +2187,7 @@ msgstr "Alternativer Name"
 
 #: app/assets/javascripts/app/views/generic/object_import/index.jst.eco:9
 msgid "Alternatively, you can use the Zammad API to import data."
-msgstr "Alternativ können Sie die Zammad-API zum Datenimport verwenden."
+msgstr "Alternativ können Sie die Virtual Marketer-API zum Datenimport verwenden."
 
 #: app/assets/javascripts/app/models/trigger.coffee:8
 msgid "Always"
@@ -3213,7 +3213,7 @@ msgid ""
 "migration and usage of your Zammad instance:"
 msgstr ""
 "Bevor Sie beginnen sollten Sie die folgenden Punkte überprüfen, um eine "
-"reibungslose Migration und Nutzung Ihrer Zammad-Instanz zu gewährleisten:"
+"reibungslose Migration und Nutzung Ihrer Instanz zu gewährleisten:"
 
 #: app/assets/javascripts/app/controllers/ticket_zoom/article_action/email_reply.coffee:262
 #: app/frontend/shared/entities/ticket-article/action/plugins/email/forward.ts:89
@@ -3373,8 +3373,8 @@ msgid ""
 "Zammad can support your agents by opening either a new ticket dialogue or "
 "the user profile upon picking up a new call."
 msgstr ""
-"Durch die Zuordnung von Placetel-SIP-Benutzern zu Zammad-Agenten-Konten kann "
-"Zammad Ihre Agenten unterstützen, indem entweder ein neuer Ticketdialog oder "
+"Durch die Zuordnung von Placetel-SIP-Benutzern zu Virtual Marketer-Agenten-Konten kann "
+"Virtual Marketer Ticketing Ihre Agenten unterstützen, indem entweder ein neuer Ticketdialog oder "
 "das Benutzerprofil geöffnet wird, wenn ein neuer Anruf angenommen wird."
 
 #: app/assets/javascripts/app/views/integration/sipgate.jst.eco:117
@@ -3383,8 +3383,8 @@ msgid ""
 "can support your agents by opening either a new ticket dialogue or the user "
 "profile upon picking up a new call."
 msgstr ""
-"Durch die Zuordnung von Sipgate-Benutzern zu Zammad-Agenten-Konten kann "
-"Zammad Ihre Agenten unterstützen, indem entweder ein neuer Ticketdialog oder "
+"Durch die Zuordnung von Sipgate-Benutzern zu Virtual Marketer-Agenten-Konten kann "
+"Virtual Marketer Ticketing Ihre Agenten unterstützen, indem entweder ein neuer Ticketdialog oder "
 "das Benutzerprofil bei der Annahme eines neuen Anrufs geöffnet wird."
 
 #: app/assets/javascripts/app/views/ssl_certificates_list.jst.eco:13
@@ -5665,7 +5665,7 @@ msgid ""
 "relevant call entries and notifications."
 msgstr ""
 "Definieren Sie Warteschlangen oder Ruf-Ziele (je nachdem was zu Ihrer PBX "
-"passt) und ordnen Sie Ihre Agenten zu. Damit kann Zammad Ihre Agenten "
+"passt) und ordnen Sie Ihre Agenten zu. Damit kann Virtual Marketer Ticketing Ihre Agenten "
 "unterstützen, diesen nur die relevanten Anrufprotokoll-Einträge und "
 "Benachrichtigungen zu zeigen."
 
@@ -6127,7 +6127,7 @@ msgid ""
 "Defines postmaster filter to check if email has been created by Zammad "
 "itself and will set the article sender."
 msgstr ""
-"Definiert einen Postmaster-Filter zur Prüfung, ob eine E-Mail von Zammad "
+"Definiert einen Postmaster-Filter zur Prüfung, ob eine E-Mail von Virtual Marketer Ticketing "
 "selbst erstellt wurde. In diesem Fall wird der Absender gesetzt."
 
 #: db/seeds/settings.rb:4355
@@ -6164,7 +6164,7 @@ msgid ""
 "from Zammad."
 msgstr ""
 "Definiert den Postmaster-Filter zur Erkennung von automatischen Antworten, "
-"um weitere automatische Antworten von Zammad zu verhindern."
+"um weitere automatische Antworten von Virtual Marketer Ticketing zu verhindern."
 
 #: db/seeds/settings.rb:4310
 msgid ""
@@ -6578,7 +6578,7 @@ msgstr ""
 "Definiert die Systemkennung. Jede Ticketnummer enthält diese ID. Damit wird "
 "sichergestellt, dass nur zu Ihrem System gehörende Tickets als Nachfragen "
 "verarbeitet werden (nützlich bei der Kommunikation zwischen zwei Instanzen "
-"von Zammad)."
+"von Virtual Marketer Ticketing)."
 
 #: db/seeds/settings.rb:3017
 msgid "Defines the tab behaviour after a ticket action."
@@ -7204,11 +7204,11 @@ msgstr "Anzeige"
 
 #: app/assets/javascripts/app/controllers/_profile/newbetaui.coffee:15
 msgid "Display Zammad in the New BETA User Interface"
-msgstr "Zammad in der neuen BETA-Benutzeroberfläche anzeigen"
+msgstr "Virtual Marketer Ticketing in der neuen BETA-Benutzeroberfläche anzeigen"
 
 #: app/frontend/apps/desktop/pages/personal-setting/views/PersonalSettingNewBetaUi.vue:60
 msgid "Display Zammad with the new BETA user interface"
-msgstr "Zammad in der neuen BETA-UI anzeigen"
+msgstr "Virtual Marketer Ticketing in der neuen BETA-UI anzeigen"
 
 #: app/assets/javascripts/app/models/email_address.coffee:32
 #: db/seeds/settings.rb:1895
@@ -7457,8 +7457,8 @@ msgid ""
 "your ticket attributes/tags compared to your current use of dynamic fields "
 "in OTRS."
 msgstr ""
-"Dynamische Felder sind in Zammad nicht üblich, da es einen anderen Ansatz "
-"für Ticket-Attribute verfolgt. Zammad verwendet zusätzlich zu "
+"Dynamische Felder sind in Virtual Marketer Ticketing nicht üblich, da es einen anderen Ansatz "
+"für Ticket-Attribute verfolgt. Virtual Marketer Ticketing verwendet zusätzlich zu "
 "benutzerdefinierten Feldern auch Tags, um Tickets zu klassifizieren. Dieser "
 "Unterschied kann zu einer neuen Strukturierung Ihrer Ticket-Attribute/Tags "
 "im Vergleich zu Ihrer derzeitigen Verwendung in OTRS führen."
@@ -7918,7 +7918,7 @@ msgid ""
 "configuration changes. This should only be used if the controlling process "
 "manager like systemd or docker supports an automatic restart policy."
 msgstr ""
-"Aktivieren oder deaktivieren Sie die Selbstabschaltung von Zammad-Prozessen "
+"Aktivieren oder deaktivieren Sie die Selbstabschaltung von Serverprozessen "
 "nach signifikanten Konfigurationsänderungen. Dies sollte nur verwendet "
 "werden, wenn der kontrollierende Prozessmanager wie systemd oder docker eine "
 "automatische Neustartrichtlinie unterstützt."
@@ -7929,7 +7929,7 @@ msgid ""
 "administrators get logged out_ and _only administrators can start a new "
 "session_."
 msgstr ""
-"Aktivieren oder deaktivieren des Zammad-Wartungsmodus. Wenn aktiviert, "
+"Aktivieren oder deaktivieren des Wartungsmodus. Wenn aktiviert, "
 "werden _alle Nicht-Administratoren automatisch abgemeldet_ und _nur "
 "Administratoren können eine neue Sitzung starten_."
 
@@ -7939,7 +7939,7 @@ msgid ""
 "administrators get logged out and only administrators can start a new "
 "session."
 msgstr ""
-"Aktivieren oder deaktivieren des Zammad-Wartungsmodus. Wenn aktiviert, "
+"Aktivieren oder deaktivieren des Wartungsmodus. Wenn aktiviert, "
 "werden alle Nicht-Administratoren automatisch abgemeldet und nur "
 "Administratoren können eine neue Sitzung starten."
 
@@ -8039,8 +8039,8 @@ msgid ""
 msgstr ""
 "Ermöglicht die automatische Verknüpfung eines bestehenden Kontos bei der "
 "ersten Anmeldung über eine Drittanwendung. Wenn dies deaktiviert ist, muss "
-"sich ein bestehender Benutzer zuerst bei Zammad anmelden und dann sein "
-"Drittanbieter-Konto über Profil -> Verlinkte Konten mit seinem Zammad-Konto "
+"sich ein bestehender Benutzer zuerst bei Virtual Marketer Ticketing anmelden und dann sein "
+"Drittanbieter-Konto über Profil -> Verlinkte Konten mit seinem Virtual Marketer-Konto "
 "verknüpfen."
 
 #: db/seeds/settings.rb:1189
@@ -8544,7 +8544,7 @@ msgid ""
 msgstr ""
 "Jedes Mal, wenn ein Kunde ein neues Ticket erstellt, erhält er automatisch "
 "eine Bestätigungs-E-Mail, um ihm zu versichern, dass seine Anfrage "
-"erfolgreich übermittelt wurde. Dieses Verhalten ist in Zammad integriert, "
+"erfolgreich übermittelt wurde. Dieses Verhalten ist in Virtual Marketer Ticketing integriert, "
 "aber es ist auch in hohem Maße anpassbar, und Sie können andere automatische "
 "Aktionen wie diese einrichten.\n"
 "\n"
@@ -9880,7 +9880,7 @@ msgid ""
 "new translation in order to identify the source string and provide its new "
 "translation for the target language."
 msgstr ""
-"Hier können Sie jede beliebige Zeichenkette überschreiben, um Zammad zu "
+"Hier können Sie jede beliebige Zeichenkette überschreiben, um Virtual Marketer Ticketing zu "
 "individualisieren. Es werden System- als auch benutzerdefinierte "
 "Zeichenketten unterstützt. Fügen Sie einfach eine neue Übersetzung hinzu, um "
 "die Original-Zeichenkette zu identifizieren und Ihre neue Übersetzung für "
@@ -9902,7 +9902,7 @@ msgid ""
 "Here you can set up and manage two-factor authentication methods for your "
 "Zammad account."
 msgstr ""
-"Hier können Sie Methoden für Zwei-Faktor-Authentifizierung für Ihr Zammad-"
+"Hier können Sie Methoden für Zwei-Faktor-Authentifizierung für Ihr Virtual Marketer-"
 "Konto einrichten und verwalten."
 
 #: app/assets/javascripts/app/controllers/clues/first_steps_clues.coffee:6
@@ -9935,7 +9935,7 @@ msgid ""
 "early and send your feedback on it.¶¶You can come back any time using the "
 "switch below."
 msgstr ""
-"Hallo! Zammad bekommt bald eine neue Benutzeroberfläche für Agenten!¶Bitte "
+"Hallo! Virtual Marketer Ticketing bekommt bald eine neue Benutzeroberfläche für Agenten!¶Bitte "
 "probieren Sie sie frühzeitig aus und senden Sie uns Ihr Feedback dazu.¶¶Sie "
 "können jederzeit zurückwechseln, indem Sie den Schalter unten benutzen."
 
@@ -9947,7 +9947,7 @@ msgid ""
 "optional comment every once in a while."
 msgstr ""
 "Hey, wir haben Ihnen etwas zu zeigen! Unser Team arbeitet seit einiger Zeit "
-"an der neuen Zammad-Benutzeroberfläche, und wir würden uns freuen, wenn Sie "
+"an der neuen Benutzeroberfläche, und wir würden uns freuen, wenn Sie "
 "sie ausprobieren und uns Feedback geben können. Wir bitten Sie, Ihre "
 "Erfahrungen zu bewerten und gelegentlich einen optionalen Kommentar "
 "abzugeben."
@@ -10465,7 +10465,7 @@ msgstr "Importiert"
 #: app/assets/javascripts/app/views/integration/placetel.jst.eco:28
 msgid "In order for Zammad to access %s, the %s API token must be stored here:"
 msgstr ""
-"Damit Zammad auf %s zugreifen kann, muss das %s-API-Token hier eingetragen "
+"Damit Virtual Marketer Ticketing auf %s zugreifen kann, muss das %s-API-Token hier eingetragen "
 "werden:"
 
 #: app/assets/javascripts/app/controllers/_integration/ldap.coffee:7
@@ -10645,7 +10645,7 @@ msgid ""
 "the migration progress on this page to be notified as soon as the import is "
 "successfully finished."
 msgstr ""
-"Starten Sie den Importprozess, um Ihre Daten zu Zammad zu übertragen. "
+"Starten Sie den Importprozess, um Ihre Daten zu Virtual Marketer Ticketing zu übertragen. "
 "Verfolgen Sie den Fortschritt der Migration auf dieser Seite, um "
 "benachrichtigt zu werden, sobald der Import erfolgreich abgeschlossen ist."
 
@@ -11056,7 +11056,7 @@ msgstr "Kollegen einladen"
 
 #: app/controllers/first_steps_controller.rb:66
 msgid "Invite customers to create issues in Zammad"
-msgstr "Laden Sie Kunden ein um in Zammad Tickets zu erstellen"
+msgstr "Laden Sie Kunden ein um in Virtual Marketer Ticketing Tickets zu erstellen"
 
 #: app/assets/javascripts/app/lib/app_post/iconset_picker.coffee:17
 msgid "Ionicons"
@@ -11844,10 +11844,10 @@ msgid ""
 "(and nerves). This allows a combined sequence of actions on the ticket to be "
 "executed with just one click."
 msgstr ""
-"Makros machen es einfach, häufige, mehrstufige Aufgaben in Zammad zu "
+"Makros machen es einfach, häufige, mehrstufige Aufgaben in Virtual Marketer Ticketing zu "
 "automatisieren.\n"
 "\n"
-"Sie können Makros in Zammad verwenden, um wiederkehrende Abläufe zu "
+"Sie können Makros in Virtual Marketer Ticketing verwenden, um wiederkehrende Abläufe zu "
 "automatisieren und so Zeit (und Nerven) zu sparen. So kann eine kombinierte "
 "Abfolge von Aktionen auf dem Ticket mit nur einem Klick ausgeführt werden."
 
@@ -11973,7 +11973,7 @@ msgid ""
 "Manage applications that can use Zammad as an OAuth provider and "
 "applications that you've authorized to use your account."
 msgstr ""
-"Verwalten von Anwendungen welche Zammad als OAuth-Anbieter verwenden und "
+"Verwalten von Anwendungen welche Virtual Marketer Ticketing als OAuth-Anbieter verwenden und "
 "Anwender autorisieren können."
 
 #: db/seeds/permissions.rb:198
@@ -12203,9 +12203,9 @@ msgid ""
 "a new philosophy of your ticket attributes / tags compared to your current "
 "use of dynamic fields in OTRS."
 msgstr ""
-"Es wurden viele dynamische Felder gefunden. Diese sind in Zammad nicht "
+"Es wurden viele dynamische Felder gefunden. Diese sind in Virtual Marketer Ticketing nicht "
 "üblich, da hier ein anderer Ansatz für Ticket-Attribute verfolgt wird. "
-"Zammad verwendet zusätzlich zu den benutzerdefinierten Feldern auch Tags, um "
+"Virtual Marketer Ticketing verwendet zusätzlich zu den benutzerdefinierten Feldern auch Tags, um "
 "Tickets zu klassifizieren. Dieser Unterschied kann zu einem neuen Umgang mit "
 "Ihren Ticket-Attributen / Tags im Vergleich zu OTRS führen."
 
@@ -12860,7 +12860,7 @@ msgstr "Benötige fingerprint-Parameter!"
 
 #: app/assets/javascripts/app/controllers/clues/first_steps_clues.coffee:41
 msgid "Need help? Check the Zammad Documentation for detailed guidance."
-msgstr "Brauchen Sie Hilfe? Schauen Sie sich die Zammad-Dokumentation an."
+msgstr "Brauchen Sie Hilfe? Schauen Sie sich die Dokumentation an."
 
 #: lib/sessions/event/chat_base.rb:27
 msgid "Need session_id."
@@ -13717,7 +13717,7 @@ msgid ""
 "after downloading the file to avoid leaking personal data which could be "
 "included in comments or notes."
 msgstr ""
-"Hinweis: Zammad sendet diese Daten niemals automatisch und diese Daten "
+"Hinweis: Virtual Marketer Ticketing sendet diese Daten niemals automatisch und diese Daten "
 "enthalten keine persönlichen Kontonamen oder Passwörter. Bitte schauen Sie "
 "jedoch nach dem Herunterladen der Datei nach, um das Durchsickern "
 "persönlicher Daten zu vermeiden, die in Kommentaren oder Notizen enthalten "
@@ -13886,7 +13886,7 @@ msgid ""
 "OTRS BPM processes can't get imported into Zammad since it currently doesn't "
 "support this kind of workflows."
 msgstr ""
-"OTRS-BPM-Prozesse können nicht in Zammad importiert werden, da es diese Art "
+"OTRS-BPM-Prozesse können nicht in Virtual Marketer Ticketing importiert werden, da es diese Art "
 "von Workflows derzeit nicht unterstützt."
 
 #: app/assets/javascripts/app/views/import/otrs.jst.eco:96
@@ -13894,7 +13894,7 @@ msgid ""
 "OTRS BPM processes were found. They cannot be imported into Zammad as these "
 "kind of workflows are currently not supported."
 msgstr ""
-"Es wurden OTRS BPM-Prozesse gefunden. Diese können nicht in Zammad "
+"Es wurden OTRS BPM-Prozesse gefunden. Diese können nicht in Virtual Marketer Ticketing "
 "importiert werden, da diese Art von Workflows derzeit nicht unterstützt wird."
 
 #: app/assets/javascripts/app/models/core_workflow.coffee:7
@@ -14988,7 +14988,7 @@ msgid ""
 "versions of Zammad. Use the IDP certificate instead."
 msgstr ""
 "Bitte beachten Sie, dass dieses Attribut in einer der nächsten Versionen von "
-"Zammad veraltet sein wird. Verwenden Sie stattdessen das IDP-Zertifikat."
+"Virtual Marketer Ticketing veraltet sein wird. Verwenden Sie stattdessen das IDP-Zertifikat."
 
 #: app/frontend/apps/desktop/components/CommonError/CommonError.vue:41
 msgid "Please proceed to login"
@@ -15455,7 +15455,7 @@ msgstr ""
 
 #: db/seeds/settings.rb:3788
 msgid "Puts Zammad into import mode (disables some triggers)."
-msgstr "Aktiviert den Import-Modus von Zammad (deaktiviert bestimmte Trigger)."
+msgstr "Aktiviert den Import-Modus von Virtual Marketer Ticketing (deaktiviert bestimmte Trigger)."
 
 #: app/assets/javascripts/app/views/cti/caller_log.jst.eco:21
 msgid "Queue"
@@ -15589,7 +15589,7 @@ msgid ""
 "Records that exist in the import data (but not in Zammad) will always be "
 "created."
 msgstr ""
-"Datensätze, welche in den Importdaten (aber nicht in Zammad) vorhanden sind, "
+"Datensätze, welche in den Importdaten (aber nicht in Virtual Marketer Ticketing) vorhanden sind, "
 "werden immer angelegt."
 
 #: app/assets/javascripts/app/controllers/widget/two_factor_login/method/recovery_codes.coffee:2
@@ -17493,7 +17493,7 @@ msgstr "Sicherheits-Schlüssel einrichten"
 #: app/frontend/apps/desktop/pages/guided-setup/views/GuidedSetupManual/GuidedSetupManualChannels.vue:30
 msgid "Set up the communication channels you want to use with your Zammad."
 msgstr ""
-"Konfigurieren Sie die Kommunikations-Kanäle, welche in Zammad eingebunden "
+"Konfigurieren Sie die Kommunikations-Kanäle, welche in Virtual Marketer Ticketing eingebunden "
 "werden sollen."
 
 #: app/assets/javascripts/app/controllers/after_auth/two_factor_configuration.coffee:2
@@ -17995,13 +17995,13 @@ msgid ""
 "Some system settings have changed, Zammad is restarting. Please wait until "
 "Zammad is back again."
 msgstr ""
-"Systemeinstellungen wurden geändert, Zammad startet neu. Bitte warten Sie, "
-"bis Zammad wieder erreichbar ist."
+"Systemeinstellungen wurden geändert, Virtual Marketer Ticketing startet neu. Bitte warten Sie, "
+"bis Virtual Marketer Ticketing wieder erreichbar ist."
 
 #: app/assets/javascripts/app/controllers/_plugin/maintenance.coffee:80
 msgid "Some system settings have changed, please restart all Zammad processes!"
 msgstr ""
-"Systemeinstellungen wurden geändert, bitte starten Sie alle Zammad-Prozesse "
+"Systemeinstellungen wurden geändert, bitte starten Sie alle Serverprozesse "
 "neu!"
 
 #: app/frontend/shared/errors/useErrorHandler.ts:35
@@ -18197,11 +18197,11 @@ msgstr "Gestartet am"
 
 #: app/assets/javascripts/app/views/getting_started/finish.jst.eco:8
 msgid "Starting Zammad"
-msgstr "Zammad wird gestartet"
+msgstr "Virtual Marketer Ticketing wird gestartet"
 
 #: app/frontend/apps/desktop/pages/guided-setup/views/GuidedSetupManual/GuidedSetupManualFinish.vue:25
 msgid "Starting Zammad…"
-msgstr "Zammad wird gestartet…"
+msgstr "Virtual Marketer Ticketing wird gestartet…"
 
 #: app/frontend/apps/desktop/pages/guided-setup/views/GuidedSetupImport/GuidedSetupImportSource/GuidedSetupImportSourceStatus.vue:185
 msgid "Starting import…"
@@ -18743,7 +18743,7 @@ msgstr ""
 
 #: app/assets/javascripts/app/controllers/_channel/sms.coffee:398
 msgid "Test message from Zammad"
-msgstr "Test-Nachricht von Zammad"
+msgstr "Test-Nachricht von Virtual Marketer Ticketing"
 
 #: app/assets/javascripts/app/views/channel/email_account_wizard.jst.eco:36
 #: app/assets/javascripts/app/views/channel/email_notification_wizard.jst.eco:13
@@ -18975,11 +18975,11 @@ msgstr ""
 
 #: app/frontend/apps/desktop/pages/guided-setup/views/GuidedSetupManual/GuidedSetupManualSystemInformation.vue:58
 msgid "The URL of this installation of Zammad."
-msgstr "Die URL dieser Installation von Zammad."
+msgstr "Die URL dieser Installation von Virtual Marketer Ticketing."
 
 #: app/assets/javascripts/app/views/getting_started/base.jst.eco:25
 msgid "The URL to this installation of Zammad."
-msgstr "Die URL Ihres Zammad-Systems."
+msgstr "Die URL Ihres Virtual Marketer-Systems."
 
 #: lib/whatsapp/webhook/configuration.rb:25
 msgid "The WhatsApp channel webhook configuration could not be verified."
@@ -19206,7 +19206,7 @@ msgid ""
 "The chat will show up once the connection to the server got established and "
 "if there is an operator online to chat with."
 msgstr ""
-"Der Chat wird angezeigt, sobald eine Verbindung zu Zammad hergestellt werden "
+"Der Chat wird angezeigt, sobald eine Verbindung zu Virtual Marketer Ticketing hergestellt werden "
 "konnte und ein Agent für den Chat online ist."
 
 #: app/graphql/gql/mutations/ticket/checklist/add.rb:13
@@ -19229,14 +19229,14 @@ msgstr ""
 #: app/assets/javascripts/app/controllers/_plugin/maintenance.coffee:104
 msgid "The configuration of Zammad has changed, please reload your browser."
 msgstr ""
-"Die Konfiguration von Zammad wurde geändert, bitte laden Sie Ihren Browser "
+"Die Konfiguration von Virtual Marketer Ticketing wurde geändert, bitte laden Sie Ihren Browser "
 "neu."
 
 #: app/frontend/shared/composables/useAppMaintenanceCheck.ts:117
 msgid ""
 "The configuration of Zammad has changed. Please reload at your earliest."
 msgstr ""
-"Die Konfiguration von Zammad wurde geändert - bitte laden Sie baldmöglichst "
+"Die Konfiguration von Virtual Marketer Ticketing wurde geändert - bitte laden Sie baldmöglichst "
 "neu."
 
 #: app/frontend/apps/mobile/composables/useConnection.ts:18
@@ -19387,7 +19387,7 @@ msgid ""
 "after the import is completed."
 msgstr ""
 "Die eingegebene E-Mail-Adresse und das API-Token werden nach Abschluss des "
-"Imports zu Ihren Zugangsdaten für Zammad."
+"Imports zu Ihren Zugangsdaten für Virtual Marketer Ticketing."
 
 #: app/frontend/apps/desktop/pages/guided-setup/components/GuidedSetupImport/GuidedSetupImportSource/GuidedSetupImportSourceKayako.vue:67
 msgid ""
@@ -19395,7 +19395,7 @@ msgid ""
 "after the import is completed."
 msgstr ""
 "Die eingegebene E-Mail-Adresse und das Passwort werden nach Abschluss des "
-"Imports zu Ihren Zugangsdaten für Zammad."
+"Imports zu Ihren Zugangsdaten für Virtual Marketer Ticketing."
 
 #: app/assets/javascripts/app/views/channel_account/user_mismatch.jst.eco:2
 msgid ""
@@ -19557,7 +19557,7 @@ msgid ""
 "arbitrary code will be executed in the context of the Zammad application."
 msgstr ""
 "Die Installation von Paketen ist mit Sicherheitsrisiken verbunden, da "
-"beliebiger Code im Kontext der Zammad-Anwendung ausgeführt wird."
+"beliebiger Code im Kontext der Virtual Marketer-Anwendung ausgeführt wird."
 
 #: lib/search_index_backend.rb:456
 msgid ""
@@ -20166,9 +20166,9 @@ msgid ""
 msgstr ""
 "Der Bericht enthält eine zusammengefasste Version des Status und der "
 "Konfiguration des Systems für Support- und Analysezwecke. Sie können den "
-"Bericht herunterladen, indem Sie auf den Download-Button klicken. Zammad "
+"Bericht herunterladen, indem Sie auf den Download-Button klicken. Virtual Marketer Ticketing "
 "stellt dann eine JSON-Datei zur Verfügung, wie Sie in der Vorschau unten "
-"sehen können. Wenn Sie sich mit dem Zammad-Support in Verbindung setzen, ist "
+"sehen können. Wenn Sie sich mit dem Virtual Marketer-Support in Verbindung setzen, ist "
 "diese JSON-Datei hilfreich bei der Identifizierung Ihres Problems."
 
 #: app/services/service/system/check_setup.rb:25
@@ -20846,7 +20846,7 @@ msgstr "Der Host kann nicht erreicht werden."
 #: app/assets/javascripts/app/views/version.jst.eco:6
 #: app/frontend/apps/mobile/pages/account/views/AccountOverview.vue:166
 msgid "This is Zammad version %s"
-msgstr "Dies ist Zammad Version %s"
+msgstr "Dies ist Virtual Marketer Ticketing Version %s"
 
 #: app/models/ai/agent/type/custom_ai_agent.rb:10
 msgid ""
@@ -21016,7 +21016,7 @@ msgstr "Dieser Dienst ermöglicht die Integration vom %s mit %s."
 #: app/assets/javascripts/app/controllers/_ai/provider.coffee:78
 msgid "This service allows you to connect Zammad with an AI provider."
 msgstr ""
-"Dieser Dienst ermöglicht es Ihnen, Zammad mit einem KI-Anbieter zu verbinden."
+"Dieser Dienst ermöglicht es Ihnen, Virtual Marketer Ticketing mit einem KI-Anbieter zu verbinden."
 
 #: app/assets/javascripts/app/controllers/_ai/provider.coffee:102
 msgid ""
@@ -21046,14 +21046,14 @@ msgstr ""
 "Diese Einstellung konfiguriert die Verfügbarkeit und Zustimmung zur "
 "Teilnahme an der Erhebung zur neuen BETA-UI.\n"
 "\n"
-"Als Administrator können Sie konfigurieren, welche Rollen in Ihrer Zammad-"
+"Als Administrator können Sie konfigurieren, welche Rollen in Ihrer Virtual Marketer-"
 "Instanz einen Zugang zur neuen Benutzeroberfläche erhalten.\n"
 "\n"
 "Jeder Benutzer kann dann sein Einverständnis für die Teilnahme am BETA-"
 "Programm geben oder nicht.\n"
 "\n"
 "Die Antworten werden anonymisiert und die gesammelten Daten bestehen aus:\n"
-"- Name der Zammad-Instanz\n"
+"- Name der Instanz\n"
 "- Sterne-Bewertung der neuen Benutzeroberfläche\n"
 "- Textkommentare zur neuen Benutzeroberfläche\n"
 "- Anzahl der Stunden, welche die neue UI genutzt wurde"
@@ -21061,7 +21061,7 @@ msgstr ""
 #: app/assets/javascripts/app/controllers/_integration/exchange.coffee:6
 msgid "This service enables Zammad to connect with your Exchange server."
 msgstr ""
-"Dieser Dienst ermöglicht die Verbindung von Zammad mit Ihrem Exchange Server."
+"Dieser Dienst ermöglicht die Verbindung von Virtual Marketer Ticketing mit Ihrem Exchange Server."
 
 #: app/assets/javascripts/app/controllers/_integration/check_mk.coffee:6
 msgid ""
@@ -21914,7 +21914,7 @@ msgid ""
 "To archive all outgoing emails from Zammad to external, you can store a BCC "
 "email address here."
 msgstr ""
-"Um alle ausgehenden E-Mails von Zammad nach extern zu archivieren, können "
+"Um alle ausgehenden E-Mails von Virtual Marketer Ticketing nach extern zu archivieren, können "
 "Sie hier eine BCC-E-Mail-Adresse hinterlegen."
 
 #: app/assets/javascripts/app/views/channel_account/user_mismatch.jst.eco:3
@@ -22268,7 +22268,7 @@ msgstr "Chat zu Ticket umwandeln"
 
 #: app/views/init/index.html.erb:41 app/views/init/spinner-loading.html.erb:272
 msgid "Turn on JavaScript to use Zammad."
-msgstr "Schalten Sie JavaScript ein, um Zammad zu benutzen."
+msgstr "Schalten Sie JavaScript ein, um Virtual Marketer Ticketing zu benutzen."
 
 #: app/assets/javascripts/app/controllers/webhook.coffee:280
 #: app/assets/javascripts/app/views/channel/email_account_wizard.jst.eco:89
@@ -23448,7 +23448,7 @@ msgstr "Aus Benutzersicht ansehen"
 #: app/views/mailer/ticket_reminder_reached/zh-cn.html.erb:17
 #: app/views/mailer/ticket_update/zh-cn.html.erb:28
 msgid "View this in Zammad"
-msgstr "In Zammad anzeigen"
+msgstr "In Virtual Marketer Ticketing anzeigen"
 
 #: app/frontend/apps/mobile/pages/ticket/components/TicketDetailView/TicketViewersDialog.vue:31
 msgid "Viewing ticket"
@@ -23577,10 +23577,10 @@ msgid ""
 "an HTTP(S) endpoint and relevant security settings, then configure a trigger "
 "to perform it."
 msgstr ""
-"Webhooks machen es einfach, Informationen über Ereignisse in Zammad über "
+"Webhooks machen es einfach, Informationen über Ereignisse in Virtual Marketer Ticketing über "
 "HTTP(S) an Drittsysteme zu senden.\n"
 "\n"
-"Sie können Webhooks in Zammad verwenden, um Ticket-, Artikel- und "
+"Sie können Webhooks in Virtual Marketer Ticketing verwenden, um Ticket-, Artikel- und "
 "Anhangsdaten zu senden, sobald ein Trigger ausgeführt wird. Erstellen und "
 "konfigurieren Sie einfach Ihren Webhook mit einem HTTP(S)-Endpunkt und den "
 "entsprechenden Sicherheitseinstellungen und konfigurieren Sie dann einen "
@@ -23961,12 +23961,12 @@ msgid ""
 "You can connect %s with Zammad. But first, you will have to connect your "
 "Zammad with %s."
 msgstr ""
-"Sie können %s mit Zammad verbinden. Dazu müssen Sie Ihr Zammad zuerst mit %s "
+"Sie können %s mit Virtual Marketer Ticketing verbinden. Dazu müssen Sie Ihr Virtual Marketer Ticketing zuerst mit %s "
 "verbinden."
 
 #: app/assets/javascripts/app/views/whatsapp/index.jst.eco:14
 msgid "You can connect WhatsApp Business Accounts with Zammad."
-msgstr "Sie können WhatsApp Business Konten mit Zammad verbinden."
+msgstr "Sie können WhatsApp Business Konten mit Virtual Marketer Ticketing verbinden."
 
 #: app/assets/javascripts/app/models/overview.coffee
 msgid ""
@@ -24018,9 +24018,9 @@ msgid ""
 "all people using your Zammad instance."
 msgstr ""
 "Sie können definieren, welche Links z.B. im Fußbereich des "
-"Anmeldebildschirms von Zammad erscheinen. Diese haben viele mögliche "
+"Anmeldebildschirms von Virtual Marketer Ticketing erscheinen. Diese haben viele mögliche "
 "Anwendungsfälle, wie die Anzeige einer Datenschutzseite für alle Nutzer "
-"Ihrer Zammad-Instanz."
+"Ihrer Instanz."
 
 #: app/assets/javascripts/app/views/facebook/app_config.jst.eco:3
 #: app/assets/javascripts/app/views/google/app_config.jst.eco:3
@@ -24054,7 +24054,7 @@ msgid ""
 "You can find archived emails in Zammad anytime using the search function, "
 "like for any other ticket."
 msgstr ""
-"Sie können archivierte E-Mails in Zammad jederzeit über die Suchfunktion "
+"Sie können archivierte E-Mails in Virtual Marketer Ticketing jederzeit über die Suchfunktion "
 "finden, wie bei jedem anderen Ticket auch."
 
 #: app/assets/javascripts/app/views/profile/token_access.jst.eco:4
@@ -24064,7 +24064,7 @@ msgid ""
 "needs access to the Zammad API."
 msgstr ""
 "Generieren Sie ein persönliches Zugangs-Token für jede Anwendung, welche auf "
-"die Zammad API zugreifen soll."
+"die Virtual Marketer-API zugreifen soll."
 
 #: app/frontend/apps/desktop/pages/personal-setting/views/PersonalSettingLocale.vue:42
 #: app/frontend/apps/mobile/pages/account/views/AccountOverview.vue:159
@@ -24335,11 +24335,11 @@ msgstr "Sie müssen das folgende JavaScript-Snippet in Ihre Webseite einfügen:"
 #: app/assets/javascripts/app/views/integration/placetel.jst.eco:5
 #: app/assets/javascripts/app/views/integration/sipgate.jst.eco:5
 msgid "You need to configure the Zammad endpoints in the %s web interface:"
-msgstr "Sie müssen die Zammad-Endpunkte im %s Webinterface hinterlegen:"
+msgstr "Sie müssen die Virtual Marketer-Endpunkte im %s Webinterface hinterlegen:"
 
 #: app/assets/javascripts/app/views/integration/cti.jst.eco:5
 msgid "You need to configure the Zammad endpoints in the %s:"
-msgstr "Diese Zammad-Endpunkte müssen in %s konfigurieren werden:"
+msgstr "Diese Virtual Marketer-Endpunkte müssen in %s konfigurieren werden:"
 
 #: app/frontend/apps/desktop/components/CommonTable/CommonAdvancedTable.vue:430
 msgid "You reached the table limit of %s items (%s remaining)."
@@ -24440,7 +24440,7 @@ msgstr "Neues persönliches Zugangs-Token"
 #: app/assets/javascripts/app/views/getting_started/email_pre_configured.jst.eco:7
 #: app/frontend/apps/desktop/pages/guided-setup/views/GuidedSetupManual/GuidedSetupManualChannelEmailPreConfigured.vue:59
 msgid "Your Zammad has the following email address:"
-msgstr "Ihr Zammad hat die folgende E-Mail-Adresse:"
+msgstr "Ihr Virtual Marketer Ticketing hat die folgende E-Mail-Adresse:"
 
 #: app/assets/javascripts/app/controllers/_plugin/user_signup_check.coffee:45
 msgid ""
@@ -24551,11 +24551,11 @@ msgstr "%s Tickets werden zugewiesen. Möchten Sie fortfahren?"
 #: app/frontend/apps/mobile/pages/account/views/AccountOverview.vue:78
 #: app/frontend/apps/mobile/pages/authentication/components/LoginFooter.vue:24
 msgid "Zammad"
-msgstr "Zammad"
+msgstr "Virtual Marketer Ticketing"
 
 #: app/assets/javascripts/app/lib/app_post/ai_provider/zammad_ai.coffee:3
 msgid "Zammad AI"
-msgstr "Zammad AI"
+msgstr "Virtual Marketer Ticketing AI"
 
 #: app/assets/javascripts/app/views/channel/form.jst.eco:230
 msgid ""
@@ -24571,7 +24571,7 @@ msgstr "Zammad-Stiftung"
 
 #: db/seeds/settings.rb:114
 msgid "Zammad Helpdesk"
-msgstr "Zammad Helpdesk"
+msgstr "Virtual Marketer Ticketing Helpdesk"
 
 #: lib/user_agent.rb:101
 msgid "Zammad User Agent"
@@ -24585,20 +24585,20 @@ msgid ""
 "Zammad is currently in maintenance mode. Only administrators can log in. "
 "Please wait until the maintenance window is over."
 msgstr ""
-"Zammad ist gegenwärtig im Wartungsmodus. Nur Administratoren können sich "
+"Virtual Marketer Ticketing ist gegenwärtig im Wartungsmodus. Nur Administratoren können sich "
 "anmelden. Bitte warten Sie, bis das Wartungsfenster vorbei ist."
 
 #: app/assets/javascripts/app/controllers/_plugin/maintenance.coffee:60
 msgid "Zammad is restarting…"
-msgstr "Zammad wird neu gestartet…"
+msgstr "Virtual Marketer Ticketing wird neu gestartet…"
 
 #: app/assets/javascripts/app/views/widget/switch_back_to_user.jst.eco:2
 msgid "Zammad looks like this for \"%s\""
-msgstr "Zammad sieht so für \"%s\" aus"
+msgstr "Virtual Marketer Ticketing sieht so für \"%s\" aus"
 
 #: app/assets/javascripts/app/controllers/_plugin/maintenance.coffee:79
 msgid "Zammad requires a restart!"
-msgstr "Zammad benötigt einen Neustart!"
+msgstr "Virtual Marketer Ticketing benötigt einen Neustart!"
 
 #: app/assets/javascripts/app/models/ticket_state.coffee:7
 msgid ""
@@ -24607,7 +24607,7 @@ msgid ""
 "or closed states. Take a look at our system object documentation for more "
 "information."
 msgstr ""
-"Zammad verwendet Statustypen, um zu definieren, wie sich der Status "
+"Virtual Marketer Ticketing verwendet Statustypen, um zu definieren, wie sich der Status "
 "verhalten soll. Dies ermöglicht es Ihnen, verschiedene Typen wie ausstehende "
 "Aktionen, ausstehende Erinnerungen oder geschlossene Zustände zu haben. "
 "Werfen Sie einen Blick auf unsere Systemobjekt-Dokumentation für weitere "
@@ -24615,7 +24615,7 @@ msgstr ""
 
 #: app/models/system_report/plugin/version.rb:4
 msgid "Zammad version"
-msgstr "Zammad-Version"
+msgstr "Version"
 
 #: app/assets/javascripts/app/controllers/import_zendesk.coffee:191
 #: app/frontend/apps/desktop/pages/guided-setup/components/GuidedSetupImport/GuidedSetupImportSource/plugins/zendesk.ts:11
