@@ -64,6 +64,21 @@ class TicketArticleCommunicateEmailJob < ApplicationJob
       return
     end
 
+    # Recipient allowlist — see lib/outbound_recipient_guard.rb. Inert unless
+    # OUTBOUND_EMAIL_DOMAIN_ALLOWLIST is set. Checked here rather than inside
+    # Channel#deliver so a blocked send marks the ARTICLE as failed (visible on
+    # the ticket, with the reason) instead of flagging the channel itself as
+    # broken, which it is not.
+    blocked = OutboundRecipientGuard.blocked(record.to, record.cc)
+    if blocked.any?
+      log_error(
+        record,
+        "Versand blockiert: #{blocked.join(', ')} liegt ausserhalb der erlaubten Empfaengerdomains — #{OutboundRecipientGuard.describe}.",
+        channel,
+      )
+      return
+    end
+
     notification = false
     sender = Ticket::Article::Sender.lookup(id: record.sender_id)
     if sender['name'] == 'System'

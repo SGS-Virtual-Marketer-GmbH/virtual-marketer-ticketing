@@ -152,6 +152,15 @@ returns
   def self.deliver(data)
     raise Exceptions::UnprocessableContent, "Unable to send mail to user with id #{data[:recipient][:id]} because there is no email available." if data[:recipient][:email].blank?
 
+    # Recipient allowlist — see lib/outbound_recipient_guard.rb. Inert unless
+    # OUTBOUND_EMAIL_DOMAIN_ALLOWLIST is set. Covers trigger and system
+    # notifications; agent replies are guarded in
+    # TicketArticleCommunicateEmailJob, which is the other way mail leaves.
+    if !OutboundRecipientGuard.permitted?(data[:recipient][:email])
+      Rails.logger.warn "Benachrichtigung an #{data[:recipient][:email]} blockiert — #{OutboundRecipientGuard.describe}."
+      return false
+    end
+
     sender = Setting.get('notification_sender')
     Rails.logger.debug { "Send notification to: #{data[:recipient][:email]} (from:#{sender}/subject:#{data[:subject]})" }
 
