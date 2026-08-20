@@ -1,10 +1,11 @@
-<%# @html is escaped and linkified in App.VmAssistant#formatMessage. %>
+<%# html is escaped and linkified in App.VmAssistant#formatMessage. %>
 <%# Deciding here what counts as safe markup is how XSS gets introduced. %>
-<%# NB: eco cannot parse a MULTI-LINE <%# %> comment — keep these one per line. %>
+<%# Two eco traps, both of which fail as RENDERED TEXT rather than as an error: %>
+<%# a comment may not span lines, and it may not contain a closing percent-gt. %>
 <div class="vm-msg vm-msg--<%= @role %>">
   <div class="vm-msg__body"><%- @html %></div>
 
-  <%# What the assistant actually did, so a note on a ticket is never a surprise. %>
+  <%# What the assistant did, so a note on a ticket is never a surprise. %>
   <% if @actions.length: %>
     <div class="vm-msg__actions">
       <% for a in @actions: %>
