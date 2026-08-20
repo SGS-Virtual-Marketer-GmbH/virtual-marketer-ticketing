@@ -1,0 +1,15 @@
+<%# @html is escaped and linkified in App.VmAssistant#formatMessage. %>
+<%# Deciding here what counts as safe markup is how XSS gets introduced. %>
+<%# NB: eco cannot parse a MULTI-LINE <%# %> comment — keep these one per line. %>
+<div class="vm-msg vm-msg--<%= @role %>">
+  <div class="vm-msg__body"><%- @html %></div>
+
+  <%# What the assistant actually did, so a note on a ticket is never a surprise. %>
+  <% if @actions.length: %>
+    <div class="vm-msg__actions">
+      <% for a in @actions: %>
+        <span class="vm-msg__action<%= if a.failed then ' vm-msg__action--failed' else '' %>"><%= a.label %></span>
+      <% end %>
+    </div>
+  <% end %>
+</div>

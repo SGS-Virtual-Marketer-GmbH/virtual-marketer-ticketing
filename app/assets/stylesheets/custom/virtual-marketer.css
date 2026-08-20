@@ -460,3 +460,227 @@
   .vm-tile { transition: none; }
   .vm-tile:hover, .vm-tile:focus-visible { transform: none; }
 }
+
+/* ---------------------------------------------------------------------------
+ * Assistant panel (ticket sidebar + dashboard tab)
+ *
+ * The same component in two very different boxes: a ~350px sidebar column and a
+ * full-width dashboard tab. So it sizes itself to its container and caps its
+ * width rather than assuming either — a chat log stretched across a 1440px
+ * screen is unreadable, and one hard-coded to sidebar width looks broken on the
+ * dashboard.
+ * ------------------------------------------------------------------------ */
+
+.vm-chat {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 46rem;
+  min-height: 24rem;
+  /* Fills the sidebar; on the dashboard the max-height keeps it on one screen. */
+  max-height: min(38rem, calc(100vh - 14rem));
+  background: #fff;
+  border: 1px solid var(--vm-gray-300);
+  border-radius: var(--vm-radius-lg);
+  overflow: hidden;
+}
+
+.vm-chat__head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 0.9rem;
+  border-bottom: 1px solid var(--vm-gray-200);
+  background: var(--vm-gray-100);
+}
+
+.vm-chat__title {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.9rem;
+  font-weight: 650;
+  color: var(--vm-gray-900);
+}
+
+.vm-chat__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--vm-red);
+}
+
+.vm-chat__scope {
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--vm-gray-500);
+}
+
+.vm-chat__close {
+  margin-left: auto;
+  padding: 0 0.35rem;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--vm-gray-500);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.vm-chat__log {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.vm-chat__intro {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--vm-gray-700);
+}
+
+.vm-chat__intro p { margin: 0 0 0.4rem; }
+
+.vm-chat__intro-note { color: var(--vm-gray-500); }
+
+.vm-chat__suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.7rem;
+}
+
+.vm-chat__suggestion {
+  padding: 0.3rem 0.65rem;
+  font-size: 0.78rem;
+  color: var(--vm-red);
+  background: var(--vm-red-soft);
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.vm-chat__suggestion:hover { background: rgba(148, 21, 43, 0.14); }
+
+.vm-msg { max-width: 92%; }
+
+.vm-msg--user {
+  align-self: flex-end;
+  padding: 0.5rem 0.75rem;
+  color: #fff;
+  background: var(--vm-red);
+  border-radius: var(--vm-radius) var(--vm-radius) 2px var(--vm-radius);
+}
+
+.vm-msg--assistant {
+  align-self: flex-start;
+  padding: 0.5rem 0.75rem;
+  background: var(--vm-gray-100);
+  border-radius: var(--vm-radius) var(--vm-radius) var(--vm-radius) 2px;
+}
+
+.vm-msg--error {
+  align-self: stretch;
+  padding: 0.5rem 0.75rem;
+  color: var(--vm-red-dark);
+  background: var(--vm-red-soft);
+  border-radius: var(--vm-radius);
+}
+
+.vm-msg__body {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  /* Deep links are long and must not push the panel sideways. */
+  overflow-wrap: anywhere;
+}
+
+.vm-msg--user .vm-msg__body a { color: #fff; text-decoration: underline; }
+
+.vm-msg__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.4rem;
+}
+
+.vm-msg__action {
+  padding: 0.1rem 0.4rem;
+  font-size: 0.68rem;
+  color: var(--vm-gray-700);
+  background: var(--vm-gray-200);
+  border-radius: 4px;
+}
+
+.vm-msg__action--failed {
+  color: var(--vm-red-dark);
+  background: var(--vm-red-soft);
+}
+
+.vm-chat__thinking {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0 0.9rem 0.5rem;
+  font-size: 0.78rem;
+  color: var(--vm-gray-500);
+}
+
+.vm-chat__pulse {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: var(--vm-blue);
+  animation: vm-pulse 1.1s ease-in-out infinite;
+}
+
+@keyframes vm-pulse {
+  0%, 100% { opacity: 0.25; }
+  50%      { opacity: 1; }
+}
+
+.vm-chat__form {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.7rem 0.9rem 0.9rem;
+  border-top: 1px solid var(--vm-gray-200);
+}
+
+.vm-chat__input {
+  flex: 1 1 auto;
+  padding: 0.5rem 0.65rem;
+  font: inherit;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  resize: none;
+  border: 1px solid var(--vm-gray-300);
+  border-radius: var(--vm-radius);
+}
+
+.vm-chat__input:focus {
+  border-color: var(--vm-blue);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--vm-blue-light);
+}
+
+.vm-chat__send {
+  flex: 0 0 auto;
+  align-self: flex-end;
+  padding: 0.5rem 0.95rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--vm-red);
+  border: 0;
+  border-radius: var(--vm-radius);
+  cursor: pointer;
+}
+
+.vm-chat__send:disabled { opacity: 0.5; cursor: default; }
+
+@media (prefers-reduced-motion: reduce) {
+  .vm-chat__pulse { animation: none; opacity: 0.6; }
+}

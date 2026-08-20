@@ -35,6 +35,12 @@ class App.Dashboard extends App.Controller
       el: localEl.find('.vm-agent-tiles')
     )
 
+    # Same assistant as in the ticket sidebar, just without a ticket in scope —
+    # here it is for "what is waiting for me", there for "help me with this one".
+    new App.VmAssistant(
+      el: localEl.find('.vm-assistant-panel')
+    )
+
     new App.DashboardStats(
       el: localEl.find('.stat-widgets')
     )

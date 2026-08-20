@@ -1,0 +1,34 @@
+<div class="vm-chat">
+  <div class="vm-chat__head">
+    <div class="vm-chat__title">
+      <span class="vm-chat__dot"></span>
+      <span><%- @T('Assistent') %></span>
+      <% if @ticketNumber: %>
+        <span class="vm-chat__scope"><%- @T('zu Ticket') %> #<%= @ticketNumber %></span>
+      <% end %>
+    </div>
+    <button type="button" class="vm-chat__close js-vmChatClose" aria-label="<%- @T('Schließen') %>">&times;</button>
+  </div>
+
+  <div class="vm-chat__log js-vmChatLog" role="log" aria-live="polite">
+    <div class="vm-chat__intro">
+      <p><%- @T('Ich arbeite mit deinen Rechten und unter deinem Namen. Was ich nicht sehen darf, sehe ich auch hier nicht.') %></p>
+      <p class="vm-chat__intro-note"><%- @T('An Kunden verschicke ich nichts — ich formuliere den Vorschlag, abschicken tust du.') %></p>
+      <div class="vm-chat__suggestions">
+        <% for s in @suggestions: %>
+          <button type="button" class="vm-chat__suggestion js-vmSuggestion"><%- @T(s) %></button>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="vm-chat__thinking js-vmChatThinking hidden">
+    <span class="vm-chat__pulse"></span><%- @T('einen Moment …') %>
+  </div>
+
+  <form class="vm-chat__form js-vmChatForm">
+    <textarea class="vm-chat__input js-vmChatInput" rows="2"
+              placeholder="<%- @T('Frag mich etwas zu deinen Tickets …') %>"></textarea>
+    <button type="submit" class="vm-chat__send js-vmChatSend"><%- @T('Senden') %></button>
+  </form>
+</div>
