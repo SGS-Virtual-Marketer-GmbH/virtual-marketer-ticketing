@@ -1,0 +1,43 @@
+<div class="vm-tiles">
+  <div class="vm-tiles__intro">
+    <h2 class="vm-tiles__headline"><%- @T('Ihre KI-Kollegen') %></h2>
+    <p class="vm-tiles__lead">
+      <%- @T('Jedes eingehende Ticket wird automatisch eingeordnet, mit echten Daten aus Xentral und der Sendungsverfolgung angereichert und mit einem Antwortvorschlag versehen. Sie prüfen und entscheiden — verschickt wird nichts ohne Sie.') %>
+    </p>
+  </div>
+
+  <div class="vm-tiles__grid">
+    <% for tile in @tiles: %>
+      <% count = @counts[tile.key] %>
+      <button type="button"
+              class="vm-tile js-vmTile<%= ' vm-tile--highlight' if tile.highlight %>"
+              data-link="<%= tile.key %>"
+              aria-label="<%= @T(tile.name) %>">
+        <span class="vm-tile__head">
+          <span class="vm-tile__icon"><%- @icon(tile.icon) %></span>
+          <span class="vm-tile__name"><%- @T(tile.name) %></span>
+          <% if count? and count > 0: %>
+            <span class="vm-tile__count" title="<%- @T('offene Tickets') %>"><%= count %></span>
+          <% end %>
+        </span>
+
+        <span class="vm-tile__description"><%- @T(tile.description) %></span>
+
+        <span class="vm-tile__meta">
+          <span class="vm-tile__row">
+            <span class="vm-tile__label"><%- @T('KANN') %></span>
+            <span class="vm-tile__chips">
+              <% for item in tile.can: %><span class="vm-tile__chip"><%- @T(item) %></span><% end %>
+            </span>
+          </span>
+          <span class="vm-tile__row">
+            <span class="vm-tile__label"><%- @T('SIEHT') %></span>
+            <span class="vm-tile__chips">
+              <% for item in tile.sees: %><span class="vm-tile__chip vm-tile__chip--source"><%- @T(item) %></span><% end %>
+            </span>
+          </span>
+        </span>
+      </button>
+    <% end %>
+  </div>
+</div>

@@ -29,6 +29,12 @@ class App.Dashboard extends App.Controller
       isAdmin: @permissionCheck('admin')
     ) )
 
+    # First tab, and the reason the dashboard is worth opening: what the
+    # assistant does per ticket category, and how much is waiting.
+    new App.VmAgentTiles(
+      el: localEl.find('.vm-agent-tiles')
+    )
+
     new App.DashboardStats(
       el: localEl.find('.stat-widgets')
     )

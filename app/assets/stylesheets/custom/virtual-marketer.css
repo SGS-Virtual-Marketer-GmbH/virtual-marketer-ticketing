@@ -282,3 +282,181 @@
 [data-theme='dark'] .signup .company-logo {
   filter: invert(1) hue-rotate(180deg);
 }
+
+/* ---------------------------------------------------------------------------
+ * KI-Kollegen board (dashboard, first tab)
+ *
+ * Cards rather than a list because the point is comparison at a glance: which
+ * area has work waiting, and what the assistant can actually do there. A list
+ * is read top to bottom, a board is scanned.
+ *
+ * Sizes are set in rem and the grid is auto-fill, so the board reflows from a
+ * 13" laptop to a wall screen without breakpoints to maintain. The tile itself
+ * is a <button>, which gets keyboard focus and Enter for free — a clickable
+ * <div> would need both re-implemented and would still be invisible to a
+ * screen reader.
+ * ------------------------------------------------------------------------ */
+
+.vm-tiles {
+  width: 100%;
+  padding: 0 0 2rem;
+}
+
+.vm-tiles__intro {
+  max-width: 62ch;
+  margin: 0 0 1.75rem;
+}
+
+.vm-tiles__headline {
+  margin: 0 0 0.5rem;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--vm-gray-900);
+}
+
+.vm-tiles__lead {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--vm-gray-700);
+}
+
+.vm-tiles__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.vm-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.15rem 1.25rem 1.25rem;
+  text-align: left;
+  background: #fff;
+  border: 1px solid var(--vm-gray-300);
+  border-radius: var(--vm-radius-lg);
+  box-shadow: var(--vm-shadow);
+  cursor: pointer;
+  /* Only the cheap properties animate; a transition on `all` would also
+     animate layout and make the whole board jitter on hover. */
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.vm-tile:hover,
+.vm-tile:focus-visible {
+  border-color: var(--vm-blue);
+  box-shadow: var(--vm-shadow-lg);
+  transform: translateY(-2px);
+  outline: none;
+}
+
+.vm-tile:focus-visible {
+  /* Keyboard users get a visible ring; hover alone is not a focus indicator. */
+  box-shadow: var(--vm-shadow-lg), 0 0 0 3px var(--vm-blue-light);
+}
+
+.vm-tile--highlight {
+  /* Voicemail and fax: capabilities worth pointing at, not a different rank. */
+  border-color: var(--vm-blue-light);
+  background: linear-gradient(180deg, #f7fbfe 0%, #fff 42%);
+}
+
+.vm-tile__head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.vm-tile__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex: 0 0 auto;
+  border-radius: var(--vm-radius);
+  background: var(--vm-red-soft);
+  color: var(--vm-red);
+}
+
+.vm-tile__icon svg {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+.vm-tile__name {
+  font-size: 1rem;
+  font-weight: 650;
+  color: var(--vm-gray-900);
+  line-height: 1.3;
+}
+
+.vm-tile__count {
+  margin-left: auto;
+  min-width: 1.6rem;
+  padding: 0.1rem 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  color: #fff;
+  background: var(--vm-red);
+  border-radius: 999px;
+}
+
+.vm-tile__description {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--vm-gray-700);
+}
+
+.vm-tile__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: auto;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--vm-gray-200);
+}
+
+.vm-tile__row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+}
+
+.vm-tile__label {
+  flex: 0 0 2.9rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--vm-gray-500);
+}
+
+.vm-tile__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.vm-tile__chip {
+  padding: 0.15rem 0.5rem;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: var(--vm-red);
+  background: var(--vm-red-soft);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.vm-tile__chip--source {
+  color: var(--vm-gray-700);
+  background: var(--vm-gray-200);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vm-tile { transition: none; }
+  .vm-tile:hover, .vm-tile:focus-visible { transform: none; }
+}
