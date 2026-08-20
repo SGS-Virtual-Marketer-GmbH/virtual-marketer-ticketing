@@ -684,3 +684,177 @@
 @media (prefers-reduced-motion: reduce) {
   .vm-chat__pulse { animation: none; opacity: 0.6; }
 }
+
+/* ---------------------------------------------------------------------------
+   Team board — per-agent numbers, only rendered for `report` permission
+   holders. Same tokens as the tiles, so it reads as one product.
+   --------------------------------------------------------------------------- */
+
+.vm-team {
+  padding: 24px 0 40px;
+  max-width: 1100px;
+}
+
+.vm-team__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.vm-team__headline {
+  margin: 0 0 4px;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--vm-gray-900);
+}
+
+.vm-team__lead {
+  margin: 0;
+  max-width: 60ch;
+  color: var(--vm-gray-700);
+  line-height: 1.5;
+}
+
+.vm-team__periods {
+  display: inline-flex;
+  background: var(--vm-gray-100);
+  border: 1px solid var(--vm-gray-300);
+  border-radius: var(--vm-radius);
+  padding: 3px;
+  gap: 2px;
+}
+
+.vm-team__period {
+  border: 0;
+  background: transparent;
+  color: var(--vm-gray-700);
+  font-size: 13px;
+  padding: 6px 14px;
+  border-radius: calc(var(--vm-radius) - 4px);
+  cursor: pointer;
+}
+
+.vm-team__period:hover {
+  color: var(--vm-gray-900);
+}
+
+.vm-team__period.is-active {
+  background: #fff;
+  color: var(--vm-red);
+  font-weight: 600;
+  box-shadow: var(--vm-shadow);
+}
+
+.vm-team__hint {
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  background: var(--vm-red-soft);
+  border-left: 3px solid var(--vm-red);
+  border-radius: 0 var(--vm-radius) var(--vm-radius) 0;
+  color: var(--vm-gray-800);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.vm-team__empty {
+  color: var(--vm-gray-500);
+  padding: 32px 0;
+}
+
+.vm-team__table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #fff;
+  border: 1px solid var(--vm-gray-300);
+  border-radius: var(--vm-radius-lg);
+  overflow: hidden;
+  box-shadow: var(--vm-shadow);
+}
+
+.vm-team__th {
+  text-align: left;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--vm-gray-500);
+  font-weight: 600;
+  padding: 12px 16px;
+  background: var(--vm-gray-100);
+  border-bottom: 1px solid var(--vm-gray-300);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.vm-team__th:hover {
+  color: var(--vm-gray-800);
+}
+
+.vm-team__th--num,
+.vm-team__num {
+  text-align: right;
+}
+
+.vm-team__row:hover {
+  background: var(--vm-gray-100);
+}
+
+.vm-team__name,
+.vm-team__num {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--vm-gray-200);
+  color: var(--vm-gray-800);
+  font-size: 14px;
+}
+
+.vm-team__num {
+  font-variant-numeric: tabular-nums;
+}
+
+.vm-team__row:last-child .vm-team__name,
+.vm-team__row:last-child .vm-team__num {
+  border-bottom: 0;
+}
+
+.vm-team__dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin-right: 9px;
+  background: var(--vm-gray-300);
+  vertical-align: middle;
+}
+
+.vm-team__dot--online {
+  background: #38a169;
+  box-shadow: 0 0 0 3px rgba(56, 161, 105, 0.16);
+}
+
+.vm-team__foot {
+  margin: 14px 2px 0;
+  color: var(--vm-gray-500);
+  font-size: 13px;
+}
+
+.vm-team__row--system .vm-team__name,
+.vm-team__row--system .vm-team__num {
+  color: var(--vm-gray-500);
+}
+
+.vm-team__badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--vm-gray-200);
+  color: var(--vm-gray-700);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 600;
+  vertical-align: middle;
+}

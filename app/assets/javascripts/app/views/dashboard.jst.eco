@@ -3,10 +3,16 @@
     <div class="tab active" data-area="vm-agent-tiles"><%- @T('Ihre KI-Kollegen') %></div>
     <div class="tab" data-area="vm-assistant-panel"><%- @T('Assistent') %></div>
     <div class="tab" data-area="stat-widgets"><%- @T('My Stats') %></div>
+    <% if @mayReport: %>
+      <div class="tab" data-area="vm-team-stats"><%- @T('Team') %></div>
+    <% end %>
     <div class="tab" data-area="first-steps-widgets"><%- @T('First Steps') %></div>
   </div>
   <div class="tab-content vm-agent-tiles"></div>
   <div class="tab-content vm-assistant-panel hidden"></div>
+  <% if @mayReport: %>
+    <div class="tab-content vm-team-stats hidden"></div>
+  <% end %>
   <div class="tab-content first-steps-widgets hidden"></div>
   <div class="tab-content stat-widgets three-columns horizontal hidden"></div>
 </div>

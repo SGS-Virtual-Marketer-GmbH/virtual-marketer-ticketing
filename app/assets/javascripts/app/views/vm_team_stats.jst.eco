@@ -1,0 +1,60 @@
+<div class="vm-team">
+  <div class="vm-team__head">
+    <div>
+      <h2 class="vm-team__headline"><%- @T('Team') %></h2>
+      <p class="vm-team__lead"><%- @T('Wer wie viel offen hat, wie viel erledigt wurde und wie lange Kunden auf eine erste Antwort warten.') %></p>
+    </div>
+    <div class="vm-team__periods">
+      <% for days in @periods: %>
+        <button type="button" class="vm-team__period js-vmPeriod<%= ' is-active' if days is @days %>" data-days="<%= days %>"><%= days %> <%- @T('Tage') %></button>
+      <% end %>
+    </div>
+  </div>
+
+  <% if @error: %>
+    <p class="vm-team__empty"><%- @T(@error) %></p>
+  <% else if !@data: %>
+    <p class="vm-team__empty"><%- @T('Wird geladen …') %></p>
+  <% else: %>
+
+    <% unless @data.first_response_measured: %>
+      <p class="vm-team__hint">
+        <%- @T('Die Erstreaktionszeit wird erst gemessen, sobald aus diesem System heraus öffentlich geantwortet wird. Aus der Zendesk-Historie kommt kein Wert mit.') %>
+      </p>
+    <% end %>
+
+    <table class="vm-team__table">
+      <thead>
+        <tr>
+          <th class="vm-team__th js-vmSort" data-key="name"><%- @T('Mitarbeiter') %><%= ' ▾' if @sortKey is 'name' %></th>
+          <th class="vm-team__th vm-team__th--num js-vmSort" data-key="open"><%- @T('Offen') %><%= ' ▾' if @sortKey is 'open' %></th>
+          <th class="vm-team__th vm-team__th--num js-vmSort" data-key="solved"><%- @T('Erledigt') %><%= ' ▾' if @sortKey is 'solved' %></th>
+          <th class="vm-team__th vm-team__th--num js-vmSort" data-key="first_response_minutes"><%- @T('Ø Erstreaktion') %><%= ' ▾' if @sortKey is 'first_response_minutes' %></th>
+          <th class="vm-team__th vm-team__th--num js-vmSort" data-key="resolution_minutes"><%- @T('Ø Lösungszeit') %><%= ' ▾' if @sortKey is 'resolution_minutes' %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% for agent in @agents: %>
+          <tr class="vm-team__row<%= ' vm-team__row--system' if agent.system %>">
+            <td class="vm-team__name">
+              <span class="vm-team__dot<%= ' vm-team__dot--online' if agent.online %>" title="<%- if agent.online then @T('gerade angemeldet') else @T('nicht angemeldet') %>"></span>
+              <%= agent.name %>
+              <% if agent.system: %>
+                <span class="vm-team__badge" title="<%- @T('Kein Mensch — automatisch bearbeitete Tickets') %>"><%- @T('System') %></span>
+              <% end %>
+            </td>
+            <td class="vm-team__num"><%= agent.open %></td>
+            <td class="vm-team__num"><%= agent.solved %></td>
+            <td class="vm-team__num"><%= @duration(agent.first_response_minutes) %></td>
+            <td class="vm-team__num"><%= @duration(agent.resolution_minutes) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <p class="vm-team__foot">
+      <%- @T('Ohne Bearbeiter') %>: <strong><%= @data.unassigned_open %></strong>
+      · <%- @T('Erledigt und Zeiten beziehen sich auf die letzten') %> <%= @data.days %> <%- @T('Tage') %>.
+    </p>
+  <% end %>
+</div>

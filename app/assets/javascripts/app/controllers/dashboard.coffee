@@ -24,9 +24,15 @@ class App.Dashboard extends App.Controller
 
   render: ->
 
+    # `report` is Zammad's own "may see more than their own numbers" permission.
+    # Hiding the tab is a courtesy, not the gate — VMTeamStatsControllerPolicy
+    # enforces the same permission on the endpoint.
+    mayReport = @permissionCheck('report')
+
     localEl = $( App.view('dashboard')(
-      head:    __('Dashboard')
-      isAdmin: @permissionCheck('admin')
+      head:      __('Dashboard')
+      isAdmin:   @permissionCheck('admin')
+      mayReport: mayReport
     ) )
 
     # First tab, and the reason the dashboard is worth opening: what the
@@ -40,6 +46,11 @@ class App.Dashboard extends App.Controller
     new App.VmAssistant(
       el: localEl.find('.vm-assistant-panel')
     )
+
+    if mayReport
+      new App.VmTeamStats(
+        el: localEl.find('.vm-team-stats')
+      )
 
     new App.DashboardStats(
       el: localEl.find('.stat-widgets')
