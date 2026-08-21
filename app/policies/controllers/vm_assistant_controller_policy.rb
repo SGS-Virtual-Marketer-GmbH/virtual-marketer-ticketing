@@ -1,4 +1,4 @@
-class Controllers::VMAssistantControllerPolicy < Controllers::ApplicationControllerPolicy
+class Controllers::VmAssistantControllerPolicy < Controllers::ApplicationControllerPolicy
   # Required, not optional: `authenticate_and_authorize!` resolves the policy
   # through Pundit, and Pundit raises NotDefinedError when there is none — so
   # without this file the endpoint fails for everybody, admins included.

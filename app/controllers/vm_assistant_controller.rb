@@ -14,7 +14,13 @@
 # The assistant then calls back into Zammad as this same user (the `From`
 # header), which is what keeps group permissions intact end to end.
 
-class VMAssistantController < ApplicationController
+# Zeitwerk derives the constant from the filename, so vm_assistant_controller.rb
+# must define VmAssistantController -- "VM" is not one of Zammad's acronyms, and
+# eager loading in production raises Zeitwerk::NameError on the mismatch. This
+# only surfaces at boot, so it passes every test and then takes the instance
+# down on deploy. Zammad's own controllers follow the same rule (CtiController,
+# not CTIController).
+class VmAssistantController < ApplicationController
   prepend_before_action :authenticate_and_authorize!
 
   # POST /api/v1/vm_assistant/chat

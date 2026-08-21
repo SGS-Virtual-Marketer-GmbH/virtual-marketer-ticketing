@@ -14,7 +14,7 @@
 # numbers on the dashboard; this view is the whole team by definition, which is
 # exactly why it sits behind a permission most agents do not hold.
 
-class VMTeamStatsController < ApplicationController
+class VmTeamStatsController < ApplicationController
   prepend_before_action :authenticate_and_authorize!
 
   # A session row is written on real request activity, so it tracks presence

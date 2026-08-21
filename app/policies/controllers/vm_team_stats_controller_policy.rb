@@ -1,4 +1,4 @@
-class Controllers::VMTeamStatsControllerPolicy < Controllers::ApplicationControllerPolicy
+class Controllers::VmTeamStatsControllerPolicy < Controllers::ApplicationControllerPolicy
   # Zammad's own reporting permission, reused rather than invented: it already
   # exists, is assignable per role in the admin UI, and means precisely "may see
   # numbers beyond their own". Admins hold it out of the box; giving it to a
