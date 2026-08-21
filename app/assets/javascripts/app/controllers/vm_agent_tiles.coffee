@@ -151,8 +151,12 @@ class App.VmAgentTiles extends App.Controller
         @log 'error', 'Kachelzähler konnten nicht geladen werden'
     )
 
+  # A tile opens the workspace for that category, not the bare overview list:
+  # the queue is there too, but with the ticket and the assistant beside it,
+  # which is the point of clicking a tile in the first place. The plain
+  # overviews stay reachable from the sidebar for anyone who prefers them.
   openOverview: (e) =>
     e.preventDefault()
     link = $(e.currentTarget).data('link')
     return if !link
-    @navigate "#ticket/view/#{link}"
+    @navigate "#vm_work/#{link}"

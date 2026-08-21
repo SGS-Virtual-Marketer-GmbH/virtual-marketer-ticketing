@@ -1,0 +1,38 @@
+<div class="vm-work">
+  <div class="vm-work__bar">
+    <button type="button" class="vm-work__back js-vmBack" title="<%- @T('Zurück zur Übersicht') %>">&lsaquo; <%- @T('Übersicht') %></button>
+
+    <div class="vm-work__cats">
+      <% for cat in @categories: %>
+        <button type="button" class="vm-work__cat js-vmCat<%= ' is-active' if cat.key is @category %>" data-key="<%= cat.key %>">
+          <%- @T(cat.name) %>
+          <% if @counts[cat.key]: %><span class="vm-work__catn"><%= @counts[cat.key] %></span><% end %>
+        </button>
+      <% end %>
+    </div>
+
+    <div class="vm-work__nav">
+      <span class="vm-work__pos js-vmPos">—</span>
+      <button type="button" class="vm-work__navbtn js-vmPrev" title="<%- @T('Zurück') %>">&lsaquo;</button>
+      <button type="button" class="vm-work__navbtn js-vmNext" title="<%- @T('Weiter') %>">&rsaquo;</button>
+      <span class="vm-work__key" title="<%- @T('Pfeiltasten blättern') %>">&larr; &rarr;</span>
+    </div>
+  </div>
+
+  <div class="vm-work__cols">
+    <div class="vm-work__col vm-work__col--queue">
+      <div class="vm-work__qhead">
+        <span class="vm-work__qtitle"><%- @T('Warteschlange') %></span>
+        <button type="button" class="vm-work__qfilter js-vmMine<%= ' is-active' if @onlyMine %>"><%- @T('Nur meine') %></button>
+      </div>
+      <div class="vm-work__qlist js-vmQueue"></div>
+    </div>
+
+    <div class="vm-work__col vm-work__col--ticket js-vmTicket"></div>
+
+    <div class="vm-work__col vm-work__col--ai">
+      <div class="vm-work__found js-vmFound"></div>
+      <div class="vm-work__chat js-vmAssistant"></div>
+    </div>
+  </div>
+</div>

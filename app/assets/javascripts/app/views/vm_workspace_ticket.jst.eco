@@ -1,0 +1,40 @@
+<% if !@ticket: %>
+  <div class="vm-work__blank">
+    <% if @loading: %><%- @T('Wird geladen …') %><% else: %><%- @T('Kein Ticket ausgewählt.') %><% end %>
+  </div>
+<% else: %>
+  <div class="vm-work__t">
+    <h1 class="vm-work__th"><%= @ticket.title %></h1>
+
+    <div class="vm-work__tmeta">
+      <% if @note and @note.category(): %>
+        <span class="vm-work__pill vm-work__pill--cat"><%= @note.category() %></span>
+      <% end %>
+      <% if @note and @note.confidence(): %>
+        <span class="vm-work__pill vm-work__pill--conf"><%- @T('KI') %> <%= @note.confidence() %> %</span>
+      <% end %>
+      <span class="vm-work__pill">#<%= @ticket.number %></span>
+      <% if @ticket.customer_id and App.User.exists(@ticket.customer_id): %>
+        <span>&middot;</span><span><%= App.User.find(@ticket.customer_id).displayName() %></span>
+      <% end %>
+      <span>&middot;</span><span><%= @humanTime(@ticket.created_at) %></span>
+    </div>
+
+    <div class="vm-work__msgs">
+      <% for article in @articles: %>
+        <div class="vm-work__msg<%= ' vm-work__msg--note' if article.internal %>">
+          <div class="vm-work__msghead">
+            <span class="vm-work__msgwho"><%= article.from or article.created_by or '' %></span>
+            <span><%= @humanTime(article.created_at) %><%= ' · intern' if article.internal %></span>
+          </div>
+          <div class="vm-work__msgbody"><%- @body(article) %></div>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="vm-work__tactions">
+      <button type="button" class="vm-work__btn vm-work__btn--primary js-vmOpen"><%- @T('Im Ticket antworten') %></button>
+      <button type="button" class="vm-work__btn js-vmDone"><%- @T('Erledigt &amp; weiter') %> &rarr;</button>
+    </div>
+  </div>
+<% end %>

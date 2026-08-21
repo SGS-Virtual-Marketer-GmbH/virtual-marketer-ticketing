@@ -1,0 +1,33 @@
+<% if !@note: %>
+  <p class="vm-work__fnone"><%- @T('Für dieses Ticket liegt keine automatische Einschätzung vor.') %></p>
+<% else: %>
+
+  <% if @voicemail: %>
+    <div class="vm-work__vm">
+      <div class="vm-work__flabel"><%- @T('Anrufbeantworter') %></div>
+      <pre class="vm-work__vmtext"><%= @voicemail %></pre>
+    </div>
+  <% end %>
+
+  <% if @sources.length: %>
+    <div class="vm-work__flabel"><%- @T('Schon gefunden') %></div>
+    <% for source in @sources: %>
+      <div class="vm-work__card<%= ' vm-work__card--miss' if !source.found %>">
+        <div class="vm-work__ck"><%= source.label %></div>
+        <div class="vm-work__cv"><%= source.value or @T('keine Daten gefunden') %></div>
+        <% if source.url: %>
+          <a class="vm-work__clink" href="<%= source.url %>" target="_blank" rel="noopener noreferrer"><%- @T('öffnen') %> &nearr;</a>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <% if @draft: %>
+    <div class="vm-work__draft">
+      <div class="vm-work__dlabel"><%- @T('Antwortvorschlag — nicht versendet') %></div>
+      <pre class="vm-work__dtext"><%= @draft %></pre>
+      <button type="button" class="vm-work__btn vm-work__btn--sm js-vmCopyDraft"><%- @T('Text kopieren') %></button>
+    </div>
+  <% end %>
+
+<% end %>

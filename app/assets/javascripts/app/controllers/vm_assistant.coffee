@@ -48,6 +48,20 @@ class App.VmAssistant extends App.Controller
     )
     @input.focus()
 
+  # Point the panel at a different ticket, used by the workspace when someone
+  # steps through the queue.
+  #
+  # The conversation is dropped, not carried over. It is sent back to the model
+  # in full each turn, so keeping it would mean answering questions about ticket
+  # B while still holding the customer data of ticket A — the model would mix
+  # them, and confidently.
+  setTicket: (number) =>
+    return if number is @ticketNumber
+    @ticketNumber = number
+    @history      = []
+    @busy         = false
+    @render()
+
   keydown: (e) =>
     # Enter sends, Shift+Enter makes a new line — the convention everywhere
     # else people type messages.

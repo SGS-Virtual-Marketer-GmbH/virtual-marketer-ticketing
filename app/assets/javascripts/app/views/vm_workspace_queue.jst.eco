@@ -1,0 +1,24 @@
+<% if @loading: %>
+  <p class="vm-work__qempty"><%- @T('Wird geladen …') %></p>
+<% else if !@tickets.length: %>
+  <p class="vm-work__qempty">
+    <% if @onlyMine: %><%- @T('Dir ist in dieser Kategorie nichts zugewiesen.') %>
+    <% else: %><%- @T('Diese Kategorie ist leer — nichts zu tun.') %><% end %>
+  </p>
+<% else: %>
+  <% for ticket in @tickets: %>
+    <% state = ticket.state_id and App.TicketState.find(ticket.state_id) %>
+    <% closed = state and state.name is 'closed' %>
+    <button type="button" class="vm-work__qi js-vmQueueItem<%= ' is-active' if ticket.id is @ticketId %><%= ' is-done' if closed %>" data-id="<%= ticket.id %>">
+      <span class="vm-work__qtop">
+        <span class="vm-work__qdot vm-work__qdot--<%= if closed then 'done' else if state and state.name is 'new' then 'new' else 'open' %>"></span>
+        <span class="vm-work__qnr">#<%= ticket.number %></span>
+        <span class="vm-work__qage"><%= @humanTime(ticket.created_at) %></span>
+      </span>
+      <span class="vm-work__qsubj"><%= ticket.title %></span>
+      <% if ticket.customer_id and App.User.exists(ticket.customer_id): %>
+        <span class="vm-work__qwho"><%= App.User.find(ticket.customer_id).displayName() %></span>
+      <% end %>
+    </button>
+  <% end %>
+<% end %>
