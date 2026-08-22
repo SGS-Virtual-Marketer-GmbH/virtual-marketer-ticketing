@@ -1,0 +1,18 @@
+# This directory is the SVG icon store's own little gulp project, not part of
+# the root workspace, so it needs its own settings file.
+#
+# Both overrides are pinned by a parent's range (gulp 4's dependency tree), so
+# `pnpm update --depth Infinity` cannot move them. Neither package ships in the
+# helpdesk — this toolchain only runs when somebody regenerates the icon sprite
+# by hand.
+#
+# pnpm 11 reads overrides from here, not from package.json.
+overrides:
+  brace-expansion@1: ^1.1.16
+  svgo@2: ^2.8.3
+
+# es5-ext's install script only prints a sponsorship banner. Declared false
+# rather than left unanswered, because pnpm otherwise writes a placeholder into
+# this file that is not a valid value.
+allowBuilds:
+  es5-ext: false

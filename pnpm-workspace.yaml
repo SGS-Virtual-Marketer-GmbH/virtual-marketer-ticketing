@@ -5,3 +5,21 @@ allowBuilds:
   unrs-resolver: true
   vue-demi: true
 verifyDepsBeforeRun: false
+
+# Transitive packages Dependabot flags that a parent's range pins to a
+# vulnerable version, so `pnpm update --depth Infinity` cannot move them.
+# Everything else it could move was updated normally and needs no entry here.
+#
+# All of these are build- and test-chain only — none is a runtime dependency of
+# the helpdesk — so the exposure is to whoever builds the image, not to agents
+# using it. Each is held to the same major, so this is a patch bump and not a
+# silent upgrade across a breaking boundary.
+#
+# Note for the next person: pnpm 11 no longer reads `pnpm.overrides` from
+# package.json. Putting them there is silently ignored apart from one WARN line.
+overrides:
+  nanoid@3: ^3.3.18
+  postcss@8: ^8.5.23
+  fast-uri@3: ^3.1.5
+  js-yaml@5: ^5.2.2
+  brace-expansion@2: ^2.1.2
