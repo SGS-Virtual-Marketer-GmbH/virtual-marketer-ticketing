@@ -13,7 +13,7 @@
       <span class="vm-work__qtop">
         <span class="vm-work__qdot vm-work__qdot--<%= if closed then 'done' else if state and state.name is 'new' then 'new' else 'open' %>"></span>
         <span class="vm-work__qnr">#<%= ticket.number %></span>
-        <span class="vm-work__qage"><%= @humanTime(ticket.created_at) %></span>
+        <span class="vm-work__qage"><%- @humanTime(ticket.created_at) %></span>
       </span>
       <span class="vm-work__qsubj"><%= ticket.title %></span>
       <% if ticket.customer_id and App.User.exists(ticket.customer_id): %>
