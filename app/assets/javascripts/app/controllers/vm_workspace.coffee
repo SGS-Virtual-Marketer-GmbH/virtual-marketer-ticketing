@@ -40,6 +40,7 @@ class App.VmWorkspace extends App.Controller
     'click .js-vmCopyDraft':'copyDraft'
     'click .js-vmBack':     'backToBoard'
     'click .js-vmMine':     'toggleMine'
+    'click .js-vmQuoteToggle': 'toggleQuote'
 
   constructor: (params) ->
     super
@@ -115,8 +116,46 @@ class App.VmWorkspace extends App.Controller
       humanTime: (iso) -> App.VmWorkspace.humanTime(iso)
       body:     (article) -> App.VmWorkspace.renderBody(article)
     )
+    @collapseQuotes()
     @renderFound()
     @mountAssistant()
+
+  # A reply to a notification email carries the whole notification back with
+  # it — signature, disclaimer, the original table-laid-out HTML and all —
+  # inside a <blockquote>, exactly like every mail client's own quoting.
+  # Dumped in full, that buries the one or two sentences somebody actually
+  # wrote under everything DentaTec already sent them. Zammad's own newer UI
+  # collapses long article bodies behind a "show more" for the same reason
+  # (useArticleToggleMore); this view has no equivalent, so it's added here,
+  # scoped to the reliable part — a <blockquote> is how every mail client
+  # marks quoted history, whatever product actually sent the original mail.
+  collapseQuotes: =>
+    return if !@ticketEl
+    @ticketEl.find('.vm-work__msgbody').each (i, el) =>
+      $el   = $(el)
+      quote = $el.find('blockquote').first()
+      return if !quote.length
+
+      # If the quote IS the whole message, collapsing it would leave nothing
+      # to read at all — worse than showing the quote.
+      clone = $el.clone()
+      clone.find('blockquote').remove()
+      return if $.trim(clone.text()) is ''
+
+      quote.addClass('vm-work__quote--collapsed')
+      quote.before($('<button/>',
+        type:  'button'
+        class: 'vm-work__quotetoggle js-vmQuoteToggle'
+        text:  "#{@T('Verlauf anzeigen')} ▾"
+      ))
+
+  toggleQuote: (e) =>
+    e.preventDefault()
+    btn   = $(e.currentTarget)
+    quote = btn.next('blockquote')
+    return if !quote.length
+    collapsed = quote.toggleClass('vm-work__quote--collapsed').hasClass('vm-work__quote--collapsed')
+    btn.text("#{if collapsed then @T('Verlauf anzeigen') else @T('Verlauf ausblenden')} #{if collapsed then '▾' else '▴'}")
 
   renderFound: =>
     return if !@foundEl
