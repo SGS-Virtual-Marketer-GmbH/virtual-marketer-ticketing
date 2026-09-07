@@ -284,6 +284,21 @@
 }
 
 /* ---------------------------------------------------------------------------
+ * Dashboard tab bar
+ *
+ * Upstream hardcodes `.dashboard .tabs--big` to 50% width — fine for the two
+ * tabs Zammad ships with, but this fork has five (Ihre KI-Kollegen, Assistent,
+ * Meine Statistik, Team, Erste Schritte). At 50% they no longer fit one row
+ * and wrap into two, with the whole bar sitting in the left half of the page
+ * next to a wall of empty space. Full width lets them stay on one row and use
+ * the space that is already there.
+ * ------------------------------------------------------------------------ */
+
+.dashboard .tabs--big {
+  width: 100%;
+}
+
+/* ---------------------------------------------------------------------------
  * KI-Kollegen board (dashboard, first tab)
  *
  * Cards rather than a list because the point is comparison at a glance: which
@@ -464,11 +479,20 @@
 /* ---------------------------------------------------------------------------
  * Assistant panel (ticket sidebar + dashboard tab)
  *
- * The same component in two very different boxes: a ~350px sidebar column and a
- * full-width dashboard tab. So it sizes itself to its container and caps its
- * width rather than assuming either — a chat log stretched across a 1440px
- * screen is unreadable, and one hard-coded to sidebar width looks broken on the
- * dashboard.
+ * The same component in two very different boxes, and they need to read
+ * differently:
+ *
+ * - In the ticket sidebar it genuinely is a small widget next to other
+ *   things, so a bounded card (border, own background, capped height) is the
+ *   right call — it should look like a panel, because it is one.
+ * - As a whole dashboard tab it is the entire page, not a widget sitting on
+ *   one. A capped-width card there floats in a sea of empty background and
+ *   reads as a stray embed — closer to an iframe than a native section of the
+ *   app. The `.vm-assistant-panel` override below undoes exactly the parts
+ *   that caused that (outer border/shadow/rounded corners, the width cap on
+ *   the whole shell, the fixed height) while keeping the message column
+ *   itself narrow enough to read — a chat log stretched across a 1440px
+ *   screen is unreadable regardless of context.
  * ------------------------------------------------------------------------ */
 
 .vm-chat {
@@ -483,6 +507,48 @@
   border: 1px solid var(--vm-gray-300);
   border-radius: var(--vm-radius-lg);
   overflow: hidden;
+}
+
+/* Dashboard variant: fill the tab instead of sitting in a bounded card.
+   Same viewport offset the base component already uses for its own
+   max-height — chrome above the tab (nav bar, dashboard heading, tab strip)
+   is roughly constant either way. */
+.vm-assistant-panel {
+  display: flex;
+  justify-content: center;
+  height: calc(100vh - 14rem);
+}
+
+.vm-assistant-panel .vm-chat {
+  max-width: none;
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+
+.vm-assistant-panel .vm-chat__head {
+  /* A full-width toolbar rather than a card header — flush with the tab
+     above it, not a rounded strip floating inside its own box. */
+  background: transparent;
+  border-bottom: 1px solid var(--vm-gray-300);
+  padding: 0.9rem 0;
+}
+
+.vm-assistant-panel .vm-chat__log,
+.vm-assistant-panel .vm-chat__thinking,
+.vm-assistant-panel .vm-chat__form {
+  width: 100%;
+  max-width: 46rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.vm-assistant-panel .vm-chat__form {
+  border-top: 0;
+  padding-bottom: 0;
 }
 
 .vm-chat__head {
@@ -599,6 +665,17 @@
 }
 
 .vm-msg--user .vm-msg__body a { color: #fff; text-decoration: underline; }
+
+.vm-msg__body ul {
+  margin: 0.3rem 0;
+  padding-left: 1.2rem;
+}
+
+.vm-msg__body li {
+  margin: 0.15rem 0;
+}
+
+.vm-msg__body strong { font-weight: 650; }
 
 .vm-msg__actions {
   display: flex;

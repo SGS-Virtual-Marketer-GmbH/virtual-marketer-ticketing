@@ -19,7 +19,6 @@ class App.VmAssistant extends App.Controller
 
   events:
     'submit .js-vmChatForm': 'submit'
-    'click .js-vmChatClose': 'close'
     'click .js-vmSuggestion': 'useSuggestion'
     'keydown .js-vmChatInput': 'keydown'
 
@@ -76,6 +75,11 @@ class App.VmAssistant extends App.Controller
     return if !message
 
     @input.val('')
+    # Once a real conversation is under way the intro disclaimer and the
+    # opening suggestions are just clutter above it — they don't disappear on
+    # their own, so every reply pushes the log further into a small scrollable
+    # box. Hide them the moment the first message goes out.
+    @$('.vm-chat__intro').addClass('hidden')
     @append('user', message)
     @setBusy(true)
     @ask(message)
@@ -139,20 +143,41 @@ class App.VmAssistant extends App.Controller
   #
   # Links matter enough to be worth doing at all: the whole point of the Xentral
   # deep links is that an agent gets to the order with one click.
+  #
+  # A question like "welche Tickets sind mir zugewiesen" naturally comes back
+  # as a Markdown list ("- **#2264**: ..."). Left as plain text that renders as
+  # literal asterisks and dashes — worse than no formatting at all. The two
+  # constructs the model actually reaches for, bold and "- " bullets, are
+  # turned into real HTML; anything else is left as escaped text.
   formatMessage: (text) ->
     escaped = String(text or '')
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
-    escaped
-      .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>')
-      .replace(/\n/g, '<br>')
+
+    linked = escaped.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>')
+    bold   = linked.replace(/\*\*([^\n*]+)\*\*/g, '<strong>$1</strong>')
+
+    html  = ''
+    items = null
+    flushList = ->
+      return if !items
+      itemsHtml = ("<li>#{i}</li>" for i in items).join('')
+      html += "<ul>#{itemsHtml}</ul>"
+      items = null
+    for line in bold.split('\n')
+      match = line.match(/^[-*]\s+(.*)$/)
+      if match
+        items ?= []
+        items.push(match[1])
+      else
+        flushList()
+        html += (if html then '<br>' else '') + line
+    flushList()
+    html
 
   scroll: =>
     @log.scrollTop(@log[0].scrollHeight) if @log[0]
-
-  close: =>
-    @el.trigger('vm-assistant:close')
 
 App.Config.set('VmAssistant', { controller: 'VmAssistant' }, 'Assistant')
