@@ -61,6 +61,49 @@ class VmAssistantController < ApplicationController
     render json: response.data
   end
 
+  # GET /api/v1/vm_assistant/customer_profile
+  #
+  # The ticket-zoom sidebar's customer-context card: who the customer is, how
+  # many times they've contacted us, their Xentral order history, and the
+  # order this ticket is probably about. Same identity rule as #chat above —
+  # the session names the agent, never a request param — because the
+  # assistant service borrows THIS agent's Zammad permissions to read it.
+  def customer_profile
+    return render json: { error: __('Der Assistent ist nicht eingerichtet.') }, status: :service_unavailable if !configured?
+
+    ticket_number = params[:ticket_number].to_s
+    return render json: { error: __('Keine Ticketnummer übergeben.') }, status: :bad_request if ticket_number.blank?
+
+    timestamp = (Time.current.to_f * 1000).to_i.to_s
+    email     = current_user.email.to_s.downcase
+
+    response = UserAgent.get(
+      "#{assistant_url}/assistant/customer-profile",
+      { ticketNumber: ticket_number },
+      {
+        headers:      {
+          'X-VM-User'      => email,
+          'X-VM-Timestamp' => timestamp,
+          'X-VM-Signature' => signature(timestamp, email),
+        },
+        json:         true,
+        open_timeout: 10,
+        # A cold Cloud Run instance plus a handful of Xentral/Zammad round
+        # trips can genuinely take several seconds — matches the assistant
+        # health/tool budget elsewhere in this file, not a guess.
+        read_timeout: 30,
+        total_timeout: 35,
+      },
+    )
+
+    if !response.success?
+      Rails.logger.error "VM customer-profile call failed: #{response.code} #{response.error}"
+      return render json: { error: __('Das Kundenprofil ist gerade nicht erreichbar.') }, status: :bad_gateway
+    end
+
+    render json: response.data
+  end
+
   private
 
   def configured?

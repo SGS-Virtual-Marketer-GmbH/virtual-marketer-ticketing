@@ -1360,3 +1360,122 @@
 @media (max-width: 1280px) {
   .vm-work__cols { grid-template-columns: 16rem minmax(0, 1fr) 21rem; }
 }
+
+/* ------------------------------------------------------------------------
+ * Customer-context sidebar tab (App.VmCustomerProfile), 2026-09-17.
+ * A stack of small cards rather than the chat's single boxed shell — this
+ * sits inside the ticket-zoom sidebar tab body, which already provides its
+ * own padding and scroll, so the sections here stay unboxed and let that
+ * container do the framing.
+ * ------------------------------------------------------------------------ */
+
+.vm-profile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  font-size: 0.85rem;
+  color: var(--vm-gray-900);
+}
+
+.vm-profile__loading,
+.vm-profile__error {
+  color: var(--vm-gray-500);
+}
+
+.vm-profile__error {
+  color: var(--vm-red-dark);
+}
+
+.vm-profile__section {
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--vm-gray-200);
+}
+
+.vm-profile__section:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.vm-profile__sectionHead {
+  font-size: 0.78rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--vm-gray-500);
+  margin-bottom: 0.4rem;
+}
+
+.vm-profile__name {
+  font-weight: 650;
+  color: var(--vm-gray-900);
+}
+
+.vm-profile__muted {
+  color: var(--vm-gray-500);
+  font-size: 0.8rem;
+}
+
+.vm-profile__stat {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.vm-profile__statValue {
+  font-size: 1.3rem;
+  font-weight: 650;
+  color: var(--vm-red);
+}
+
+.vm-profile__statLabel {
+  color: var(--vm-gray-500);
+  font-size: 0.8rem;
+}
+
+.vm-profile__value {
+  margin-top: 0.3rem;
+  font-weight: 650;
+}
+
+.vm-profile__orders,
+.vm-profile__items {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.vm-profile__orders li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.vm-profile__orderNr {
+  font-weight: 600;
+}
+
+.vm-profile__orderTotal {
+  margin-left: auto;
+  font-weight: 600;
+}
+
+.vm-profile__matched {
+  background: var(--vm-red-soft);
+  border-radius: var(--vm-radius);
+  padding: 0.7rem 0.8rem;
+  border-bottom: 0;
+}
+
+.vm-profile__items li {
+  font-size: 0.82rem;
+}
+
+.vm-profile__hint {
+  font-size: 0.78rem;
+  color: var(--vm-gray-500);
+  font-style: italic;
+}

@@ -1,0 +1,91 @@
+<%# @data comes straight from denta-care-agent's customerProfile.js — field %>
+<%# names (kunde/kontakthistorie/auftraege/passenderAuftrag/xentralStatus) %>
+<%# are kept in sync with that file on purpose, so a shape change is visible %>
+<%# here as missing content rather than a silent wrong render. %>
+<div class="vm-profile">
+  <% if @loading: %>
+    <div class="vm-profile__loading"><%- @T('Lädt …') %></div>
+  <% end %>
+
+  <% if @error: %>
+    <div class="vm-profile__error"><%= @error %></div>
+  <% end %>
+
+  <% if @data: %>
+    <% if @data.kunde: %>
+      <div class="vm-profile__section vm-profile__customer">
+        <div class="vm-profile__name"><%= @data.kunde.name %></div>
+        <% if @data.kunde.organisation: %>
+          <div class="vm-profile__muted"><%= @data.kunde.organisation %></div>
+        <% end %>
+        <% if @data.kunde.email: %>
+          <div class="vm-profile__muted"><%= @data.kunde.email %></div>
+        <% end %>
+        <% if @data.kunde.telefon: %>
+          <div class="vm-profile__muted"><%= @data.kunde.telefon %></div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if @data.kontakthistorie and @data.kontakthistorie.anzahlTickets isnt null: %>
+      <div class="vm-profile__section">
+        <div class="vm-profile__stat">
+          <span class="vm-profile__statValue"><%= @data.kontakthistorie.anzahlTickets %></span>
+          <span class="vm-profile__statLabel"><%- @T('Kontakte bisher') %></span>
+        </div>
+      </div>
+    <% end %>
+
+    <% if @data.auftraege: %>
+      <div class="vm-profile__section">
+        <div class="vm-profile__sectionHead"><%- @T('Aufträge') %></div>
+        <div class="vm-profile__stat">
+          <span class="vm-profile__statValue"><%= @data.auftraege.anzahlGesamt %></span>
+          <span class="vm-profile__statLabel"><%- @T('gesamt') %></span>
+        </div>
+        <div class="vm-profile__value">
+          <%= @data.auftraege.wert.summeFormatiert %>
+          <span class="vm-profile__muted">(<%= @data.auftraege.wert.beschriftung %>)</span>
+        </div>
+        <% if @data.auftraege.letzte.length: %>
+          <ul class="vm-profile__orders">
+            <% for order in @data.auftraege.letzte: %>
+              <li>
+                <span class="vm-profile__orderNr">#<%= order.auftragsnummer %></span>
+                <span class="vm-profile__muted"><%= order.datum %></span>
+                <span class="vm-profile__orderTotal"><%= order.summeFormatiert %></span>
+              </li>
+            <% end %>
+          </ul>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if @data.passenderAuftrag: %>
+      <div class="vm-profile__section vm-profile__matched">
+        <div class="vm-profile__sectionHead"><%- @T('Passender Auftrag zu diesem Ticket') %></div>
+        <div>
+          <span class="vm-profile__orderNr">#<%= @data.passenderAuftrag.auftragsnummer %></span>
+          <span class="vm-profile__muted"><%= @data.passenderAuftrag.datum %></span>
+          <span class="vm-profile__orderTotal"><%= @data.passenderAuftrag.summeFormatiert %></span>
+        </div>
+        <% if @data.passenderAuftrag.positionen.length: %>
+          <ul class="vm-profile__items">
+            <% for item in @data.passenderAuftrag.positionen: %>
+              <li>
+                <%= item.menge %>&times; <%= item.artikel %>
+                <% if item.artikelnummer: %>
+                  <span class="vm-profile__muted"><%= item.artikelnummer %></span>
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if @data.xentralStatus and @data.xentralStatus isnt 'ok': %>
+      <div class="vm-profile__hint"><%= @data.xentralStatus %></div>
+    <% end %>
+  <% end %>
+</div>
