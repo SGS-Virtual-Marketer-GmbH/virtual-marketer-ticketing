@@ -255,4 +255,11 @@ class TicketOverviewRouter extends App.ControllerPermanent
 App.Config.set('ticket/view', TicketOverviewRouter, 'Routes')
 App.Config.set('ticket/view/:view', TicketOverviewRouter, 'Routes')
 App.Config.set('TicketOverview', { controller: 'TicketOverview', permission: ['ticket.agent', 'ticket.customer'] }, 'permanentTask')
-App.Config.set('TicketOverview', { prio: 1000, parent: '', name: __('Overviews'), target: '#ticket/view', key: 'TicketOverview', permission: ['ticket.agent', 'ticket.customer'], class: 'overviews' }, 'NavBar')
+
+# Upstream also puts this in the sidebar NavBar as "Overviews". Our own
+# Dashboard (VM Workspace) covers the same ground and is what agents are
+# meant to use instead, so the generic nav entry is deliberately not
+# registered here. The route (#ticket/view/:view, above) and the
+# permanentTask registration are untouched — a direct link to a single saved
+# overview still works, this only removes the sidebar entry point.
+# App.Config.set('TicketOverview', { prio: 1000, parent: '', name: __('Overviews'), target: '#ticket/view', key: 'TicketOverview', permission: ['ticket.agent', 'ticket.customer'], class: 'overviews' }, 'NavBar')
