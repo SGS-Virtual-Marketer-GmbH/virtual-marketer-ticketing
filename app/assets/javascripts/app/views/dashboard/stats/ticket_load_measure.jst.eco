@@ -6,13 +6,7 @@
     </div>
   </div>
   <div class="stat-graphic">
-    <div class="stat-tickets vertical reverse end">
-      <% stack_counter = parseInt(@StatsTicketLoadMeasure.percent*0.16) %>
-      <% for count in [1..stack_counter]: %>
-        <%- @Icon('one-ticket', "one-ticket #{@StatsTicketLoadMeasure.state}-color") %>
-      <% end %>
-    </div>
-    <%- @Icon('total-tickets', 'total-tickets') %>
+    <%- @VmIcon('assigned', 'stat-icon-vm') %>
   </div>
 
   <div class="stat-label"><%- @T('Tickets assigned to me: %s of %s', @StatsTicketLoadMeasure.own, @StatsTicketLoadMeasure.total) %></div>

@@ -201,6 +201,20 @@ App.ViewHelpers =
   fontIcon: (name, font, className = '') ->
     App.Utils.fontIcon(name, font, className)
 
+  # Virtual Marketer house-style line icons (App.VmStatIcons, App.VmAgentTileIcons,
+  # ...), for the custom dashboard cards. Mirrors @Icon's own output shape (a
+  # single <svg class="..."> element) so existing per-widget CSS keeps working
+  # unchanged — only the artwork and its source module differ. The inline
+  # `style` (not just presentation attributes) is required: these templates
+  # also carry the generic `.icon` class, and `.icon { fill: currentColor }`
+  # in zammad.scss would otherwise win over a plain `fill="none"` attribute and
+  # solid-fill every stroke-based shape.
+  VmIcon: (name, className = '') ->
+    shape = App.VmStatIcons[name]
+    return '' if !shape
+    style = 'fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round'
+    "<svg viewBox=\"0 0 24 24\" class=\"icon icon-vm-#{name} #{className}\" style=\"#{style}\">#{shape}</svg>"
+
   # define richtext helper
   RichText: (string) ->
     return string if !string

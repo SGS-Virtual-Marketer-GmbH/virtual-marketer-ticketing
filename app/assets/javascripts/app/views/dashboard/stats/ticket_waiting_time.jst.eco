@@ -7,7 +7,7 @@
   </div>
   <div class="stat-graphic">
     <div class="stat-stopwatch centered">
-      <%- @Icon('stopwatch', 'stat-icon stopwatch-icon') %>
+      <%- @VmIcon('waiting-time', 'stat-icon stopwatch-icon') %>
       <canvas class="stat-dial"></canvas>
       <div class="stat-amount"></div>
     </div>

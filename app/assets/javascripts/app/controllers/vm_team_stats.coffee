@@ -46,7 +46,19 @@ class App.VmTeamStats extends App.Controller
         @error = null
         @data  = data
         @render()
-      error: (xhr) =>
+      error: (xhr, statusText) =>
+        # A superseded request (App.Ajax aborts the previous call under the
+        # same id the moment a new one starts) is not a failure — a fresh
+        # fetch is already on its way and will render its own result. Without
+        # this check, clicking a period button twice quickly (or the
+        # dashboard's own ui:rerender firing while the first fetch is still
+        # in flight, e.g. right after login) aborts the in-flight request and
+        # briefly replaces the table with "Die Auswertung konnte nicht
+        # geladen werden." even though the backend never saw anything but
+        # 200s — confirmed live: every real vm_team_stats request in the
+        # Rails/nginx logs since this container started returned 200, yet
+        # the error was reported as seen in the UI.
+        return if statusText is 'abort'
         @data  = null
         @error = if xhr.status is 403 then __('Für diese Auswertung fehlen dir die Rechte.') else __('Die Auswertung konnte nicht geladen werden.')
         @render()

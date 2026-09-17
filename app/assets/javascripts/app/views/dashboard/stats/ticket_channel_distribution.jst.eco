@@ -9,7 +9,11 @@
     <% for id, channel of @StatsTicketChannelDistribution.channels: %>
       <div class="stats-row">
         <div title="<%- channel.sender %>">
-          <%- @Icon(channel.icon, 'stat-channel-icon') %>
+          <% if _.contains(['email', 'phone', 'web', 'chat'], channel.icon): %>
+            <%- @VmIcon(channel.icon, 'stat-channel-icon stat-icon-vm--sm') %>
+          <% else: %>
+            <%- @Icon(channel.icon, 'stat-channel-icon') %>
+          <% end %>
         </div>
         <div class="stat-bars">
           <div class="stat-bar stat-bar--inbound" style="height: <%- channel.inbound_in_percent %>%" title="<%- @Ti('Inbound:') %> <%- channel.inbound_in_percent %>% (<%- channel.inbound %>)"></div>
