@@ -15,7 +15,7 @@ re-run this script and the branding is reapplied deterministically.
     python3 contrib/branding/generate.py
 
 Inputs  : contrib/branding/src/logo.svg  (true vector, multi-path, 512x512)
-          public/assets/fonts/FiraSans-Medium.ttf  (Zammad's own UI typeface)
+          public/assets/fonts/Inter-SemiBold.ttf  (the app's own UI typeface)
 Outputs : see TARGETS at the bottom of this file.
 
 Rasterisation is delegated to contrib/branding/rasterize.mjs (@resvg/resvg-js),
@@ -35,7 +35,7 @@ SRC = Path(__file__).resolve().parent / "src"
 BUILD = Path(__file__).resolve().parent / "build"
 
 LOGO_SRC = SRC / "logo.svg"
-FONT = ROOT / "public" / "assets" / "fonts" / "FiraSans-Medium.ttf"
+FONT = ROOT / "public" / "assets" / "fonts" / "Inter-SemiBold.ttf"
 
 WORDMARK_TEXT = "Virtual Marketer"
 TITLE = "Virtual Marketer Ticketing logo"
@@ -81,7 +81,7 @@ def to_flat(inner):
 # --------------------------------------------------------------------------
 
 def wordmark_paths(text, cap_height_px):
-    """Convert `text` to SVG path data using Zammad's own Fira Sans."""
+    """Convert `text` to SVG path data using the app's own Inter typeface."""
     font = TTFont(FONT)
     upem = font["head"].unitsPerEm
     cmap = font.getBestCmap()

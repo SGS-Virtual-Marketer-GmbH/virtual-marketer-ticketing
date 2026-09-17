@@ -22,7 +22,7 @@ Requires `python3` with `fonttools` and `Pillow`, and `node` with
 | Input | Purpose |
 | --- | --- |
 | `src/logo.svg` | The brand mark. True vector, ~23 flat-colour paths approximating a gradient. |
-| `../../public/assets/fonts/FiraSans-Medium.ttf` | Wordmark typeface — Zammad's own UI font, so the wordmark matches the interface. |
+| `../../public/assets/fonts/Inter-SemiBold.ttf` | Wordmark typeface — the app's own UI font (see `font.css`), so the wordmark matches the interface. |
 
 The wordmark is converted to **outlines**, not left as `<text>`, so it renders
 identically regardless of the fonts installed on the viewer's machine.
