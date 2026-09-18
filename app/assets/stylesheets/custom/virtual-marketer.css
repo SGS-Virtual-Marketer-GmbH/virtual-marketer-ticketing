@@ -1394,7 +1394,9 @@
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
-  font-size: 0.98rem;
+  /* Bumped from 0.98rem, 2026-09-18 -- explicit go-live feedback that the
+     sidebar text read too small against the rest of the ticket-zoom UI. */
+  font-size: 1.08rem;
   color: var(--vm-gray-900);
 }
 
@@ -1418,7 +1420,7 @@
 }
 
 .vm-profile__sectionHead {
-  font-size: 0.85rem;
+  font-size: 0.92rem;
   font-weight: 650;
   text-transform: uppercase;
   letter-spacing: 0.02em;
@@ -1427,14 +1429,14 @@
 }
 
 .vm-profile__name {
-  font-size: 1.05rem;
+  font-size: 1.2rem;
   font-weight: 650;
   color: var(--vm-gray-900);
 }
 
 .vm-profile__muted {
   color: var(--vm-gray-500);
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
 
 .vm-profile__stat {
@@ -1444,14 +1446,14 @@
 }
 
 .vm-profile__statValue {
-  font-size: 1.45rem;
+  font-size: 1.6rem;
   font-weight: 650;
   color: var(--vm-red);
 }
 
 .vm-profile__statLabel {
   color: var(--vm-gray-500);
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
 
 .vm-profile__value {
@@ -1493,11 +1495,11 @@
 }
 
 .vm-profile__items li {
-  font-size: 0.92rem;
+  font-size: 1.02rem;
 }
 
 .vm-profile__hint {
-  font-size: 0.88rem;
+  font-size: 0.98rem;
   color: var(--vm-gray-500);
   font-style: italic;
 }
