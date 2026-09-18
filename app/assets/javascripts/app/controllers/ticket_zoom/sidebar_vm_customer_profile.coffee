@@ -36,4 +36,8 @@ class SidebarVMCustomerProfile extends App.Controller
       ticketNumber: @ticket.number
     )
 
-App.Config.set('210-VMCustomerProfile', SidebarVMCustomerProfile, 'TicketZoomSidebar')
+# Sorted first (App.Sidebar picks the alphabetically-first tab as the default
+# when nothing is remembered yet for this ticket) so Kundenprofil opens by
+# default instead of the native "Bearbeiten" tab -- the customer context is
+# what an agent needs on first glance, not last.
+App.Config.set('050-VMCustomerProfile', SidebarVMCustomerProfile, 'TicketZoomSidebar')
