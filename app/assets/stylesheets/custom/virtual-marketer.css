@@ -500,9 +500,8 @@
   flex-direction: column;
   width: 100%;
   max-width: 46rem;
+  height: 100%;
   min-height: 24rem;
-  /* Fills the sidebar; on the dashboard the max-height keeps it on one screen. */
-  max-height: min(38rem, calc(100vh - 14rem));
   background: #fff;
   border: 1px solid var(--vm-gray-300);
   border-radius: var(--vm-radius-lg);

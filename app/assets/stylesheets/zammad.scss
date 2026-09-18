@@ -6422,6 +6422,16 @@ a.list-group-item.active > .badge,
   opacity: 0.28;
 }
 
+// The wrapper above is sized to the widget, but the icon itself is a bare
+// .icon svg with no default width/height (unlike .stat-icon-vm's icons,
+// which get an explicit size) — it was rendering at the browser's
+// replaced-element default instead of a size that reads as a backdrop
+// behind the 52px dial (.time.stat-widget .stat-dial).
+.stopwatch-icon svg {
+  width: 3.25rem;
+  height: 3.25rem;
+}
+
 .stat-stopwatch {
   width: 77px;
   height: 83px;

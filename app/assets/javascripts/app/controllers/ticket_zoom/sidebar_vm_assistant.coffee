@@ -15,7 +15,7 @@ class SidebarVMAssistant extends App.Controller
 
     @item = {
       name:            'vm-assistant'
-      badgeIcon:       'chat'
+      badgeIcon:       'logo'
       sidebarHead:     __('Assistent')
       sidebarCallback: @showAssistant
     }
