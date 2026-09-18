@@ -163,8 +163,16 @@
   background: #fff;
 }
 
+/* Upstream positions this badge at right:-3px/bottom:2px, overlapping most of
+   the bottom-right quadrant of whatever sits in .logo -- harmless over the
+   old flat, single-colour sprite icon, but it swallowed a real chunk of the
+   new multi-colour brand mark below and made it unreadable (go-live feedback
+   2026-09-18). Pushed mostly outside the mark's own box instead, so it reads
+   as a badge next to the logo rather than a patch over it. */
 .navigation .search .logo .activity-counter {
   border-color: #fff;
+  right: -10px;
+  bottom: -6px;
 }
 
 /* This one renders the real multi-colour brand mark (see navigation.jst.eco's
@@ -708,7 +716,7 @@
 }
 
 .vm-chat__scope {
-  font-size: 0.78rem;
+  font-size: 0.95rem;
   font-weight: 400;
   color: var(--vm-gray-500);
 }
@@ -734,7 +742,7 @@
 }
 
 .vm-chat__intro {
-  font-size: 0.92rem;
+  font-size: 1.05rem;
   line-height: 1.5;
   color: var(--vm-gray-700);
 }
@@ -751,8 +759,8 @@
 }
 
 .vm-chat__suggestion {
-  padding: 0.35rem 0.7rem;
-  font-size: 0.85rem;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.95rem;
   color: var(--vm-red);
   background: var(--vm-red-soft);
   border: 0;
@@ -789,7 +797,7 @@
 }
 
 .vm-msg__body {
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   line-height: 1.5;
   /* Deep links are long and must not push the panel sideways. */
   overflow-wrap: anywhere;
@@ -816,8 +824,8 @@
 }
 
 .vm-msg__action {
-  padding: 0.1rem 0.4rem;
-  font-size: 0.75rem;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.85rem;
   color: var(--vm-gray-700);
   background: var(--vm-gray-200);
   border-radius: 4px;
@@ -833,7 +841,7 @@
   align-items: center;
   gap: 0.4rem;
   padding: 0 0.9rem 0.5rem;
-  font-size: 0.78rem;
+  font-size: 0.95rem;
   color: var(--vm-gray-500);
 }
 
@@ -861,7 +869,7 @@
   flex: 1 1 auto;
   padding: 0.5rem 0.65rem;
   font: inherit;
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   line-height: 1.45;
   resize: none;
   border: 1px solid var(--vm-gray-300);
@@ -877,8 +885,8 @@
 .vm-chat__send {
   flex: 0 0 auto;
   align-self: flex-end;
-  padding: 0.5rem 0.95rem;
-  font-size: 0.875rem;
+  padding: 0.6rem 1.1rem;
+  font-size: 0.95rem;
   font-weight: 600;
   color: #fff;
   background: var(--vm-red);
@@ -1565,14 +1573,14 @@ a.vm-profile__muted:hover {
 }
 
 .vm-profile__statValue {
-  font-size: 1.6rem;
+  font-size: 1.9rem;
   font-weight: 650;
   color: var(--vm-red);
 }
 
 .vm-profile__statLabel {
   color: var(--vm-gray-500);
-  font-size: 1rem;
+  font-size: 1.05rem;
 }
 
 .vm-profile__value {
@@ -1654,17 +1662,19 @@ a.vm-profile__orderNr:hover {
 
 /* CTA pills linking out to the real Xentral record / tracking page a fact
    came from, 2026-09-18 -- same links the internal note already carries
-   (lib/links.js), now clickable here too instead of only in the note. */
+   (lib/links.js), now clickable here too instead of only in the note.
+   Padding/font bumped 2026-09-18 -- go-live feedback that the pills were too
+   small a click target and read smaller than the rest of the sidebar. */
 .vm-profile__cta {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.35rem;
   margin-left: 0.4rem;
-  padding: 0.1rem 0.55rem;
+  padding: 0.4rem 0.9rem;
   border-radius: 999px;
   background: var(--vm-red-soft);
   color: var(--vm-red-dark);
-  font-size: 0.85rem;
+  font-size: 1rem;
   font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
@@ -1693,4 +1703,66 @@ a.vm-profile__orderNr:hover {
 .vm-profile__shipments .vm-profile__cta {
   margin-left: 0;
   margin-right: 0.4rem;
+}
+
+/* Real-time delivery status (Paqato, where it has data for the order) plus
+   its own attribution -- go-live feedback 2026-09-18: knowing "zugestellt"
+   at a glance, and where that came from, without opening the note or Xentral
+   itself. */
+.vm-profile__shipmentStatus {
+  display: inline-block;
+  margin-right: 0.4rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  background: var(--vm-gray-200);
+  color: var(--vm-gray-700);
+}
+
+.vm-profile__shipmentStatus--delivered {
+  background: #dcf5e3;
+  color: #1a7a3c;
+}
+
+.vm-profile__shipmentStatus--canceled {
+  background: var(--vm-red-soft);
+  color: var(--vm-red-dark);
+}
+
+.vm-profile__history {
+  flex-basis: 100%;
+  margin-top: 0.3rem;
+}
+
+.vm-profile__history summary {
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: var(--vm-gray-500);
+}
+
+.vm-profile__history summary:hover {
+  color: var(--vm-red);
+}
+
+.vm-profile__historyList {
+  list-style: none;
+  margin: 0.4rem 0 0;
+  padding: 0 0 0 0.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.95rem;
+  color: var(--vm-gray-700);
+}
+
+.vm-profile__historyTime {
+  color: var(--vm-gray-500);
+  margin-right: 0.4rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.vm-profile__source {
+  flex-basis: 100%;
+  font-style: italic;
 }

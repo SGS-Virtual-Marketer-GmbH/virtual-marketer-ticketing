@@ -41,35 +41,9 @@
       </div>
     <% end %>
 
-    <% if @data.auftraege: %>
-      <div class="vm-profile__section">
-        <div class="vm-profile__sectionHead"><%- @T('Aufträge') %></div>
-        <div class="vm-profile__stat">
-          <span class="vm-profile__statValue"><%= @data.auftraege.anzahlGesamt %></span>
-          <span class="vm-profile__statLabel"><%- @T('gesamt') %></span>
-        </div>
-        <div class="vm-profile__value">
-          <%= @data.auftraege.wert.summeFormatiert %>
-          <span class="vm-profile__muted">(<%= @data.auftraege.wert.beschriftung %>)</span>
-        </div>
-        <% if @data.auftraege.letzte.length: %>
-          <ul class="vm-profile__orders">
-            <% for order in @data.auftraege.letzte: %>
-              <li>
-                <% if order.link: %>
-                  <a class="vm-profile__orderNr" href="<%= order.link %>" target="_blank" rel="noopener">#<%= order.auftragsnummer %></a>
-                <% else: %>
-                  <span class="vm-profile__orderNr">#<%= order.auftragsnummer %></span>
-                <% end %>
-                <span class="vm-profile__muted"><%= order.datum %></span>
-                <span class="vm-profile__orderTotal"><%= order.summeFormatiert %></span>
-              </li>
-            <% end %>
-          </ul>
-        <% end %>
-      </div>
-    <% end %>
-
+    <%# The order THIS ticket is about is more useful than the general order
+        list, so it renders first when we have one -- go-live feedback
+        2026-09-18. %>
     <% if @data.passenderAuftrag: %>
       <div class="vm-profile__section vm-profile__matched">
         <div class="vm-profile__sectionHead"><%- @T('Passender Auftrag zu diesem Ticket') %></div>
@@ -115,6 +89,51 @@
                 <% if shipment.lieferscheinLink: %>
                   <a class="vm-profile__cta" href="<%= shipment.lieferscheinLink %>" target="_blank" rel="noopener"><%- @T('Lieferschein') %></a>
                 <% end %>
+                <% if shipment.status: %>
+                  <span class="vm-profile__shipmentStatus vm-profile__shipmentStatus--<%= shipment.statusKey %>"><%= shipment.status %></span>
+                <% end %>
+                <% if shipment.verlauf and shipment.verlauf.length: %>
+                  <details class="vm-profile__history">
+                    <summary><%- @T('Verlauf') %> (<%= shipment.verlauf.length %>)</summary>
+                    <ul class="vm-profile__historyList">
+                      <% for step in shipment.verlauf: %>
+                        <li><span class="vm-profile__historyTime"><%= step.zeitpunkt %></span><%= step.status %></li>
+                      <% end %>
+                    </ul>
+                  </details>
+                <% end %>
+                <% if shipment.quelle: %>
+                  <div class="vm-profile__muted vm-profile__source"><%- @T('Quelle') %>: <%= shipment.quelle %></div>
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if @data.auftraege: %>
+      <div class="vm-profile__section">
+        <div class="vm-profile__sectionHead"><%- @T('Aufträge') %></div>
+        <div class="vm-profile__stat">
+          <span class="vm-profile__statValue"><%= @data.auftraege.anzahlGesamt %></span>
+          <span class="vm-profile__statLabel"><%- @T('gesamt') %></span>
+        </div>
+        <div class="vm-profile__value">
+          <%= @data.auftraege.wert.summeFormatiert %>
+          <span class="vm-profile__muted">(<%= @data.auftraege.wert.beschriftung %>)</span>
+        </div>
+        <% if @data.auftraege.letzte.length: %>
+          <ul class="vm-profile__orders">
+            <% for order in @data.auftraege.letzte: %>
+              <li>
+                <% if order.link: %>
+                  <a class="vm-profile__orderNr" href="<%= order.link %>" target="_blank" rel="noopener">#<%= order.auftragsnummer %></a>
+                <% else: %>
+                  <span class="vm-profile__orderNr">#<%= order.auftragsnummer %></span>
+                <% end %>
+                <span class="vm-profile__muted"><%= order.datum %></span>
+                <span class="vm-profile__orderTotal"><%= order.summeFormatiert %></span>
               </li>
             <% end %>
           </ul>
