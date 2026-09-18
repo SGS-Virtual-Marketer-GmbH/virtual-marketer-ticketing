@@ -41,9 +41,7 @@
       </div>
     <% end %>
 
-    <%# The order THIS ticket is about is more useful than the general order
-        list, so it renders first when we have one -- go-live feedback
-        2026-09-18. %>
+    <%# The order THIS ticket is about is more useful than the general order list, so it renders first when we have one -- go-live feedback 2026-09-18. %>
     <% if @data.passenderAuftrag: %>
       <div class="vm-profile__section vm-profile__matched">
         <div class="vm-profile__sectionHead"><%- @T('Passender Auftrag zu diesem Ticket') %></div>
