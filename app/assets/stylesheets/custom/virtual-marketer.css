@@ -68,6 +68,103 @@
   --background-primary-alt: var(--vm-gray-200);
 }
 
+/* ------------------------------------------------------------------------
+ * Left navigation rail restyled light, 2026-09-18 (go-live) — the "light,
+ * VM 2.0-style sidebar" the go-live checklist flagged as wanted but not yet
+ * started, separate from every ticket-zoom sidebar tab styled earlier the
+ * same day.
+ *
+ * NOT done by repointing --background-quaternary/--background-tertiary (the
+ * tokens .navigation's own background derives from, see the comment above)
+ * even though that looks like the one-line fix: grepping their other uses
+ * turned up --fullscreen-background and several unrelated dark surfaces
+ * elsewhere in zammad.scss (dropdowns/overlays) that assume a dark base
+ * themselves. Repointing the shared token would have recoloured all of
+ * those too, on go-live day, with no way to check each one first.
+ *
+ * Every rule below instead targets the concrete selector, scoped under
+ * `.navigation` so it can never leak to a same-class element that lives
+ * outside it (e.g. the dashboard's own `.tasks--standalone`, which reuses
+ * `.tasks` outside the nav). `:not(.is-active):not(.is-hovered)` guards on
+ * the colour/hover rules stop them tying in specificity with — and by load
+ * order incorrectly overriding — the red-background "this one is open/
+ * selected" state, which must stay white-on-red regardless of this change.
+ *
+ * A few elements inside the rail were white-on-dark by design (the search
+ * box's own icons/text, the open-tab close button, the tab-bar container's
+ * own background) and would have gone invisible left untouched — each is
+ * called out below.
+ * ------------------------------------------------------------------------ */
+
+.navigation {
+  background: #fff;
+  border-right: 1px solid var(--vm-gray-200);
+}
+
+.navigation .menu-item:not(.is-active):not(.is-hovered),
+.navigation .nav-tab:not(.is-active) {
+  color: var(--vm-gray-700);
+}
+
+.navigation .menu-item:hover:not(.is-active):not(.is-hovered) {
+  background: var(--vm-gray-100);
+}
+
+.navigation .tasks-navigation .nav-tab:not(.is-active):hover {
+  background: var(--vm-gray-100);
+}
+
+/* The open-ticket tab bar and the search input both derive their background
+   from --menu-background-secondary (the shared dark token, left alone
+   above) — give them a light background of their own instead of leaving a
+   dark island inside the now-light rail. */
+.navigation .tasks.tasks-navigation {
+  background: transparent;
+}
+
+.navigation .search input[type='search'] {
+  background: var(--vm-gray-100);
+  color: var(--vm-gray-900);
+}
+
+/* Both were fill: var(--text-inverted) (white), meant for that dark input —
+   would vanish on the new light one. */
+.navigation .search .empty-search .icon-diagonal-cross,
+.navigation .search .search-loader {
+  fill: var(--vm-gray-700);
+}
+
+/* The open-tab close ("×") button: a dark circle with a white icon at rest,
+   turning solid red on hover. Circle and icon both flipped for the light
+   rail; the hover state stays white-on-red, unchanged. */
+.navigation .nav-tab-close-inner {
+  background-color: var(--vm-gray-200);
+}
+
+.navigation .nav-tab-close svg {
+  fill: var(--vm-gray-700);
+}
+
+.navigation .nav-tab-close:hover svg {
+  fill: var(--text-inverted);
+}
+
+.navigation .global-search-menu,
+.navigation .user-menu > li {
+  background: #fff;
+}
+
+.navigation .search .logo .activity-counter {
+  border-color: #fff;
+}
+
+/* The brand mark is fill: currentColor in the generated sprite — give it an
+   explicit colour rather than leave it to whatever it happened to inherit
+   from further up before. */
+.navigation .search .logo .icon-logo {
+  color: var(--vm-gray-900);
+}
+
 /* Selected rows, active tabs and the "unread" markers all key off --highlight,
    which upstream renders as a blue fill with white text. Blue is a VM colour,
    so this stays — but the primary call to action must be red, and a few places
@@ -1439,6 +1536,15 @@
   font-size: 1rem;
 }
 
+a.vm-profile__muted {
+  text-decoration: none;
+}
+
+a.vm-profile__muted:hover {
+  text-decoration: underline;
+  color: var(--vm-red);
+}
+
 .vm-profile__stat {
   display: flex;
   align-items: baseline;
@@ -1482,6 +1588,19 @@
   font-weight: 600;
 }
 
+/* When rendered as a real Xentral deep link (order.link present) rather than
+   a plain span -- reset the browser's default link styling so it reads like
+   the rest of the profile, with just an underline on hover as the cue. */
+a.vm-profile__orderNr {
+  color: inherit;
+  text-decoration: none;
+}
+
+a.vm-profile__orderNr:hover {
+  text-decoration: underline;
+  color: var(--vm-red);
+}
+
 .vm-profile__orderTotal {
   margin-left: auto;
   font-weight: 600;
@@ -1502,4 +1621,47 @@
   font-size: 0.98rem;
   color: var(--vm-gray-500);
   font-style: italic;
+}
+
+/* CTA pills linking out to the real Xentral record / tracking page a fact
+   came from, 2026-09-18 -- same links the internal note already carries
+   (lib/links.js), now clickable here too instead of only in the note. */
+.vm-profile__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-left: 0.4rem;
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  background: var(--vm-red-soft);
+  color: var(--vm-red-dark);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.vm-profile__cta:hover {
+  background: var(--vm-red);
+  color: #fff;
+}
+
+.vm-profile__shipments {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.vm-profile__shipments li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.vm-profile__shipments .vm-profile__cta {
+  margin-left: 0;
+  margin-right: 0.4rem;
 }

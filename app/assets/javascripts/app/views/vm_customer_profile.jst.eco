@@ -14,7 +14,12 @@
   <% if @data: %>
     <% if @data.kunde: %>
       <div class="vm-profile__section vm-profile__customer">
-        <div class="vm-profile__name"><%= @data.kunde.name %></div>
+        <div class="vm-profile__name">
+          <%= @data.kunde.name %>
+          <% if @data.kunde.xentralLink: %>
+            <a class="vm-profile__cta" href="<%= @data.kunde.xentralLink %>" target="_blank" rel="noopener"><%- @T('Xentral') %></a>
+          <% end %>
+        </div>
         <% if @data.kunde.organisation: %>
           <div class="vm-profile__muted"><%= @data.kunde.organisation %></div>
         <% end %>
@@ -51,7 +56,11 @@
           <ul class="vm-profile__orders">
             <% for order in @data.auftraege.letzte: %>
               <li>
-                <span class="vm-profile__orderNr">#<%= order.auftragsnummer %></span>
+                <% if order.link: %>
+                  <a class="vm-profile__orderNr" href="<%= order.link %>" target="_blank" rel="noopener">#<%= order.auftragsnummer %></a>
+                <% else: %>
+                  <span class="vm-profile__orderNr">#<%= order.auftragsnummer %></span>
+                <% end %>
                 <span class="vm-profile__muted"><%= order.datum %></span>
                 <span class="vm-profile__orderTotal"><%= order.summeFormatiert %></span>
               </li>
@@ -65,7 +74,11 @@
       <div class="vm-profile__section vm-profile__matched">
         <div class="vm-profile__sectionHead"><%- @T('Passender Auftrag zu diesem Ticket') %></div>
         <div>
-          <span class="vm-profile__orderNr">#<%= @data.passenderAuftrag.auftragsnummer %></span>
+          <% if @data.passenderAuftrag.link: %>
+            <a class="vm-profile__orderNr" href="<%= @data.passenderAuftrag.link %>" target="_blank" rel="noopener">#<%= @data.passenderAuftrag.auftragsnummer %></a>
+          <% else: %>
+            <span class="vm-profile__orderNr">#<%= @data.passenderAuftrag.auftragsnummer %></span>
+          <% end %>
           <span class="vm-profile__muted"><%= @data.passenderAuftrag.datum %></span>
           <span class="vm-profile__orderTotal"><%= @data.passenderAuftrag.summeFormatiert %></span>
         </div>
@@ -75,7 +88,29 @@
               <li>
                 <%= item.menge %>&times; <%= item.artikel %>
                 <% if item.artikelnummer: %>
-                  <span class="vm-profile__muted"><%= item.artikelnummer %></span>
+                  <% if item.link: %>
+                    <a class="vm-profile__muted" href="<%= item.link %>" target="_blank" rel="noopener"><%= item.artikelnummer %></a>
+                  <% else: %>
+                    <span class="vm-profile__muted"><%= item.artikelnummer %></span>
+                  <% end %>
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
+        <% end %>
+        <% if @data.passenderAuftrag.sendungen and @data.passenderAuftrag.sendungen.length: %>
+          <ul class="vm-profile__shipments">
+            <% for shipment in @data.passenderAuftrag.sendungen: %>
+              <li>
+                <% if shipment.trackingLink: %>
+                  <a class="vm-profile__cta" href="<%= shipment.trackingLink %>" target="_blank" rel="noopener">
+                    <%- @T('Sendung verfolgen') %><% if shipment.paketnummer: %> · <%= shipment.paketnummer %><% end %>
+                  </a>
+                <% else if shipment.paketnummer: %>
+                  <span class="vm-profile__muted"><%= shipment.paketnummer %></span>
+                <% end %>
+                <% if shipment.lieferscheinLink: %>
+                  <a class="vm-profile__cta" href="<%= shipment.lieferscheinLink %>" target="_blank" rel="noopener"><%- @T('Lieferschein') %></a>
                 <% end %>
               </li>
             <% end %>
