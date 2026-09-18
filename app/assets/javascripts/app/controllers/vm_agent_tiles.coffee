@@ -9,9 +9,12 @@
 # Live-Tracking" is checkable and, if it stops being true, someone notices.
 # "Nutzt KI für besseren Service" is not, and nobody ever notices.
 #
-# Counts come from /ticket_overviews, which is already scoped to the logged-in
-# agent's groups — so the numbers on the board are the same numbers in the
-# sidebar, and an agent never sees a count for a queue they cannot open.
+# Counts come from App.OverviewIndexCollection, the same live-pushed feed the
+# native sidebar's overview counts use (server recomputes and pushes over the
+# existing websocket whenever any ticket changes, no separate polling here) —
+# so the numbers on the board are the same numbers in the sidebar, they stay
+# current as tickets get closed/reassigned, and an agent never sees a count
+# for a queue they cannot open.
 #
 # Artwork is inline SVG on purpose: it inherits the surrounding colour, stays
 # sharp at any zoom and on any display, needs no build step and no external
@@ -122,7 +125,10 @@ class App.VmAgentTiles extends App.Controller
     super
     @counts = {}
     @render()
-    @fetchCounts()
+    @countsBindId = App.OverviewIndexCollection.bind(@updateCounts)
+
+  release: =>
+    App.OverviewIndexCollection.unbindById(@countsBindId) if @countsBindId
 
   render: =>
     @html App.view('vm_agent_tiles')(
@@ -131,25 +137,14 @@ class App.VmAgentTiles extends App.Controller
       icon:   (name) -> App.VmAgentTileIcons[name] or ''
     )
 
-  # One request for every tile's number. The endpoint already applies the
-  # agent's own group permissions, so nothing here has to re-check them.
-  fetchCounts: =>
-    @ajax(
-      id:    'vm-agent-tile-counts'
-      type:  'GET'
-      url:   "#{@apiPath}/ticket_overviews?view_mode=s"
-      processData: true
-      success: (data) =>
-        return if !_.isArray(data)
-        @counts = {}
-        for row in data
-          @counts[row.link] = row.count
-        @render()
-      # A failed count must not blank the board — the tiles still explain what
-      # the assistant does, which is most of their value.
-      error: =>
-        @log 'error', 'Kachelzähler konnten nicht geladen werden'
-    )
+  # The feed already applies the agent's own group permissions, so nothing
+  # here has to re-check them.
+  updateCounts: (data) =>
+    return if !_.isArray(data)
+    @counts = {}
+    for row in data
+      @counts[row.link] = row.count
+    @render()
 
   # A tile opens the workspace for that category, not the bare overview list:
   # the queue is there too, but with the ticket and the assistant beside it,

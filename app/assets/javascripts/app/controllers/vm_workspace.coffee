@@ -53,8 +53,8 @@ class App.VmWorkspace extends App.Controller
     @onlyMine  = false
     @loading   = true
     @render()
-    @fetchCounts()
-    @fetchQueue()
+    @countsBindId = App.OverviewIndexCollection.bind(@updateCounts)
+    @bindQueue()
     @bindKeys()
 
   # The categories are the tile board's, so both screens always agree on what
@@ -63,6 +63,8 @@ class App.VmWorkspace extends App.Controller
 
   release: =>
     $(document).off('keydown.vmWorkspace')
+    App.OverviewIndexCollection.unbindById(@countsBindId) if @countsBindId
+    App.OverviewListCollection.unbind(@queueBindId) if @queueBindId
 
   # This task is persistent (see VmWorkspaceRouter below), so re-entering its
   # route -- from the tile board, a bookmark, or browser back/forward -- does
@@ -80,7 +82,7 @@ class App.VmWorkspace extends App.Controller
     @note     = null
     @articles = []
     @render()
-    @fetchQueue()
+    @bindQueue()
 
   bindKeys: =>
     $(document).on('keydown.vmWorkspace', (e) =>
@@ -201,46 +203,42 @@ class App.VmWorkspace extends App.Controller
 
   # --- data ------------------------------------------------------------------
 
-  fetchCounts: =>
-    @ajax(
-      id:          'vm-workspace-counts'
-      type:        'GET'
-      url:         "#{@apiPath}/ticket_overviews?view_mode=s"
-      processData: true
-      success: (data) =>
-        return if !_.isArray(data)
-        @counts = {}
-        @counts[row.link] = row.count for row in data
-        @render()
-      error: => @log 'error', 'Kategoriezähler konnten nicht geladen werden'
-    )
+  # Both the category-bar counts and the queue below ride the same live feed
+  # the native sidebar's overview counts use (App.OverviewIndexCollection /
+  # App.OverviewListCollection — see navigation.coffee): the server recomputes
+  # and pushes over the existing websocket whenever any ticket changes, so a
+  # closed/reassigned ticket disappears here without a manual refresh, and the
+  # tile board and this bar never disagree with what's actually behind them.
 
-  fetchQueue: =>
+  updateCounts: (data) =>
+    return if !_.isArray(data)
+    @counts = {}
+    @counts[row.link] = row.count for row in data
+    @render()
+
+  # Re-subscribes the queue to the current @category, dropping the previous
+  # subscription first — called on construction and every time @category
+  # changes (chooseCategory, show()).
+  bindQueue: =>
+    App.OverviewListCollection.unbind(@queueBindId) if @queueBindId
     @loading = true
     @renderQueue()
-    @ajax(
-      id:          'vm-workspace-queue'
-      type:        'GET'
-      url:         "#{@apiPath}/ticket_overviews?view=#{encodeURIComponent(@category)}&view_mode=s"
-      processData: true
-      success: (data) =>
-        @loading = false
-        App.Collection.loadAssets(data.assets) if data.assets
-        ids = (row.id for row in (data.index?.tickets or []))
-        @tickets = (App.Ticket.find(id) for id in ids when App.Ticket.exists(id))
-        # Keep the ticket from the URL if it is in this queue, otherwise start
-        # at the top. Silently jumping elsewhere would lose someone's place.
-        if !@ticketId or !_.find(@visibleTickets(), (t) => t.id is @ticketId)
-          @ticketId = @visibleTickets()[0]?.id or null
-        @renderQueue()
-        @fetchTicket()
-      error: =>
-        @loading  = false
-        @tickets  = []
-        @ticketId = null
-        @renderQueue()
-        @renderTicket()
-    )
+    @queueBindId = App.OverviewListCollection.bind(@category, @updateQueue)
+
+  # `data` here is already the unwrapped `{overview, tickets, count}` shape —
+  # asset loading happened inside the collection before this fires, for both
+  # the initial fetch and every later push.
+  updateQueue: (data) =>
+    return if !data
+    @loading = false
+    ids = (row.id for row in (data.tickets or []))
+    @tickets = (App.Ticket.find(id) for id in ids when App.Ticket.exists(id))
+    # Keep the ticket from the URL if it is in this queue, otherwise start at
+    # the top. Silently jumping elsewhere would lose someone's place.
+    if !@ticketId or !_.find(@visibleTickets(), (t) => t.id is @ticketId)
+      @ticketId = @visibleTickets()[0]?.id or null
+    @renderQueue()
+    @fetchTicket()
 
   fetchTicket: =>
     if !@ticketId
@@ -289,7 +287,7 @@ class App.VmWorkspace extends App.Controller
     @note     = null
     @articles = []
     @render()
-    @fetchQueue()
+    @bindQueue()
     @navigate "#vm_work/#{key}", { hideCurrentLocationFromHistory: true }
 
   chooseTicketFromQueue: (e) =>
@@ -369,7 +367,8 @@ class App.VmWorkspace extends App.Controller
           @ticketId = null
           @renderQueue()
           @renderTicket()
-        @fetchCounts()
+        # No manual refresh needed: closing the ticket changes its updated_at,
+        # which the live feed above picks up on its own next push.
       error: =>
         @notify(type: 'error', msg: __('Das Ticket konnte nicht geschlossen werden.'))
     )
