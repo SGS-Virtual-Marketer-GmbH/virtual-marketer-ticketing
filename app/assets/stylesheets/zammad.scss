@@ -6617,12 +6617,18 @@ a.list-group-item.active > .badge,
   cursor: default;
 }
 
+// Sized a bit smaller than the .stopwatch-icon backdrop it sits on (52px) so
+// that backdrop's edge stays visible as a ring around the dial instead of the
+// dial covering it edge-to-edge -- "fits inside the icon" rather than
+// replacing it. Its own fill is also translucent (see renderWidgetClockFace)
+// for the same reason: the state colour should read as a wash, not a solid,
+// dominant disc.
 .time.stat-widget .stat-dial {
   position: absolute;
-  top: 21px;
-  left: 14px;
-  width: 52px;
-  height: 52px;
+  top: 25px;
+  left: 18px;
+  width: 44px;
+  height: 44px;
 }
 
 .stats-row {

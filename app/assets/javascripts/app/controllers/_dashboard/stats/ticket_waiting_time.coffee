@@ -44,17 +44,22 @@ class Stats extends App.ControllerDashboardStatsBase
         backgroundColor = timeColor
         break
 
-    # 30% background
+    # Faint background ring/pie: deliberately translucent throughout (not just
+    # this base layer) so the state colour reads as a subtle wash sitting on
+    # top of the backdrop icon (.stopwatch-icon) rather than a solid, dominant
+    # disc that hides it -- see the .stat-dial CSS comment for the sizing half
+    # of the same fix.
     if time isnt 0
-      ctx.globalAlpha = 0.3
+      ctx.globalAlpha = 0.22
     ctx.fillStyle = backgroundColor
     ctx.beginPath()
     ctx.arc radius, radius, radius, 0, Math.PI * 2, true
     ctx.closePath()
     ctx.fill()
 
-    # 100% pie piece
-    ctx.globalAlpha = 1
+    # Progress pie piece, still translucent -- readable, but see-through
+    # enough that it never fully hides the icon underneath it.
+    ctx.globalAlpha = 0.72
 
     ctx.beginPath()
     ctx.moveTo radius, radius
