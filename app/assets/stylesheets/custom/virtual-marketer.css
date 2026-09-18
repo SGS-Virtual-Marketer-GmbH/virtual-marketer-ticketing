@@ -122,9 +122,18 @@
   background: transparent;
 }
 
+/* --vm-gray-100 (#f7fafc) on the nav's own #fff background read as barely a
+   shade apart -- go-live feedback 2026-09-18. A visible border plus a darker
+   fill gives the pill actual edges against the white rail. */
 .navigation .search input[type='search'] {
-  background: var(--vm-gray-100);
+  background: var(--vm-gray-200);
+  border: 1px solid var(--vm-gray-300);
   color: var(--vm-gray-900);
+}
+
+.navigation .search.focused input[type='search'] {
+  background: #fff;
+  border-color: var(--vm-blue);
 }
 
 /* Both were fill: var(--text-inverted) (white), meant for that dark input —
@@ -158,11 +167,15 @@
   border-color: #fff;
 }
 
-/* The brand mark is fill: currentColor in the generated sprite — give it an
-   explicit colour rather than leave it to whatever it happened to inherit
-   from further up before. */
-.navigation .search .logo .icon-logo {
-  color: var(--vm-gray-900);
+/* This one renders the real multi-colour brand mark (see navigation.jst.eco's
+   comment on the <img> itself) rather than the flat currentColor sprite icon
+   — go-live feedback 2026-09-18 asked for the logo's natural colours here.
+   It has no intrinsic size as an <img> the way the sprite icon did, so it
+   needs one explicitly; matched to the flat icon's old footprint. */
+.navigation .search .logo .vm-nav-logo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
 }
 
 /* Selected rows, active tabs and the "unread" markers all key off --highlight,
@@ -1615,6 +1628,22 @@ a.vm-profile__orderNr:hover {
 
 .vm-profile__items li {
   font-size: 1.02rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Xentral's own product thumbnail -- go-live feedback 2026-09-18: a name and
+   SKU alone made line items hard to place at a glance. Same login-required
+   caveat as every other Xentral deep link here (see customerProfile.js). */
+.vm-profile__itemImg {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  border: 1px solid var(--vm-gray-200);
+  object-fit: contain;
+  background: #fff;
+  flex-shrink: 0;
 }
 
 .vm-profile__hint {

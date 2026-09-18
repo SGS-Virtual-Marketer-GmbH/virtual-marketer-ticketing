@@ -9,7 +9,14 @@
       </div>
     </form>
     <div class="logo js-toggleNotifications">
-      <%- @Icon('logo') %>
+      <%# Deliberately not @Icon('logo'): that renders the flat, currentColor
+          mark meant to inherit surrounding text colour (used as-is on the
+          auth pages and next to the user avatar). This is the one spot
+          sitting on its own background with room to show the real brand
+          mark, so it uses the colour source directly (same file the branding
+          generator installs for the mobile app's own login footer) instead
+          of forcing a single flat colour onto it. %>
+      <img class="icon icon-logo vm-nav-logo" src="/assets/images/icons/logo.svg" alt="<%= @C('product_name') %>">
       <div class="activity-counter js-notificationsCounter"></div>
     </div>
     <div class="global-search-menu">

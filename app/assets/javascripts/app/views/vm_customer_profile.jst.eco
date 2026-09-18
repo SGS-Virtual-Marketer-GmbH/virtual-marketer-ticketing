@@ -86,6 +86,9 @@
           <ul class="vm-profile__items">
             <% for item in @data.passenderAuftrag.positionen: %>
               <li>
+                <% if item.bild: %>
+                  <img class="vm-profile__itemImg" src="<%= item.bild %>" alt="">
+                <% end %>
                 <%= item.menge %>&times; <%= item.artikel %>
                 <% if item.artikelnummer: %>
                   <% if item.link: %>
