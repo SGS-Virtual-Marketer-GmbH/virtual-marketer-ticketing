@@ -495,6 +495,28 @@
  *   screen is unreadable regardless of context.
  * ------------------------------------------------------------------------ */
 
+/* The native sidebar tab panel (.sidebar[data-tab='vm-assistant']) is a flex
+   item of .tabsSidebar-holder (so it does stretch to the full column height),
+   but it is not itself a flex container for its own children, and the plain
+   .sidebar-content div Zammad wraps every sidebar tab's content in has no
+   height/flex rules at all (shared by every native sidebar tab, so it can't
+   be changed globally without risking the others). Without this, .vm-chat's
+   own `height: 100%` below resolves against an auto-height ancestor and is a
+   no-op -- the chat renders at just its content's height, leaving a blank gap
+   below it for the rest of the tab's height. */
+.sidebar[data-tab='vm-assistant'] {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.sidebar[data-tab='vm-assistant'] .sidebar-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
 .vm-chat {
   display: flex;
   flex-direction: column;
@@ -563,7 +585,7 @@
   display: flex;
   align-items: center;
   gap: 0.45rem;
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 650;
   color: var(--vm-gray-900);
 }
@@ -602,7 +624,7 @@
 }
 
 .vm-chat__intro {
-  font-size: 0.82rem;
+  font-size: 0.92rem;
   line-height: 1.5;
   color: var(--vm-gray-700);
 }
@@ -619,8 +641,8 @@
 }
 
 .vm-chat__suggestion {
-  padding: 0.3rem 0.65rem;
-  font-size: 0.78rem;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.85rem;
   color: var(--vm-red);
   background: var(--vm-red-soft);
   border: 0;
@@ -657,7 +679,7 @@
 }
 
 .vm-msg__body {
-  font-size: 0.875rem;
+  font-size: 0.95rem;
   line-height: 1.5;
   /* Deep links are long and must not push the panel sideways. */
   overflow-wrap: anywhere;
@@ -729,7 +751,7 @@
   flex: 1 1 auto;
   padding: 0.5rem 0.65rem;
   font: inherit;
-  font-size: 0.875rem;
+  font-size: 0.95rem;
   line-height: 1.45;
   resize: none;
   border: 1px solid var(--vm-gray-300);
@@ -1372,7 +1394,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
-  font-size: 0.85rem;
+  font-size: 0.98rem;
   color: var(--vm-gray-900);
 }
 
@@ -1396,7 +1418,7 @@
 }
 
 .vm-profile__sectionHead {
-  font-size: 0.78rem;
+  font-size: 0.85rem;
   font-weight: 650;
   text-transform: uppercase;
   letter-spacing: 0.02em;
@@ -1405,13 +1427,14 @@
 }
 
 .vm-profile__name {
+  font-size: 1.05rem;
   font-weight: 650;
   color: var(--vm-gray-900);
 }
 
 .vm-profile__muted {
   color: var(--vm-gray-500);
-  font-size: 0.8rem;
+  font-size: 0.9rem;
 }
 
 .vm-profile__stat {
@@ -1421,14 +1444,14 @@
 }
 
 .vm-profile__statValue {
-  font-size: 1.3rem;
+  font-size: 1.45rem;
   font-weight: 650;
   color: var(--vm-red);
 }
 
 .vm-profile__statLabel {
   color: var(--vm-gray-500);
-  font-size: 0.8rem;
+  font-size: 0.9rem;
 }
 
 .vm-profile__value {
@@ -1470,11 +1493,11 @@
 }
 
 .vm-profile__items li {
-  font-size: 0.82rem;
+  font-size: 0.92rem;
 }
 
 .vm-profile__hint {
-  font-size: 0.78rem;
+  font-size: 0.88rem;
   color: var(--vm-gray-500);
   font-style: italic;
 }

@@ -6448,20 +6448,22 @@ a.list-group-item.active > .badge,
 // assigned, reopening) — same sizing/colour tokens as .vm-tile__icon on the
 // "Ihre KI-Kollegen" board, so both custom dashboard areas read as one system
 // instead of each card bringing its own stock icon style.
+// VmIcon() puts this class directly on the <svg> itself (see view_helpers.coffee),
+// not on a wrapper div -- so a `.stat-icon-vm svg { width: 1.35rem; ... }`
+// descendant rule that used to sit here never matched anything (there is no
+// nested svg to match) and was dead code. The svg's own box size below is
+// what actually controls how large the artwork renders, since an <svg> with
+// no width/height attribute scales its viewBox content to fill its CSS box.
 .stat-icon-vm {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
+  width: 3rem;
+  height: 3rem;
+  padding: 0.5rem;
   border-radius: var(--vm-radius);
   background: var(--vm-red-soft);
   color: var(--vm-red);
-}
-
-.stat-icon-vm svg {
-  width: 1.35rem;
-  height: 1.35rem;
 }
 
 // Small per-row variant for the channel-distribution list (mail/phone/...).
