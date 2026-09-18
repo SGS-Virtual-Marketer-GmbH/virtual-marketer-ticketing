@@ -64,6 +64,24 @@ class App.VmWorkspace extends App.Controller
   release: =>
     $(document).off('keydown.vmWorkspace')
 
+  # This task is persistent (see VmWorkspaceRouter below), so re-entering its
+  # route -- from the tile board, a bookmark, or browser back/forward -- does
+  # NOT get a new constructor call. TaskManager reuses this instance and calls
+  # show() with the route's params instead. Without this, those params were
+  # silently dropped and the screen kept showing whatever category/ticket was
+  # already open, e.g. picking "Produktberatung" from the board while
+  # "Stornos" was still the open workspace just reopened Stornos.
+  show: (params = {}) =>
+    return if !params.category
+    ticketId = if params.ticketId then parseInt(params.ticketId, 10) else null
+    return if params.category is @category and ticketId is @ticketId
+    @category = params.category
+    @ticketId = ticketId
+    @note     = null
+    @articles = []
+    @render()
+    @fetchQueue()
+
   bindKeys: =>
     $(document).on('keydown.vmWorkspace', (e) =>
       return if @el.is(':hidden')
