@@ -137,13 +137,26 @@ class Channel::Driver::MicrosoftGraphInbound < Channel::Driver::BaseEmailInbound
       verify_folder!(folder_id, options)
     end
 
-    @sync_started_at = Time.zone.now
-
     # Taking first page of messages only effectivelly applies 1000-messages-in-one-go limit
-    messages_details = @graph.list_messages(received_after: keep_on_server ? channel_sync_watermark : nil, folder_id:, follow_pagination: false)
+    messages_details = @graph.list_messages(received_after: keep_on_server ? channel_sync_watermark : nil, folder_id:, follow_pagination: false, select: 'id,receivedDateTime')
 
-    ids   = messages_details.fetch(:items).pluck(:id)
+    items = messages_details.fetch(:items)
+    ids   = items.pluck(:id)
     count = messages_details.fetch(:total_count)
+
+    # Only recorded for the real fetch path (see #fetch_wrap_up) - deliberately the highest
+    # receivedDateTime Graph actually handed us, never our own wall clock. That means a poll
+    # that comes back anomalously empty (a real, observed Graph API blip) advances nothing and
+    # simply gets retried in full next cycle, instead of silently skipping past a gap. It also
+    # means a batch cut short by the 1000-message page limit only advances up to the last
+    # message it actually fetched, so the remainder is still covered by "ge" (inclusive) on the
+    # next poll - not "gt", precisely so the boundary message can never fall through a page
+    # split. Re-seeing that one message every subsequent idle poll is harmless: it's a no-op
+    # once MessageValidator#already_imported? finds its Message-ID already in our own DB.
+    # Parsed to Time before taking the max - Graph doesn't guarantee identical fractional-second
+    # formatting across messages, so comparing the raw strings lexicographically could silently
+    # pick the wrong "latest" one.
+    @sync_last_received_at = items.filter_map { |item| item[:receivedDateTime] }.map { |ts| Time.zone.parse(ts) }.max if keep_on_server
 
     [ids, count]
   rescue MicrosoftGraph::ApiError => e
@@ -153,16 +166,14 @@ class Channel::Driver::MicrosoftGraphInbound < Channel::Driver::BaseEmailInbound
 
   # Advances the persisted sync watermark once a real fetch run has completed.
   # Not called from #check_configuration/#verify_transport, since those always
-  # pass keep_on_server: false into #messages_iterator and never set @sync_started_at.
+  # pass keep_on_server: false into #messages_iterator and never set @sync_last_received_at.
   def fetch_wrap_up
-    return if @sync_started_at.blank?
+    return if @sync_last_received_at.blank?
 
-    advance_channel_sync_watermark(@sync_started_at - SYNC_WATERMARK_OVERLAP)
+    advance_channel_sync_watermark(@sync_last_received_at)
   end
 
   private
-
-  SYNC_WATERMARK_OVERLAP = 5.minutes
 
   # What Zammad has already decided to import is tracked exclusively via
   # MessageValidator#already_imported? (a Message-ID lookup against our own DB) - never
