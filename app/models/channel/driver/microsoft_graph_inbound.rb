@@ -137,8 +137,10 @@ class Channel::Driver::MicrosoftGraphInbound < Channel::Driver::BaseEmailInbound
       verify_folder!(folder_id, options)
     end
 
+    @sync_started_at = Time.zone.now
+
     # Taking first page of messages only effectivelly applies 1000-messages-in-one-go limit
-    messages_details = @graph.list_messages(unread_only: keep_on_server, folder_id:, follow_pagination: false)
+    messages_details = @graph.list_messages(received_after: keep_on_server ? channel_sync_watermark : nil, folder_id:, follow_pagination: false)
 
     ids   = messages_details.fetch(:items).pluck(:id)
     count = messages_details.fetch(:total_count)
@@ -149,7 +151,48 @@ class Channel::Driver::MicrosoftGraphInbound < Channel::Driver::BaseEmailInbound
     raise e
   end
 
+  # Advances the persisted sync watermark once a real fetch run has completed.
+  # Not called from #check_configuration/#verify_transport, since those always
+  # pass keep_on_server: false into #messages_iterator and never set @sync_started_at.
+  def fetch_wrap_up
+    return if @sync_started_at.blank?
+
+    advance_channel_sync_watermark(@sync_started_at - SYNC_WATERMARK_OVERLAP)
+  end
+
   private
+
+  SYNC_WATERMARK_OVERLAP = 5.minutes
+
+  # What Zammad has already decided to import is tracked exclusively via
+  # MessageValidator#already_imported? (a Message-ID lookup against our own DB) - never
+  # via the mailbox's own isRead flag, which any other client (Outlook web/desktop/mobile)
+  # accessing the shared mailbox can mutate outside of Zammad's control. This watermark only
+  # narrows down which messages Graph needs to return to us at all; it's never the sole
+  # source of truth for "already imported".
+  #
+  # Defaults to the channel's own creation time (not Time.current) rather than to a rolling
+  # "now" computed at fetch-time: this guarantees the very first poll after the channel is
+  # created (or after a fresh deploy of this feature) re-lists the channel's entire history,
+  # which is safe (already_imported? silently skips anything already known) and doubles as
+  # a one-time full-history reconciliation safety net.
+  def channel_sync_watermark
+    raw = @channel.options&.dig('vm_sync_watermark')
+
+    return @channel.created_at if raw.blank?
+
+    Time.zone.parse(raw)
+  end
+
+  def advance_channel_sync_watermark(new_watermark)
+    current = channel_sync_watermark
+
+    return if new_watermark <= current
+
+    @channel.options ||= {}
+    @channel.options['vm_sync_watermark'] = new_watermark.utc.iso8601
+    @channel.save!
+  end
 
   def setup_connection(options)
     access_token = options[:password]

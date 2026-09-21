@@ -22,7 +22,7 @@ class MicrosoftGraph
     make_request("mailFolders/#{folder_id}/messages", method: :post, params:)
   end
 
-  def list_messages(unread_only: false, per_page: 1000, follow_pagination: true, folder_id: nil, select: 'id')
+  def list_messages(unread_only: false, received_after: nil, per_page: 1000, follow_pagination: true, folder_id: nil, select: 'id')
     path = 'messages/?$count=true&$orderby=receivedDateTime ASC'
 
     path += "&$select=#{select}"
@@ -31,6 +31,7 @@ class MicrosoftGraph
     filters = []
 
     filters << 'isRead eq false' if unread_only
+    filters << "receivedDateTime gt #{received_after.utc.iso8601}" if received_after.present?
     filters << "parentFolderId eq '#{folder_id || 'inbox'}'"
 
     if filters.any?
