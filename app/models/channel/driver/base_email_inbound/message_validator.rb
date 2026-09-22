@@ -30,7 +30,7 @@ class Channel::Driver::BaseEmailInbound
     # This method is used by IMAP and MicrosoftGraphInbound only
     # It may be possible to reuse them with POP3 too, but it needs further refactoring
     def verify_message?
-      headers['X-Zammad-Verify'] == 'true'
+      header('X-Zammad-Verify') == 'true'
     end
 
     # Checks if a message with the given headers marked to be ignored by Zammad
@@ -38,7 +38,7 @@ class Channel::Driver::BaseEmailInbound
     # This method is used by IMAP and MicrosoftGraphInbound only
     # It may be possible to reuse them with POP3 too, but it needs further refactoring
     def ignore?
-      headers['X-Zammad-Ignore'] == 'true'
+      header('X-Zammad-Ignore') == 'true'
     end
 
     # Checks if a message is a new Zammad verify message
@@ -49,10 +49,10 @@ class Channel::Driver::BaseEmailInbound
     # It may be possible to reuse them with POP3 too, but it needs further refactoring
     def fresh_verify_message?
       return false if !verify_message?
-      return false if headers['X-Zammad-Verify-Time'].blank?
+      return false if header('X-Zammad-Verify-Time').blank?
 
       begin
-        verify_time = Time.zone.parse(headers['X-Zammad-Verify-Time'])
+        verify_time = Time.zone.parse(header('X-Zammad-Verify-Time'))
       rescue => e
         Rails.logger.error e
         return false
@@ -71,7 +71,7 @@ class Channel::Driver::BaseEmailInbound
 
       return false if !headers
 
-      local_message_id = headers['Message-ID']
+      local_message_id = header('Message-ID')
       return false if local_message_id.blank?
 
       local_message_id_md5 = Digest::MD5.hexdigest(local_message_id)
@@ -83,6 +83,28 @@ class Channel::Driver::BaseEmailInbound
       return false if ticket&.preferences && ticket.preferences[:channel_id].present? && channel.present? && ticket.preferences[:channel_id] != channel[:id]
 
       true
+    end
+
+    private
+
+    # denta-care-agent 2026-09-22: `headers` comes straight from the raw
+    # mail's own header names (Microsoft Graph reports the sender's MTA's
+    # own casing verbatim - see MicrosoftGraph#headers_to_hash), and
+    # #with_indifferent_access only unifies Symbol/String, never case. An
+    # exact-key `headers['Message-ID']` therefore silently misses every
+    # sender whose MTA writes e.g. "Message-Id". Confirmed live: this let
+    # #already_imported? return false forever for one such sender, and
+    # because the mailbox sync watermark's 5-minute overlap (d0d8996/
+    # 0fb46e1) relies on #already_imported? to make re-listing safe, that
+    # single sender's newest message was silently reimported on every poll
+    # - 349 duplicate copies of one message over ~3 hours on ticket #4206.
+    def header(name)
+      return nil if !headers
+
+      key = headers.keys.find { |candidate| candidate.to_s.casecmp?(name) }
+      return nil if !key
+
+      headers[key]
     end
   end
 end
