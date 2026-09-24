@@ -66,10 +66,22 @@ class App._CollectionSingletonBase
       processData: true
       success: (data) =>
         @fetchActive = false
+        @retriedAfterError = false
         @set(data)
         @callback(data)
       error: =>
         @fetchActive = false
+        # A backend restart (a deploy, most commonly) can make the very next
+        # request land in the few seconds before the server is reachable
+        # again. Without a retry, a consumer that only fetches once on mount
+        # (see vm_agent_tiles.coffee/vm_workspace.coffee) is left showing
+        # nothing until something else happens to trigger a further fetch —
+        # confusing, since it looks like a real bug rather than a passing
+        # blip. One retry, not a loop: if the server is genuinely down for
+        # longer than that, hammering it every few seconds is not the fix.
+        if !@retriedAfterError
+          @retriedAfterError = true
+          _.delay((=> @fetch()), 3000)
     )
 
   trigger: =>
