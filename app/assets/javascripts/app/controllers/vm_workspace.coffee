@@ -54,6 +54,11 @@ class App.VmWorkspace extends App.Controller
     @loading   = true
     @render()
     @countsBindId = App.OverviewIndexCollection.bind(@updateCounts)
+    # See the matching comment in vm_agent_tiles.coffee: bind() can replay a
+    # stale count cached in the browser's sessionStorage from a previous visit
+    # instead of the server's current one (Edge restores sessionStorage across
+    # tab restores, so this can be days old). Force a real fetch on every mount.
+    App.OverviewIndexCollection.fetch()
     @bindQueue()
     @bindKeys()
 

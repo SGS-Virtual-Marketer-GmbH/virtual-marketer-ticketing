@@ -135,6 +135,16 @@ class App.VmAgentTiles extends App.Controller
     @counts = {}
     @render()
     @countsBindId = App.OverviewIndexCollection.bind(@updateCounts)
+    # bind() above can hand back a stale count straight out of the browser's
+    # sessionStorage cache (App._CollectionSingletonBase seeds itself from it
+    # on construction, before any live websocket push has happened) instead of
+    # asking the server. Normally harmless — a new push corrects it within
+    # seconds — but sessionStorage isn't reliably cleared on tab close: Edge in
+    # particular restores it when it reopens tabs from a previous session, so
+    # a badge can keep showing a count from days ago until the right overview
+    # happens to change again. Forcing a real fetch here means the board always
+    # asks the server at least once on load, never trusting a leftover value.
+    App.OverviewIndexCollection.fetch()
 
   release: =>
     App.OverviewIndexCollection.unbindById(@countsBindId) if @countsBindId
