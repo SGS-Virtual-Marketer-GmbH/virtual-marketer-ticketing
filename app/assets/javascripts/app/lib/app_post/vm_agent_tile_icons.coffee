@@ -78,3 +78,10 @@ App.VmAgentTileIcons =
     <svg #{W}><path d="M7 3.4h10v4.2H7z"/><rect x="3.4" y="7.6" width="17.2" height="8.4" rx="1.6"/>
     <path d="M7 16v4.6h10V16"/><path d="M6.4 11h2"/></svg>
   """
+
+  # Ohne Kategorie — a plain question mark, nothing else fits "wir wissen es nicht".
+  question: """
+    <svg #{W}><circle cx="12" cy="12" r="8.4"/>
+    <path d="M9.6 9.4a2.4 2.4 0 1 1 3.8 2c-.8.55-1.4 1.05-1.4 2.1"/>
+    <path d="M12 17.3v.1"/></svg>
+  """

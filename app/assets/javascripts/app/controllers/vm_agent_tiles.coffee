@@ -119,6 +119,15 @@ class App.VmAgentTiles extends App.Controller
       sees: [__('Fax-Anhang'), __('Aufträge'), __('Artikel')]
       highlight: true
     }
+    {
+      key: 'keiner-bekannten-kategorie-zugewiesen'
+      name: __('Ohne Kategorie')
+      icon: 'question'
+      description: __('Tickets, die keiner der bekannten Kategorien zugeordnet werden konnten. Brauchen eine manuelle Einordnung, bevor sie weiterlaufen.')
+      can: [__('Kategorie setzen')]
+      sees: [__('Tickettext')]
+      highlight: true
+    }
   ]
 
   constructor: ->
