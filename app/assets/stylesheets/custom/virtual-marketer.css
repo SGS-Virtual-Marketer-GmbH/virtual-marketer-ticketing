@@ -1997,6 +1997,7 @@ a.vm-profile__orderNr:hover {
   line-height: 1.5;
   white-space: pre-wrap;
   min-height: 1.5em;
+}
 
 /* Voice message recorder in the WhatsApp reply composer
    (views/ticket_zoom/article_new.jst.eco, controllers/ticket_zoom/article_new.coffee).
