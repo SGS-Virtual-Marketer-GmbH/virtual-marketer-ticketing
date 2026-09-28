@@ -17,3 +17,9 @@ class App.TicketZoomAlert extends App.ControllerObserver
 
     @html element
     @el.removeClass('hide')
+
+    if alert.showTemplateButton
+      @$('.js-vmSendTemplate').on('click', (e) =>
+        e.preventDefault()
+        new App.VmWhatsappTemplateModal(ticket: ticket)
+      )

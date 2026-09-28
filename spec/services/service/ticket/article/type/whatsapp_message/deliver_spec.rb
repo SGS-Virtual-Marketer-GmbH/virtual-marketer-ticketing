@@ -103,6 +103,38 @@ RSpec.describe Service::Ticket::Article::Type::WhatsappMessage::Deliver do
           it_behaves_like 'successful delivery'
         end
 
+        context 'with a template message' do
+          let(:factory_options) do
+            {
+              preferences: {
+                vm_whatsapp_template: {
+                  name:            'order_update',
+                  language:        'de',
+                  components_json: [{ 'type' => 'body', 'parameters' => [{ 'type' => 'text', 'text' => 'Max' }] }],
+                }
+              }
+            }
+          end
+
+          before do
+            allow_any_instance_of(WhatsappSdk::Api::Messages).to receive(:send_template).and_return(internal_response)
+          end
+
+          it_behaves_like 'successful delivery'
+
+          it 'passes the article-stored name/language/components_json to the SDK' do
+            expect_any_instance_of(WhatsappSdk::Api::Messages).to receive(:send_template).with(
+              hash_including(
+                name:            'order_update',
+                language:        'de',
+                components_json: [{ 'type' => 'body', 'parameters' => [{ 'type' => 'text', 'text' => 'Max' }] }],
+              ),
+            ).and_return(internal_response)
+
+            service_result
+          end
+        end
+
         context 'with an media whatsapp article (image)' do
           let(:media_id)                { Faker::Number.unique.number(digits: 15) }
           let(:internal_response_media) { Struct.new(:id).new(media_id) }

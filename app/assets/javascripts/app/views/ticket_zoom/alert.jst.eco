@@ -4,4 +4,9 @@
   <% else: %>
     <%- @T(@alert.text, @alert.textPlaceholder) %>
   <% end %>
+  <% if @alert.showTemplateButton: %>
+    <div class="vm-whatsapp-alert-action">
+      <button type="button" class="btn btn--text js-vmSendTemplate"><%- @T('Vorlage senden') %></button>
+    </div>
+  <% end %>
 </div>

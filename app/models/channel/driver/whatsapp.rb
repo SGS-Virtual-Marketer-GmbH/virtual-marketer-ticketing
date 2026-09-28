@@ -16,6 +16,14 @@ class Channel::Driver::Whatsapp
       )
     end
 
+    if attr[:message_type] == 'template'
+      return message.deliver(
+        name:            attr[:template_name],
+        language:        attr[:template_language],
+        components_json: attr[:template_components],
+      )
+    end
+
     message.deliver(
       caption: attr[:body],
       store:   attr[:attachment]

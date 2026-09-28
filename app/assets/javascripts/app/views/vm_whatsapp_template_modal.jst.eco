@@ -1,0 +1,25 @@
+<div class="vm-whatsapp-template">
+  <% if @loadError: %>
+    <div class="alert alert--danger" role="alert"><%= @loadError %></div>
+  <% else if !@templates: %>
+    <p><%- @T('Lade Vorlagen …') %></p>
+  <% else if @templates.length is 0: %>
+    <p><%- @T('Für diesen WhatsApp-Kanal sind keine freigegebenen Vorlagen hinterlegt.') %></p>
+  <% else: %>
+    <div class="js-vmTemplateForm">
+      <div class="form-group">
+        <label><%- @T('Vorlage') %></label>
+        <select class="form-control js-vmTemplateSelect">
+          <option value=""><%- @T('Bitte wählen') %></option>
+          <% for template in @templates: %>
+            <option value="<%= template.name %>|||<%= template.language %>"<%= ' disabled' if !template.supported %>>
+              <%= template.name %> (<%= template.language %>)<% if !template.supported: %> (<%- @T('nicht unterstützt') %>)<% end %>
+            </option>
+          <% end %>
+        </select>
+      </div>
+
+      <div class="js-vmTemplateFields"></div>
+    </div>
+  <% end %>
+</div>

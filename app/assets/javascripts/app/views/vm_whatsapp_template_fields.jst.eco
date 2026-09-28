@@ -1,0 +1,40 @@
+<% if @template: %>
+  <% if @template.header and @template.placeholders.header.length: %>
+    <div class="form-group">
+      <label><%- @T('Header') %>: <%= @template.header %></label>
+      <% for placeholder in @template.placeholders.header: %>
+        <input type="text" class="form-control vm-whatsapp-template__input" data-part="header" data-placeholder-name="<%= placeholder %>" placeholder="<%= placeholder %>" autocomplete="off">
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if @template.body: %>
+    <div class="form-group">
+      <label><%- @T('Text') %>: <%= @template.body %></label>
+      <% for placeholder in @template.placeholders.body: %>
+        <input type="text" class="form-control vm-whatsapp-template__input" data-part="body" data-placeholder-name="<%= placeholder %>" placeholder="<%= placeholder %>" autocomplete="off">
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if @template.footer: %>
+    <div class="vm-whatsapp-template__footer"><%= @template.footer %></div>
+  <% end %>
+
+  <% if @template.buttons and @template.buttons.length: %>
+    <div class="vm-whatsapp-template__buttons">
+      <% for button in @template.buttons: %>
+        <span class="vm-whatsapp-template__button"><%= button %></span>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <label><%- @T('Vorschau') %></label>
+    <div class="vm-whatsapp-template__preview js-vmTemplatePreview"></div>
+  </div>
+
+  <% if !@template.supported: %>
+    <div class="alert alert--warning" role="alert"><%= @template.unsupported_reason %></div>
+  <% end %>
+<% end %>

@@ -17,11 +17,14 @@ class App.TicketZoomChannel
     timeWindowEnd = new Date(lastWhatsappTimestamp * 1000)
     timeWindowEnd.setHours(timeWindowEnd.getHours() + 24)
 
-    # If time window is already closed, return an error alert.
+    # If time window is already closed, return an error alert. A Meta-approved
+    # template can still reopen the conversation, so the alert offers that
+    # instead of just explaining the dead end -- see App.VmWhatsappTemplateModal.
     if timeWindowEnd <= new Date()
       return {
         text: __('The 24 hour customer service window is now closed, no further WhatsApp messages can be sent.')
         type: 'danger'
+        showTemplateButton: true
       }
 
     # Otherwise, return a warning alert with a "humanized" end time of the window.
