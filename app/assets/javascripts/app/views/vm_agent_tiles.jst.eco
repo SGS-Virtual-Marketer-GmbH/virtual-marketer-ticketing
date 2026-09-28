@@ -2,7 +2,7 @@
   <div class="vm-tiles__intro">
     <h2 class="vm-tiles__headline"><%- @T('Ihre KI-Kollegen') %></h2>
     <p class="vm-tiles__lead">
-      <%- @T('Jedes eingehende Ticket wird automatisch eingeordnet, mit echten Daten aus Xentral und der Sendungsverfolgung angereichert und mit einem Antwortvorschlag versehen. Sie prüfen und entscheiden — verschickt wird nichts ohne Sie.') %>
+      <%- @T('Jedes eingehende Ticket wird automatisch eingeordnet, mit echten Daten aus Xentral und der Sendungsverfolgung angereichert und mit einem Antwortvorschlag versehen. Sie prüfen und entscheiden: Verschickt wird nichts ohne Sie.') %>
     </p>
   </div>
 

@@ -24,7 +24,7 @@
 
   <% if @draft: %>
     <div class="vm-work__draft">
-      <div class="vm-work__dlabel"><%- @T('Antwortvorschlag — nicht versendet') %></div>
+      <div class="vm-work__dlabel"><%- @T('Antwortvorschlag (nicht versendet)') %></div>
       <pre class="vm-work__dtext"><%= @draft %></pre>
       <button type="button" class="vm-work__btn vm-work__btn--sm js-vmCopyDraft"><%- @T('Text kopieren') %></button>
     </div>

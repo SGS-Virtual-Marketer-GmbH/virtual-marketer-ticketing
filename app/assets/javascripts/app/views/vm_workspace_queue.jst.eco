@@ -3,7 +3,7 @@
 <% else if !@tickets.length: %>
   <p class="vm-work__qempty">
     <% if @onlyMine: %><%- @T('Dir ist in dieser Kategorie nichts zugewiesen.') %>
-    <% else: %><%- @T('Diese Kategorie ist leer — nichts zu tun.') %><% end %>
+    <% else: %><%- @T('Diese Kategorie ist leer, nichts zu tun.') %><% end %>
   </p>
 <% else: %>
   <% for ticket in @tickets: %>

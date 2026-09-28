@@ -40,7 +40,7 @@
               <span class="vm-team__dot<%= ' vm-team__dot--online' if agent.online %>" title="<%- if agent.online then @T('gerade angemeldet') else @T('nicht angemeldet') %>"></span>
               <%= agent.name %>
               <% if agent.system: %>
-                <span class="vm-team__badge" title="<%- @T('Kein Mensch — automatisch bearbeitete Tickets') %>"><%- @T('System') %></span>
+                <span class="vm-team__badge" title="<%- @T('Kein Mensch, automatisch bearbeitete Tickets') %>"><%- @T('System') %></span>
               <% end %>
             </td>
             <td class="vm-team__num"><%= agent.open %></td>

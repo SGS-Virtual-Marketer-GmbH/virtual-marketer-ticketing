@@ -61,6 +61,8 @@ class App.VmWorkspace extends App.Controller
     App.OverviewIndexCollection.fetch()
     @bindQueue()
     @bindKeys()
+    @controllerBind('vm:overviews:refresh', => @refreshData() if !@el.is(':hidden'))
+    App.VmOverviewRefresh.start()
 
   # The categories are the tile board's, so both screens always agree on what
   # exists and what it is called.
@@ -78,16 +80,30 @@ class App.VmWorkspace extends App.Controller
   # silently dropped and the screen kept showing whatever category/ticket was
   # already open, e.g. picking "Produktberatung" from the board while
   # "Stornos" was still the open workspace just reopened Stornos.
+  #
+  # Coming back to this screen is also exactly when its numbers are most likely
+  # old (it sat hidden while others worked the queue), so every show() asks the
+  # server again rather than replaying what the collections cached.
   show: (params = {}) =>
     return if !params.category
     ticketId = if params.ticketId then parseInt(params.ticketId, 10) else null
-    return if params.category is @category and ticketId is @ticketId
+    if params.category is @category and ticketId is @ticketId
+      @refreshData()
+      return
     @category = params.category
     @ticketId = ticketId
     @note     = null
     @articles = []
     @render()
     @bindQueue()
+    @refreshData()
+
+  # Count and queue from the server, not from the push. See App.VmOverviewRefresh
+  # (vm_agent_tiles.coffee) for why the push alone left "1" next to an empty
+  # queue. OverviewListCollection.fetch() also refetches the counts.
+  refreshData: =>
+    return if !@category
+    App.OverviewListCollection.fetch(@category)
 
   bindKeys: =>
     $(document).on('keydown.vmWorkspace', (e) =>
@@ -103,13 +119,22 @@ class App.VmWorkspace extends App.Controller
         @next()
     )
 
+  viewParams: =>
+    categories: App.VmWorkspace.categories()
+    category:   @category
+    counts:     @counts
+    onlyMine:   @onlyMine
+
   render: =>
-    @html App.view('vm_workspace')(
-      categories: App.VmWorkspace.categories()
-      category:   @category
-      counts:     @counts
-      onlyMine:   @onlyMine
-    )
+    # The assistant lives in a container this template rebuilds. Re-creating
+    # the markup used to leave the assistant rendering into the old, detached
+    # node, so its panel went blank after the first render. Carry its element
+    # (with its conversation and event handlers) over into the new markup.
+    assistantNode = @assistant?.el?.detach()
+    @html App.view('vm_workspace')(@viewParams())
+    if assistantNode
+      @el.find('.js-vmAssistant').replaceWith(assistantNode)
+      @refreshElements()
     @renderQueue()
     @renderTicket()
 
@@ -128,7 +153,7 @@ class App.VmWorkspace extends App.Controller
     return if !@posEl
     list  = @visibleTickets()
     index = _.findIndex(list, (t) => t.id is @ticketId)
-    @posEl.text(if index >= 0 then "#{index + 1} / #{list.length}" else "— / #{list.length}")
+    @posEl.text(if index >= 0 then "#{index + 1} / #{list.length}" else "- / #{list.length}")
 
   renderTicket: =>
     return if !@ticketEl
@@ -219,7 +244,11 @@ class App.VmWorkspace extends App.Controller
     return if !_.isArray(data)
     @counts = {}
     @counts[row.link] = row.count for row in data
-    @render()
+    # Only the category bar shows counts. Re-rendering the whole screen on
+    # every count change would also rebuild the queue and the open ticket.
+    bar = @el.find('.vm-work__cats')
+    return @render() if !bar.length
+    bar.replaceWith($(App.view('vm_workspace')(@viewParams())).find('.vm-work__cats'))
 
   # Re-subscribes the queue to the current @category, dropping the previous
   # subscription first — called on construction and every time @category
@@ -293,6 +322,7 @@ class App.VmWorkspace extends App.Controller
     @articles = []
     @render()
     @bindQueue()
+    @refreshData()
     @navigate "#vm_work/#{key}", { hideCurrentLocationFromHistory: true }
 
   chooseTicketFromQueue: (e) =>
@@ -372,8 +402,12 @@ class App.VmWorkspace extends App.Controller
           @ticketId = null
           @renderQueue()
           @renderTicket()
-        # No manual refresh needed: closing the ticket changes its updated_at,
-        # which the live feed above picks up on its own next push.
+        # Do not wait for the websocket push to correct the count: in a tab
+        # whose push is not arriving (sleeping Edge tab, dropped socket) the
+        # queue above is already empty while the count next to it would keep
+        # the old number indefinitely. The PUT has committed by now; the short
+        # delay only lets several quick closes share one refetch.
+        App.Delay.set((-> App.VmOverviewRefresh.now()), 300, 'vm-workspace-after-close')
       error: =>
         @notify(type: 'error', msg: __('Das Ticket konnte nicht geschlossen werden.'))
     )
@@ -389,8 +423,8 @@ class App.VmWorkspace extends App.Controller
     # in this codebase: it is the standard API, and the helpdesk is served over
     # HTTPS, which is the secure context it requires. The textarea fallback
     # covers the case where the browser refuses the permission.
-    done = => @notify(type: 'success', msg: __('Antwortvorschlag kopiert — im Ticket einfügen und prüfen.'))
-    failed = => @notify(type: 'error', msg: __('Kopieren nicht möglich — bitte den Text markieren und selbst kopieren.'))
+    done = => @notify(type: 'success', msg: __('Antwortvorschlag kopiert. Im Ticket einfügen und prüfen.'))
+    failed = => @notify(type: 'error', msg: __('Kopieren nicht möglich. Bitte den Text markieren und selbst kopieren.'))
 
     if navigator.clipboard?.writeText
       navigator.clipboard.writeText(draft).then(done, => @copyViaTextarea(draft, done, failed))

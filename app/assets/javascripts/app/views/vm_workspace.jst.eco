@@ -12,7 +12,7 @@
     </div>
 
     <div class="vm-work__nav">
-      <span class="vm-work__pos js-vmPos">—</span>
+      <span class="vm-work__pos js-vmPos">-</span>
       <button type="button" class="vm-work__navbtn js-vmPrev" title="<%- @T('Zurück') %>">&lsaquo;</button>
       <button type="button" class="vm-work__navbtn js-vmNext" title="<%- @T('Weiter') %>">&rsaquo;</button>
       <span class="vm-work__key" title="<%- @T('Pfeiltasten blättern') %>">&larr; &rarr;</span>

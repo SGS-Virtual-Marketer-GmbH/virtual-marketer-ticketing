@@ -41,7 +41,7 @@ class App.VmAgentTiles extends App.Controller
       key: 'lieferung-versand'
       name: __('Lieferauskunft')
       icon: 'truck'
-      description: __('Beantwortet Fragen zu Lieferung und Verbleib einer Sendung — mit echtem Paketstatus und Tracking-Link, nicht mit einer Vermutung.')
+      description: __('Beantwortet Fragen zu Lieferung und Verbleib einer Sendung, mit echtem Paketstatus und Tracking-Link, nicht mit einer Vermutung.')
       can: [__('Sendung verfolgen'), __('Rückstand prüfen'), __('Antwortentwurf')]
       sees: [__('Paqato'), __('GLS Dental'), __('Dental Union'), __('Aufträge')]
     }
@@ -57,7 +57,7 @@ class App.VmAgentTiles extends App.Controller
       key: 'retouren'
       name: __('Retouren')
       icon: 'return'
-      description: __('Bearbeitet Rückgaben und Retourenanfragen — liest dazu auch den angehängten Retourenschein, wenn im Text selbst nichts steht.')
+      description: __('Bearbeitet Rückgaben und Retourenanfragen. Liest dazu auch den angehängten Retourenschein, wenn im Text selbst nichts steht.')
       can: [__('Auftrag finden'), __('PDF lesen'), __('Antwortentwurf')]
       sees: [__('Aufträge'), __('Kunden'), __('Artikel')]
     }
@@ -105,7 +105,7 @@ class App.VmAgentTiles extends App.Controller
       key: 'voicemail'
       name: __('Rückrufe')
       icon: 'mic'
-      description: __('Schreibt jede Anrufbeantworter-Nachricht mit und sortiert sie nach dem, was gesagt wurde — mit Rückrufnummer aus der Anlage.')
+      description: __('Schreibt jede Anrufbeantworter-Nachricht mit und sortiert sie nach dem, was gesagt wurde, mit Rückrufnummer aus der Anlage.')
       can: [__('Transkription'), __('Rückrufnummer'), __('Einsortieren')]
       sees: [__('Telefonanlage'), __('Kunden')]
       highlight: true
@@ -145,6 +145,7 @@ class App.VmAgentTiles extends App.Controller
     # happens to change again. Forcing a real fetch here means the board always
     # asks the server at least once on load, never trusting a leftover value.
     App.OverviewIndexCollection.fetch()
+    App.VmOverviewRefresh.start()
 
   release: =>
     App.OverviewIndexCollection.unbindById(@countsBindId) if @countsBindId
@@ -174,3 +175,50 @@ class App.VmAgentTiles extends App.Controller
     link = $(e.currentTarget).data('link')
     return if !link
     @navigate "#vm_work/#{link}"
+
+
+# Counts on the board and in the workspace bar used to change ONLY through the
+# websocket push (ticket_overview_index). That push is not something a tab can
+# rely on: Edge puts background tabs to sleep, a second open tab or a laptop
+# lid closes the socket, and while that tab keeps showing the page, nothing
+# tells it its numbers are old. Seen live on 2026-09-24 and 2026-09-28: the
+# agent closed the last ticket of a category with "Erledigt & weiter", the
+# queue (updated locally) was empty, the count next to it (waiting for a push)
+# still said 1, and stayed that way for 20+ minutes.
+#
+# So the VM screens ask the server themselves whenever the number could be
+# stale: when the tab comes back into view or gets focus, when a VM screen is
+# shown again, after the agent changed a ticket there, and once a minute while
+# one of these screens is on screen as a safety net. The push still does the
+# fast path; this only guarantees the count cannot drift from the list for
+# longer than a minute.
+class App.VmOverviewRefresh
+  @THROTTLE_MS: 5000
+  @POLL_MS:     60000
+  @last:        0
+
+  @start: ->
+    return if @started
+    @started = true
+    $(document).on('visibilitychange.vmOverviewRefresh', =>
+      @maybe() if document.visibilityState is 'visible'
+    )
+    $(window).on('focus.vmOverviewRefresh', => @maybe())
+    setInterval((=> @maybe()), @POLL_MS)
+
+  @maybe: ->
+    return if document.visibilityState is 'hidden'
+    return if !@screenVisible()
+    return if Date.now() - @last < @THROTTLE_MS
+    @now()
+
+  # Unthrottled: for "I just changed something" and "this screen was just
+  # shown again", where waiting would show the old number on purpose.
+  @now: ->
+    return if !App.Session.get('id')
+    @last = Date.now()
+    App.OverviewIndexCollection.fetch()
+    App.Event.trigger('vm:overviews:refresh')
+
+  @screenVisible: ->
+    $('.vm-agent-tiles:visible, .vm-work:visible').length > 0

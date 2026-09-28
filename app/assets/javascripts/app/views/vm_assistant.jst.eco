@@ -12,7 +12,7 @@
   <div class="vm-chat__log js-vmChatLog" role="log" aria-live="polite">
     <div class="vm-chat__intro">
       <p><%- @T('Ich arbeite mit deinen Rechten und unter deinem Namen. Was ich nicht sehen darf, sehe ich auch hier nicht.') %></p>
-      <p class="vm-chat__intro-note"><%- @T('An Kunden verschicke ich nichts — ich formuliere den Vorschlag, abschicken tust du.') %></p>
+      <p class="vm-chat__intro-note"><%- @T('An Kunden verschicke ich nichts. Ich formuliere den Vorschlag, abschicken tust du.') %></p>
       <div class="vm-chat__suggestions">
         <% for s in @suggestions: %>
           <button type="button" class="vm-chat__suggestion js-vmSuggestion"><%- @T(s) %></button>
