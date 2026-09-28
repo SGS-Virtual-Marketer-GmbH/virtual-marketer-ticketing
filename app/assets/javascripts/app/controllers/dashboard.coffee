@@ -123,8 +123,8 @@ class App.Dashboard extends App.Controller
       @navupdate '#dashboard'
       # The dashboard is persistent: its tile board is built once and then only
       # shown again. Ask for current counts every time it comes back into view
-      # (see App.VmOverviewRefresh in vm_agent_tiles.coffee).
-      App.VmOverviewRefresh?.now()
+      # (see App.VmCounts in lib/app_post/vm_counts.coffee).
+      App.VmCounts?.refresh('dashboard')
     # in case of being only customer, redirect to default router
     else if @permissionCheck('ticket.customer')
       @navigate '#ticket/view', { hideCurrentLocationFromHistory: true }

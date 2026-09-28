@@ -8,7 +8,6 @@
 
   <div class="vm-tiles__grid">
     <% for tile in @tiles: %>
-      <% count = @counts[tile.key] %>
       <button type="button"
               class="vm-tile js-vmTile<%= ' vm-tile--highlight' if tile.highlight %>"
               data-link="<%= tile.key %>"
@@ -16,9 +15,7 @@
         <span class="vm-tile__head">
           <span class="vm-tile__icon"><%- @icon(tile.icon) %></span>
           <span class="vm-tile__name"><%- @T(tile.name) %></span>
-          <% if count? and count > 0: %>
-            <span class="vm-tile__count" title="<%- @T('offene Tickets') %>"><%= count %></span>
-          <% end %>
+          <%- App.view('vm_count_badge')(cls: 'vm-tile__count', key: tile.key, counts: @counts, failed: @countsFailed) %>
         </span>
 
         <span class="vm-tile__description"><%- @T(tile.description) %></span>

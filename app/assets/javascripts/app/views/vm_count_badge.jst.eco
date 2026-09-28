@@ -1,0 +1,10 @@
+<% if @counts is null or @counts is undefined: %>
+  <% if @failed: %>
+    <span class="<%= @cls %> is-failed" title="<%- @T('Die Zahl konnte gerade nicht geladen werden, es wird automatisch erneut versucht.') %>">?</span>
+  <% else: %>
+    <span class="<%= @cls %> is-loading" title="<%- @T('Zahlen werden geladen') %>">…</span>
+  <% end %>
+<% else if @counts[@key]?: %>
+  <% count = @counts[@key] %>
+  <span class="<%= @cls %><%= ' is-zero' if count is 0 %><%= ' is-stale' if @failed %>" title="<%- @T('offene Tickets') %>"><%= count %></span>
+<% end %>

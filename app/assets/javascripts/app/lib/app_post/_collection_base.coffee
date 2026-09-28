@@ -89,12 +89,16 @@ class App._CollectionSingletonBase
 
   callback: (data) =>
     for counter, attr of @callbacks
-      callback = =>
-        attr.callback(data)
-        if attr.one
-          delete @callbacks[counter]
-      App.QueueManager.add(@key, callback)
-      App.QueueManager.run(@key)
+      # `do` gives every queued callback its own counter/attr. Without it a
+      # callback queued while the queue was already running saw the loop's
+      # last values and called the wrong subscriber.
+      do (counter, attr) =>
+        callback = =>
+          attr.callback(data)
+          if attr.one
+            delete @callbacks[counter]
+        App.QueueManager.add(@key, callback)
+        App.QueueManager.run(@key)
 
   clear: =>
     @collectionData = undefined

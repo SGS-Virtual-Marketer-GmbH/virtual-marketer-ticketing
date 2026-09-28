@@ -74,10 +74,11 @@ class _Singleton
   callback: (view, data) =>
     for counter, meta of @callbacks
       if meta.view is view
-        callback = ->
-          meta.callback(data)
-        App.QueueManager.add('ticket_overviews', callback)
-        App.QueueManager.run('ticket_overviews')
+        do (meta) ->
+          callback = ->
+            meta.callback(data)
+          App.QueueManager.add('ticket_overviews', callback)
+          App.QueueManager.run('ticket_overviews')
 
   clear: =>
     @overview = {}

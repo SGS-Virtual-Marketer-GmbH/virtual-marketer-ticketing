@@ -47,11 +47,19 @@ class _queueSingleton
     return if @queueRunning[key]
     localQueue = @queues[key]
     return if _.isEmpty(localQueue)
+    # A callback that throws used to leave queueRunning[key] true forever:
+    # every later run() for that key returned early, so the key's subscribers
+    # (e.g. the overview counts) got nothing until the page was reloaded, and
+    # a logout/login did not help. Each callback is now isolated and the flag
+    # is always reset.
     @queueRunning[key] = true
-    loop
-      callback = localQueue.shift()
-      callback()
-      if !localQueue[0]
-        @queueRunning[key] = false
-        break
+    try
+      while localQueue.length
+        item = localQueue.shift()
+        try
+          item()
+        catch e
+          console?.error?("App.QueueManager: callback in queue '#{key}' failed", e)
+    finally
+      @queueRunning[key] = false
     true

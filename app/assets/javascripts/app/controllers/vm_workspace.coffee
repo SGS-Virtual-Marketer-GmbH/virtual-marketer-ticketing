@@ -49,20 +49,22 @@ class App.VmWorkspace extends App.Controller
     @tickets   = []
     @articles  = []
     @note      = null
-    @counts    = {}
+    @countState = App.VmCounts.state()
+    @listCount = null
+    @listAt    = 0
     @onlyMine  = false
     @loading   = true
     @render()
-    @countsBindId = App.OverviewIndexCollection.bind(@updateCounts)
-    # See the matching comment in vm_agent_tiles.coffee: bind() can replay a
-    # stale count cached in the browser's sessionStorage from a previous visit
-    # instead of the server's current one (Edge restores sessionStorage across
-    # tab restores, so this can be days old). Force a real fetch on every mount.
-    App.OverviewIndexCollection.fetch()
+    @countsSubId = App.VmCounts.subscribe(@updateCounts)
+    App.VmCounts.refresh('workspace')
     @bindQueue()
     @bindKeys()
-    @controllerBind('vm:overviews:refresh', => @refreshData() if !@el.is(':hidden'))
-    App.VmOverviewRefresh.start()
+    # The push for this queue is only a hint to ask the server sooner. The
+    # list itself always comes from our own request (refreshData).
+    @controllerBind('ticket_overview_list', (data) =>
+      return if data?.overview?.view isnt @category
+      App.Delay.set(@refreshData, 500, 'vm-workspace-list-push')
+    )
 
   # The categories are the tile board's, so both screens always agree on what
   # exists and what it is called.
@@ -70,8 +72,7 @@ class App.VmWorkspace extends App.Controller
 
   release: =>
     $(document).off('keydown.vmWorkspace')
-    App.OverviewIndexCollection.unbindById(@countsBindId) if @countsBindId
-    App.OverviewListCollection.unbind(@queueBindId) if @queueBindId
+    App.VmCounts.unsubscribe(@countsSubId) if @countsSubId
 
   # This task is persistent (see VmWorkspaceRouter below), so re-entering its
   # route -- from the tile board, a bookmark, or browser back/forward -- does
@@ -87,6 +88,7 @@ class App.VmWorkspace extends App.Controller
   show: (params = {}) =>
     return if !params.category
     ticketId = if params.ticketId then parseInt(params.ticketId, 10) else null
+    App.VmCounts.refresh('show')
     if params.category is @category and ticketId is @ticketId
       @refreshData()
       return
@@ -96,14 +98,46 @@ class App.VmWorkspace extends App.Controller
     @articles = []
     @render()
     @bindQueue()
-    @refreshData()
 
-  # Count and queue from the server, not from the push. See App.VmOverviewRefresh
-  # (vm_agent_tiles.coffee) for why the push alone left "1" next to an empty
-  # queue. OverviewListCollection.fetch() also refetches the counts.
+  # The queue straight from the server, not from App.OverviewListCollection:
+  # that collection hands results to its subscribers through App.QueueManager,
+  # and one failing subscriber anywhere in the tab used to stop every later
+  # result from arriving (see App.VmCounts). One request at a time; a refresh
+  # asked for while one is running runs right after it, so the newest state
+  # always wins.
   refreshData: =>
     return if !@category
-    App.OverviewListCollection.fetch(@category)
+    if @listInflight
+      @listAgain = true
+      return
+    category      = @category
+    @listInflight = true
+    App.Ajax.request(
+      id:          'vm-workspace-list'
+      type:        'GET'
+      url:         "#{@apiPath}/ticket_overviews"
+      data:
+        view: category
+      processData: true
+      failResponseNoTrigger: true
+      success: (data) =>
+        @listInflight = false
+        if data?.assets
+          App.Collection.loadAssets(data.assets)
+          delete data.assets
+        @updateQueue(data.index) if category is @category and data?.index
+        @refreshAgain()
+      error: =>
+        @listInflight = false
+        if category is @category and @loading
+          App.Delay.set(@refreshData, 5000, 'vm-workspace-list-retry')
+        @refreshAgain()
+    )
+
+  refreshAgain: =>
+    return if !@listAgain
+    @listAgain = false
+    @refreshData()
 
   bindKeys: =>
     $(document).on('keydown.vmWorkspace', (e) =>
@@ -121,8 +155,9 @@ class App.VmWorkspace extends App.Controller
 
   viewParams: =>
     categories: App.VmWorkspace.categories()
-    category:   @category
-    counts:     @counts
+    category:     @category
+    counts:       @countState.counts
+    countsFailed: @countState.failed
     onlyMine:   @onlyMine
 
   render: =>
@@ -233,38 +268,40 @@ class App.VmWorkspace extends App.Controller
 
   # --- data ------------------------------------------------------------------
 
-  # Both the category-bar counts and the queue below ride the same live feed
-  # the native sidebar's overview counts use (App.OverviewIndexCollection /
-  # App.OverviewListCollection — see navigation.coffee): the server recomputes
-  # and pushes over the existing websocket whenever any ticket changes, so a
-  # closed/reassigned ticket disappears here without a manual refresh, and the
-  # tile board and this bar never disagree with what's actually behind them.
-
-  updateCounts: (data) =>
-    return if !_.isArray(data)
-    @counts = {}
-    @counts[row.link] = row.count for row in data
+  # Counts come from App.VmCounts. When the server's number for the open
+  # category no longer matches the queue on screen (a new ticket came in,
+  # someone else closed one), or the queue is older than a few seconds, the
+  # queue is fetched again, so the number and the list cannot stay apart.
+  updateCounts: (state) =>
+    @countState = state
+    if state.source is 'server' and state.counts and !@el.is(':hidden')
+      serverCount = state.counts[@category]
+      if serverCount isnt @listCount or Date.now() - @listAt > 5000
+        @refreshData()
     # Only the category bar shows counts. Re-rendering the whole screen on
     # every count change would also rebuild the queue and the open ticket.
     bar = @el.find('.vm-work__cats')
     return @render() if !bar.length
     bar.replaceWith($(App.view('vm_workspace')(@viewParams())).find('.vm-work__cats'))
 
-  # Re-subscribes the queue to the current @category, dropping the previous
-  # subscription first — called on construction and every time @category
-  # changes (chooseCategory, show()).
+  # Loads the queue of the current @category. Called on construction and
+  # every time @category changes (chooseCategory, show()).
   bindQueue: =>
-    App.OverviewListCollection.unbind(@queueBindId) if @queueBindId
-    @loading = true
+    @loading   = true
+    @listCount = null
     @renderQueue()
-    @queueBindId = App.OverviewListCollection.bind(@category, @updateQueue)
+    @refreshData()
 
   # `data` here is already the unwrapped `{overview, tickets, count}` shape —
   # asset loading happened inside the collection before this fires, for both
   # the initial fetch and every later push.
   updateQueue: (data) =>
     return if !data
-    @loading = false
+    @loading   = false
+    @listAt    = Date.now()
+    @listCount = if _.isNumber(data.count) then data.count else (data.tickets or []).length
+    # The count that came with this list is the count of this list.
+    App.VmCounts.setFromList(@category, @listCount)
     ids = (row.id for row in (data.tickets or []))
     @tickets = (App.Ticket.find(id) for id in ids when App.Ticket.exists(id))
     # Keep the ticket from the URL if it is in this queue, otherwise start at
@@ -322,7 +359,6 @@ class App.VmWorkspace extends App.Controller
     @articles = []
     @render()
     @bindQueue()
-    @refreshData()
     @navigate "#vm_work/#{key}", { hideCurrentLocationFromHistory: true }
 
   chooseTicketFromQueue: (e) =>
@@ -394,7 +430,11 @@ class App.VmWorkspace extends App.Controller
       processData: true
       data:        JSON.stringify(state_id: state.id)
       success: =>
+        before   = @tickets.length
         @tickets = (t for t in @tickets when t.id isnt id)
+        if @listCount? and @tickets.length < before
+          @listCount = Math.max(0, @listCount - 1)
+          App.VmCounts.setFromList(@category, @listCount)
         if target
           @ticketId = null
           @select(target.id)
@@ -407,7 +447,7 @@ class App.VmWorkspace extends App.Controller
         # queue above is already empty while the count next to it would keep
         # the old number indefinitely. The PUT has committed by now; the short
         # delay only lets several quick closes share one refetch.
-        App.Delay.set((-> App.VmOverviewRefresh.now()), 300, 'vm-workspace-after-close')
+        App.Delay.set((-> App.VmCounts.refresh('close')), 300, 'vm-workspace-after-close')
       error: =>
         @notify(type: 'error', msg: __('Das Ticket konnte nicht geschlossen werden.'))
     )

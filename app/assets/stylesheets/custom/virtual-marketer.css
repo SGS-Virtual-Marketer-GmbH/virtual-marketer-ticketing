@@ -539,6 +539,18 @@
   border-radius: 999px;
 }
 
+/* Count states (App.VmCounts): known zero, still loading, could not load,
+   last known value while a reload is failing. None of them is an empty spot
+   that could be read as "nothing waiting". */
+.vm-tile__count.is-zero,
+.vm-tile__count.is-loading,
+.vm-tile__count.is-failed {
+  color: var(--vm-gray-700);
+  background: var(--vm-gray-200);
+}
+.vm-tile__count.is-loading { font-weight: 400; }
+.vm-tile__count.is-stale { opacity: 0.6; }
+
 .vm-tile__description {
   font-size: 0.875rem;
   line-height: 1.5;
@@ -1152,6 +1164,10 @@
 }
 
 .vm-work__cat.is-active .vm-work__catn { background: var(--vm-red); color: #fff; }
+.vm-work__catn.is-zero,
+.vm-work__catn.is-loading,
+.vm-work__catn.is-failed { opacity: 0.75; }
+.vm-work__catn.is-stale { opacity: 0.6; }
 
 .vm-work__nav {
   display: flex;
