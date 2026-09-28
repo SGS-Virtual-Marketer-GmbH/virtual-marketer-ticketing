@@ -15,3 +15,7 @@ Ticket::Article::Type.create_if_not_exists(id: 11, name: __('web'), communicatio
 Ticket::Article::Type.create_if_not_exists(id: 12, name: __('telegram personal-message'), communication: true)
 Ticket::Article::Type.create_if_not_exists(id: 13, name: __('facebook direct-message'), communication: true)
 Ticket::Article::Type.create_if_not_exists(id: 14, name: __('whatsapp message'), communication: true)
+# Virtual Marketer: Facebook Messenger / Instagram Direct (see VmMetaChannelSupport).
+# No fixed ids, so a future upstream type cannot collide with them.
+Ticket::Article::Type.create_if_not_exists(name: 'messenger message', communication: true)
+Ticket::Article::Type.create_if_not_exists(name: 'instagram message', communication: true)

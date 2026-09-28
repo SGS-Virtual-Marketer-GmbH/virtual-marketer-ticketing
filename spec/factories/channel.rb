@@ -397,5 +397,34 @@ FactoryBot.define do
         verify_token      { SecureRandom.urlsafe_base64(12) }
       end
     end
+
+    factory :vm_meta_channel do
+      area { 'VmMeta::Page' }
+
+      options do
+        {
+          adapter:              'vm_meta',
+          page_id:,
+          page_access_token:,
+          app_secret:,
+          verify_token:,
+          callback_url_uuid:,
+          instagram_account_id:,
+          human_agent_tag:,
+          name:,
+        }
+      end
+
+      transient do
+        page_id              { Faker::Number.unique.number(digits: 15).to_s }
+        page_access_token    { Faker::Crypto.unique.sha256 }
+        app_secret           { Faker::Crypto.unique.md5 }
+        verify_token         { SecureRandom.urlsafe_base64(12) }
+        callback_url_uuid    { SecureRandom.uuid }
+        instagram_account_id { Faker::Number.unique.number(digits: 15).to_s }
+        human_agent_tag      { false }
+        name                 { Faker::Company.unique.name }
+      end
+    end
   end
 end
