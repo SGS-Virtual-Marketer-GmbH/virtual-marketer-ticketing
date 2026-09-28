@@ -1932,3 +1932,17 @@ a.vm-profile__orderNr:hover {
   font-size: 12px;
   color: var(--vm-gray-700);
 }
+
+/* Inline player for audio attachments (voicemails, WhatsApp voice notes),
+   rendered by views/generic/attachments.jst.eco. An <audio> element ignores
+   Content-Disposition, so the normal attachment URL plays as is. */
+.vm-attachment-audio {
+  flex-basis: 100%;
+  margin: 6px 0 2px;
+}
+.vm-attachment-audio audio {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  height: 36px;
+}

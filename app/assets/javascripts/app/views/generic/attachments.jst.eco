@@ -33,5 +33,13 @@
         </a>
       <% end %>
     <% end %>
+    <% for attachment in @attachments: %>
+      <% audio_type = App.Utils.contentTypeCleanup(@ContentOrMimeType(attachment) or '') %>
+      <% if audio_type and audio_type.indexOf('audio/') is 0: %>
+        <div class="vm-attachment-audio">
+          <audio controls preload="metadata" src="<%= attachment.url %>" title="<%= attachment.filename %>"></audio>
+        </div>
+      <% end %>
+    <% end %>
   </div>
 <% end %>
