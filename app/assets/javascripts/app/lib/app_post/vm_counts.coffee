@@ -30,6 +30,13 @@
 #   * A category whose ticket list was just loaded takes its count from that
 #     same response (setFromList), so the number next to an open queue is the
 #     length of that queue.
+#
+# Source: GET /vm_counts (VmCountsController). Per overview it returns the
+# total (the same number GET /ticket_overviews reports), how many of those are
+# owned by the agent and how many by nobody, plus the agent's "Nur meine
+# Tickets" choice. That choice lives here too, so the board, the workspace bar
+# and the queue filter are one switch, stored server side in the agent's
+# preferences (vm_only_mine) and therefore the same on every device.
 class App.VmCounts
   @RETRY_MS:    [2000, 5000, 15000, 30000]
   @POLL_MS:     60000
@@ -37,6 +44,12 @@ class App.VmCounts
   @TIMEOUT_MS:  20000
 
   @counts:   null     # { link: count } once known, null while unknown
+  @mine:     {}       # { link: tickets owned by the current agent }
+  @unassigned: {}     # { link: tickets owned by nobody }
+  @onlyMine: false
+  @onlyMineChosen: false
+  @prefVersion: 0     # bumped on every local switch change
+  @prefPending: false
   @failed:   false
   @source:   null     # 'server', 'list' or null: who set the last value
   @subs:     {}
@@ -63,9 +76,12 @@ class App.VmCounts
     delete @subs[id]
 
   @state: ->
-    counts: @counts
-    failed: @failed
-    source: @source
+    counts:     @counts
+    mine:       @mine
+    unassigned: @unassigned
+    onlyMine:   @onlyMine
+    failed:     @failed
+    source:     @source
 
   @start: ->
     return if @started
@@ -109,6 +125,12 @@ class App.VmCounts
 
   @reset: ->
     @counts  = null
+    @mine    = {}
+    @unassigned = {}
+    @onlyMine = false
+    @onlyMineChosen = false
+    @prefPending = false
+    @prefVersion += 1
     @failed  = false
     @source  = null
     @attempt = 0
@@ -126,10 +148,11 @@ class App.VmCounts
     @retryTimer = null
     @inflight   = true
     @lastStart  = Date.now()
+    prefVersion = @prefVersion
     App.Ajax.request(
       id:      'vm-counts'
       type:    'GET'
-      url:     "#{App.Config.get('api_path')}/ticket_overviews"
+      url:     "#{App.Config.get('api_path')}/vm_counts"
       timeout: @TIMEOUT_MS
       processData: true
       # A background refresh must never pop up an error dialog, e.g. while
@@ -137,10 +160,22 @@ class App.VmCounts
       failResponseNoTrigger: true
       success: (data) =>
         @inflight = false
-        if _.isArray(data)
+        if data and _.isArray(data.counts)
           counts = {}
-          counts[row.link] = row.count for row in data when row and row.link
+          mine = {}
+          unassigned = {}
+          for row in data.counts when row and row.link
+            counts[row.link]     = row.count
+            mine[row.link]       = row.mine
+            unassigned[row.link] = row.unassigned
           @counts  = counts
+          @mine    = mine
+          @unassigned = unassigned
+          # A switch change made while this request was running wins over the
+          # value the server read before that change was stored.
+          if prefVersion is @prefVersion and !@prefPending
+            @onlyMine       = !!data.only_mine
+            @onlyMineChosen = !!data.only_mine_chosen
           @failed  = false
           @source  = 'server'
           @attempt = 0
@@ -173,22 +208,94 @@ class App.VmCounts
   # The workspace just received the ticket list of one category. Its count
   # comes with that list from the same query, so it is the truest number for
   # that category right now.
-  @setFromList: (link, count) ->
+  #
+  # `mine`/`unassigned` are only passed when the list is complete (not cut at
+  # the per-overview limit), because they are counted from its tickets.
+  @setFromList: (link, count, mine, unassigned) ->
     return if !link or !_.isNumber(count)
     # Until the server's full set has arrived the other badges show the
     # loading marker; one known key must not turn them into empty spots.
     return if !@counts
-    return if @counts and @counts[link] is count
-    counts = _.extend({}, @counts or {})
+    same = @counts[link] is count and
+      (!_.isNumber(mine) or @mine[link] is mine) and
+      (!_.isNumber(unassigned) or @unassigned[link] is unassigned)
+    return if same
+    counts = _.extend({}, @counts)
     counts[link] = count
     @counts = counts
+    if _.isNumber(mine)
+      @mine = _.extend({}, @mine)
+      @mine[link] = mine
+    if _.isNumber(unassigned)
+      @unassigned = _.extend({}, @unassigned)
+      @unassigned[link] = unassigned
     @failed = false
     @source = 'list'
     @notify()
 
+  # The "Nur meine Tickets" switch. Shown at once, stored in the agent's
+  # preferences (so it follows them to every device and survives a logout),
+  # and put back with a message if the server refuses it.
+  @setOnlyMine: (value) ->
+    value = !!value
+    return if value is @onlyMine and @onlyMineChosen
+    previous = @onlyMine
+    @onlyMine       = value
+    @onlyMineChosen = true
+    @prefPending    = true
+    @prefVersion   += 1
+    version = @prefVersion
+    @notify()
+    App.Ajax.request(
+      id:          'vm-only-mine'
+      type:        'PUT'
+      url:         "#{App.Config.get('api_path')}/users/preferences"
+      data:        JSON.stringify(vm_only_mine: value)
+      processData: true
+      failResponseNoTrigger: true
+      success: =>
+        return if version isnt @prefVersion
+        @prefPending = false
+        @refresh('switch')
+      error: =>
+        return if version isnt @prefVersion
+        @prefPending = false
+        @onlyMine    = previous
+        @notify()
+        App.Event.trigger('notify', type: 'error', msg: __('Die Einstellung konnte nicht gespeichert werden.'))
+    )
+
   @notify: ->
     for id, callback of @subs
       @safeCall(callback)
+
+  # What the badge for `link` shows, for the tiles and the workspace bar alike.
+  # null only when this agent has no such overview at all.
+  @badge: (state, link) ->
+    return { kind: 'failed' } if !state.counts and state.failed
+    return { kind: 'loading' } if !state.counts
+    total = state.counts[link]
+    return null if !_.isNumber(total)
+    unassigned = state.unassigned[link]
+    unassigned = 0 if !_.isNumber(unassigned)
+    value = total
+    value = state.mine[link] if state.onlyMine and _.isNumber(state.mine[link])
+    {
+      kind:       'count'
+      value:      value
+      total:      total
+      hidden:     total - value
+      unassigned: if value is total then 0 else Math.min(unassigned, total - value)
+      stale:      !!state.failed
+    }
+
+  # "N weitere Tickets ausgeblendet, ..." for the switch, from the overview of
+  # all open tickets (every category's tickets are in it exactly once).
+  @hiddenSummary: (state, allLink = 'alle-ungel-sten-tickets') ->
+    return null if !state.onlyMine or !state.counts
+    b = @badge(state, allLink)
+    return null if !b or b.kind isnt 'count'
+    b
 
   # One broken subscriber must never stop the others from getting counts.
   @safeCall: (callback) ->

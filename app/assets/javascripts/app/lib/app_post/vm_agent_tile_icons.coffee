@@ -85,3 +85,9 @@ App.VmAgentTileIcons =
     <path d="M9.6 9.4a2.4 2.4 0 1 1 3.8 2c-.8.55-1.4 1.05-1.4 2.1"/>
     <path d="M12 17.3v.1"/></svg>
   """
+
+  # Meine Tickets: a person with a tick, "the ones that are mine".
+  mine: """
+    <svg #{W}><circle cx="9.5" cy="8" r="3.4"/><path d="M3.5 19.5c.6-3.4 3-5.4 6-5.4 1.4 0 2.6.4 3.6 1.1"/>
+    <path d="M15 17.6l2 2 4-4.2"/></svg>
+  """

@@ -1782,3 +1782,76 @@ a.vm-profile__orderNr:hover {
   flex-basis: 100%;
   font-style: italic;
 }
+
+/* "Nur meine Tickets" switch on the board, and the hints that say what the
+   "mine" view leaves out, so no category looks empty when it is not. */
+.vm-tiles__filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin-top: 12px;
+}
+
+.vm-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--vm-gray-900);
+  user-select: none;
+}
+
+.vm-switch input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.vm-switch__track {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: var(--vm-gray-200);
+  transition: background 0.15s;
+}
+
+.vm-switch__track::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  transition: transform 0.15s;
+}
+
+.vm-switch input:checked + .vm-switch__track { background: var(--vm-red); }
+.vm-switch input:checked + .vm-switch__track::after { transform: translateX(16px); }
+.vm-switch input:focus-visible + .vm-switch__track { outline: 2px solid var(--vm-red); outline-offset: 2px; }
+
+.vm-tiles__hidden {
+  font-size: 0.875rem;
+  color: var(--vm-gray-700);
+}
+
+.vm-tile__hidden {
+  display: block;
+  margin-top: -4px;
+  font-size: 0.75rem;
+  color: var(--vm-gray-700);
+}
+
+.vm-work__qhidden {
+  margin: 8px 12px;
+  font-size: 12px;
+  color: var(--vm-gray-700);
+}

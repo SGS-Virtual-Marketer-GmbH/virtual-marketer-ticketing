@@ -2,7 +2,7 @@
   <p class="vm-work__qempty"><%- @T('Wird geladen …') %></p>
 <% else if !@tickets.length: %>
   <p class="vm-work__qempty">
-    <% if @onlyMine: %><%- @T('Dir ist in dieser Kategorie nichts zugewiesen.') %>
+    <% if @onlyMine: %><%- @T('In dieser Kategorie gibt es keine eigenen Tickets.') %>
     <% else: %><%- @T('Diese Kategorie ist leer, nichts zu tun.') %><% end %>
   </p>
 <% else: %>
@@ -21,4 +21,15 @@
       <% end %>
     </button>
   <% end %>
+<% end %>
+<% if @hidden: %>
+  <p class="vm-work__qhidden">
+    <% if @hidden.unassigned is @hidden.count: %>
+      <%- @T((if @hidden.count is 1 then '%s weiteres Ticket ausgeblendet, noch niemandem zugewiesen.' else '%s weitere Tickets ausgeblendet, noch niemandem zugewiesen.'), @hidden.count) %>
+    <% else if @hidden.unassigned is 0: %>
+      <%- @T((if @hidden.count is 1 then '%s weiteres Ticket ausgeblendet, bei Kollegen.' else '%s weitere Tickets ausgeblendet, bei Kollegen.'), @hidden.count) %>
+    <% else: %>
+      <%- @T((if @hidden.count is 1 then '%s weiteres Ticket ausgeblendet, davon %s noch niemandem zugewiesen.' else '%s weitere Tickets ausgeblendet, davon %s noch niemandem zugewiesen.'), @hidden.count, @hidden.unassigned) %>
+    <% end %>
+  </p>
 <% end %>

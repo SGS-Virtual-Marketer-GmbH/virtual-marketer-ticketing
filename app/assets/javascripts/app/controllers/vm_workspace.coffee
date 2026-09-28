@@ -52,7 +52,7 @@ class App.VmWorkspace extends App.Controller
     @countState = App.VmCounts.state()
     @listCount = null
     @listAt    = 0
-    @onlyMine  = false
+    @onlyMine  = !!@countState.onlyMine
     @loading   = true
     @render()
     @countsSubId = App.VmCounts.subscribe(@updateCounts)
@@ -156,8 +156,7 @@ class App.VmWorkspace extends App.Controller
   viewParams: =>
     categories: App.VmWorkspace.categories()
     category:     @category
-    counts:       @countState.counts
-    countsFailed: @countState.failed
+    state:        @countState
     onlyMine:   @onlyMine
 
   render: =>
@@ -180,6 +179,7 @@ class App.VmWorkspace extends App.Controller
       ticketId: @ticketId
       loading:  @loading
       onlyMine: @onlyMine
+      hidden:   @hiddenInQueue()
       humanTime: (iso) -> App.VmWorkspace.humanTime(iso)
     )
     @renderPosition()
@@ -274,6 +274,10 @@ class App.VmWorkspace extends App.Controller
   # queue is fetched again, so the number and the list cannot stay apart.
   updateCounts: (state) =>
     @countState = state
+    if !!state.onlyMine isnt @onlyMine
+      @onlyMine = !!state.onlyMine
+      @applyOnlyMine()
+      return
     if state.source is 'server' and state.counts and !@el.is(':hidden')
       serverCount = state.counts[@category]
       if serverCount isnt @listCount or Date.now() - @listAt > 5000
@@ -300,10 +304,10 @@ class App.VmWorkspace extends App.Controller
     @loading   = false
     @listAt    = Date.now()
     @listCount = if _.isNumber(data.count) then data.count else (data.tickets or []).length
-    # The count that came with this list is the count of this list.
-    App.VmCounts.setFromList(@category, @listCount)
     ids = (row.id for row in (data.tickets or []))
     @tickets = (App.Ticket.find(id) for id in ids when App.Ticket.exists(id))
+    # The count that came with this list is the count of this list.
+    @pushListCounts()
     # Keep the ticket from the URL if it is in this queue, otherwise start at
     # the top. Silently jumping elsewhere would lose someone's place.
     if !@ticketId or !_.find(@visibleTickets(), (t) => t.id is @ticketId)
@@ -391,15 +395,43 @@ class App.VmWorkspace extends App.Controller
     e?.preventDefault()
     @step(1)
 
+  # The queue's "Nur meine" button is the board's "Nur meine Tickets" switch,
+  # not a second filter: one stored choice for the tiles, the category bar and
+  # every queue. The change comes back through updateCounts.
   toggleMine: (e) =>
     e.preventDefault()
-    @onlyMine = !@onlyMine
+    App.VmCounts.setOnlyMine(!@onlyMine)
+
+  applyOnlyMine: =>
     if !_.find(@visibleTickets(), (t) => t.id is @ticketId)
       @ticketId = @visibleTickets()[0]?.id or null
       @articles = []
       @note     = null
       @fetchTicket()
     @render()
+
+  # Mine and unassigned are counted from the list only when it is complete
+  # (not cut at the per-overview ticket limit).
+  pushListCounts: =>
+    return if !_.isNumber(@listCount)
+    if @tickets.length is @listCount
+      me = App.Session.get('id')
+      mine       = (t for t in @tickets when t.owner_id is me).length
+      unassigned = (t for t in @tickets when !t.owner_id or t.owner_id is 1).length
+      App.VmCounts.setFromList(@category, @listCount, mine, unassigned)
+    else
+      App.VmCounts.setFromList(@category, @listCount)
+
+  # Tickets of this category the "mine" view leaves out, from the loaded list.
+  hiddenInQueue: =>
+    return null if !@onlyMine or @loading
+    me = App.Session.get('id')
+    others = (t for t in @tickets when t.owner_id isnt me)
+    return null if !others.length
+    {
+      count:      others.length
+      unassigned: (t for t in others when !t.owner_id or t.owner_id is 1).length
+    }
 
   openTicket: (e) =>
     e.preventDefault()
@@ -434,7 +466,7 @@ class App.VmWorkspace extends App.Controller
         @tickets = (t for t in @tickets when t.id isnt id)
         if @listCount? and @tickets.length < before
           @listCount = Math.max(0, @listCount - 1)
-          App.VmCounts.setFromList(@category, @listCount)
+          @pushListCounts()
         if target
           @ticketId = null
           @select(target.id)

@@ -6,7 +6,7 @@
       <% for cat in @categories: %>
         <button type="button" class="vm-work__cat js-vmCat<%= ' is-active' if cat.key is @category %>" data-key="<%= cat.key %>">
           <%- @T(cat.name) %>
-          <%- App.view('vm_count_badge')(cls: 'vm-work__catn', key: cat.key, counts: @counts, failed: @countsFailed) %>
+          <%- App.view('vm_count_badge')(cls: 'vm-work__catn', b: App.VmCounts.badge(@state, cat.key)) %>
         </button>
       <% end %>
     </div>
@@ -23,7 +23,7 @@
     <div class="vm-work__col vm-work__col--queue">
       <div class="vm-work__qhead">
         <span class="vm-work__qtitle"><%- @T('Warteschlange') %></span>
-        <button type="button" class="vm-work__qfilter js-vmMine<%= ' is-active' if @onlyMine %>"><%- @T('Nur meine') %></button>
+        <button type="button" class="vm-work__qfilter js-vmMine<%= ' is-active' if @onlyMine %>" title="<%- @T('Gilt für alle Kategorien und die Übersicht') %>"><%- @T('Nur meine') %></button>
       </div>
       <div class="vm-work__qlist js-vmQueue"></div>
     </div>

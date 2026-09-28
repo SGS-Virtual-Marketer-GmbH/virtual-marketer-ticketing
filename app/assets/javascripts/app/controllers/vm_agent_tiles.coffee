@@ -21,12 +21,23 @@
 
 class App.VmAgentTiles extends App.Controller
   events:
-    'click .js-vmTile': 'openOverview'
+    'click .js-vmTile':       'openOverview'
+    'change .js-vmOnlyMine':  'toggleOnlyMine'
 
   # Each entry: the overview slug it opens, what it does, what it can do, and
   # which sources it reads. `sources` are the real ones from the pipeline
   # (docs/DATA_SOURCES.md) — not a wish list.
   @TILES: [
+    # Not a category of its own: the overview "Ihre ungelösten Tickets"
+    # (owner = current user, every open state), so it spans all categories.
+    {
+      key: 'ihre-ungel-sten-tickets'
+      name: __('Meine Tickets')
+      icon: 'mine'
+      description: __('Alle offenen Tickets, die Ihnen zugewiesen sind, aus allen Kategorien an einem Ort. Hier geht es dort weiter, wo Sie aufgehört haben.')
+      can: [__('Alle Kategorien'), __('Weiterarbeiten')]
+      sees: [__('Eigene Tickets')]
+    }
     {
       key: 'bestellung'
       name: __('Bestellungen')
@@ -141,8 +152,7 @@ class App.VmAgentTiles extends App.Controller
   render: =>
     @html App.view('vm_agent_tiles')(
       tiles:        App.VmAgentTiles.TILES
-      counts:       @countState.counts
-      countsFailed: @countState.failed
+      state:        @countState
       icon:         (name) -> App.VmAgentTileIcons[name] or ''
     )
 
@@ -151,6 +161,9 @@ class App.VmAgentTiles extends App.Controller
   updateCounts: (state) =>
     @countState = state
     @render()
+
+  toggleOnlyMine: (e) =>
+    App.VmCounts.setOnlyMine($(e.currentTarget).prop('checked'))
 
   # A tile opens the workspace for that category, not the bare overview list:
   # the queue is there too, but with the ticket and the assistant beside it,
