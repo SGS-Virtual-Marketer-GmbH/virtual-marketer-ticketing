@@ -6,7 +6,7 @@
     </p>
     <div class="vm-tiles__filter">
       <label class="vm-switch">
-        <input type="checkbox" class="js-vmOnlyMine"<%= ' checked' if @state.onlyMine %>>
+        <input type="checkbox" class="js-vmOnlyMine"<%= ' checked' if @state.onlyMine %><%= ' disabled' if !@state.counts %>>
         <span class="vm-switch__track" aria-hidden="true"></span>
         <span class="vm-switch__label"><%- @T('Nur meine Tickets') %></span>
       </label>

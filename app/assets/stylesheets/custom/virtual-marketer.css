@@ -1799,10 +1799,15 @@ a.vm-profile__orderNr:hover {
   gap: 8px;
   margin: 0;
   cursor: pointer;
+  font-size: 0.875rem;
   font-weight: 600;
+  text-transform: none;
+  letter-spacing: normal;
   color: var(--vm-gray-900);
   user-select: none;
 }
+
+.vm-switch input:disabled + .vm-switch__track { opacity: 0.5; }
 
 .vm-switch input {
   position: absolute;
