@@ -46,6 +46,7 @@ class App.VmCounts
   @attempt:  0
   @retryTimer: null
   @pushTimer:  null
+  @deferTimer: null
   @lastStart:  0
   @started:    false
 
@@ -87,11 +88,20 @@ class App.VmCounts
     $(window).on('focus.vmCounts', => @maybe())
     setInterval((=> @maybe()), @POLL_MS)
 
-  # Throttled: visibility, focus and the minute poll.
+  # Throttled: visibility, focus and the minute poll. A trigger inside the
+  # throttle window is deferred to its end, not dropped: the request that
+  # started a moment ago may have been answered before the change the agent
+  # is now looking for.
   @maybe: ->
     return if document.visibilityState is 'hidden'
     return if !@screenVisible()
-    return if Date.now() - @lastStart < @THROTTLE_MS
+    wait = @THROTTLE_MS - (Date.now() - @lastStart)
+    if wait > 0
+      @deferTimer ?= setTimeout((=>
+        @deferTimer = null
+        @maybe()
+      ), wait)
+      return
     @refresh('poll')
 
   @screenVisible: ->
