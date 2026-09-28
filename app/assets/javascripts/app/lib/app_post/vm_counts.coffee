@@ -37,6 +37,12 @@
 # Tickets" choice. That choice lives here too, so the board, the workspace bar
 # and the queue filter are one switch, stored server side in the agent's
 # preferences (vm_only_mine) and therefore the same on every device.
+#
+# It also carries `introSeen`: whether the one-time hint pointing at the
+# "Meine Tickets" tile and this switch has already been shown and dismissed
+# (preference vm_intro_seen, same server-side/per-device storage as the
+# switch). The server also treats an agent who already has a stored
+# `vm_only_mine` choice as having seen it -- see VmCountsController.
 class App.VmCounts
   @RETRY_MS:    [2000, 5000, 15000, 30000]
   @POLL_MS:     60000
@@ -48,6 +54,8 @@ class App.VmCounts
   @unassigned: {}     # { link: tickets owned by nobody }
   @onlyMine: false
   @onlyMineChosen: false
+  @introSeen: null    # null while unknown, else the server's boolean
+  @introPending: false
   @prefVersion: 0     # bumped on every local switch change
   @prefPending: false
   @failed:   false
@@ -76,12 +84,14 @@ class App.VmCounts
     delete @subs[id]
 
   @state: ->
-    counts:     @counts
-    mine:       @mine
-    unassigned: @unassigned
-    onlyMine:   @onlyMine
-    failed:     @failed
-    source:     @source
+    counts:          @counts
+    mine:            @mine
+    unassigned:      @unassigned
+    onlyMine:        @onlyMine
+    onlyMineChosen:  @onlyMineChosen
+    introSeen:       @introSeen
+    failed:          @failed
+    source:          @source
 
   @start: ->
     return if @started
@@ -129,6 +139,8 @@ class App.VmCounts
     @unassigned = {}
     @onlyMine = false
     @onlyMineChosen = false
+    @introSeen = null
+    @introPending = false
     @prefPending = false
     @prefVersion += 1
     @failed  = false
@@ -176,6 +188,9 @@ class App.VmCounts
           if prefVersion is @prefVersion and !@prefPending
             @onlyMine       = !!data.only_mine
             @onlyMineChosen = !!data.only_mine_chosen
+          # Same rule for the intro hint: a dismiss made while this request
+          # was running must not be overwritten by the older server value.
+          @introSeen = !!data.intro_seen if !@introPending
           @failed  = false
           @source  = 'server'
           @attempt = 0
@@ -264,6 +279,36 @@ class App.VmCounts
         @notify()
         App.Event.trigger('notify', type: 'error', msg: __('Die Einstellung konnte nicht gespeichert werden.'))
     )
+
+  # The one-time hint for the "Meine Tickets" tile and the switch. Dismissed
+  # once, from the hint's own close/"Verstanden" control, or implicitly as
+  # soon as the agent turns out to already have a stored switch choice (see
+  # `shouldShowIntro`) -- either way it is stored server side so it never
+  # comes back, on this device or any other.
+  @markIntroSeen: ->
+    return if @introSeen or @introPending
+    @introSeen    = true
+    @introPending = true
+    @notify()
+    App.Ajax.request(
+      id:          'vm-intro-seen'
+      type:        'PUT'
+      url:         "#{App.Config.get('api_path')}/users/preferences"
+      data:        JSON.stringify(vm_intro_seen: true)
+      processData: true
+      failResponseNoTrigger: true
+      success: => @introPending = false
+      # Not persisted is not worth bothering the agent about; worst case the
+      # hint shows again next time, which is harmless.
+      error:   => @introPending = false
+    )
+
+  # Show the hint once we know for certain (not while still loading) that
+  # this agent has neither dismissed it nor already made their own switch
+  # choice -- someone who has already used the switch does not need to be
+  # told how it works.
+  @shouldShowIntro: (state) ->
+    state.introSeen is false and !state.onlyMineChosen
 
   @notify: ->
     for id, callback of @subs

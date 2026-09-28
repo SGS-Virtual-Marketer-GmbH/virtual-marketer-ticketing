@@ -39,7 +39,7 @@ class App.VmWorkspace extends App.Controller
     'click .js-vmDone':     'closeAndAdvance'
     'click .js-vmCopyDraft':'copyDraft'
     'click .js-vmBack':     'backToBoard'
-    'click .js-vmMine':     'toggleMine'
+    'change .js-vmMine':    'toggleMine'
     'click .js-vmQuoteToggle': 'toggleQuote'
 
   constructor: (params) ->
@@ -395,12 +395,11 @@ class App.VmWorkspace extends App.Controller
     e?.preventDefault()
     @step(1)
 
-  # The queue's "Nur meine" button is the board's "Nur meine Tickets" switch,
+  # The queue's "Nur meine" switch is the board's "Nur meine Tickets" switch,
   # not a second filter: one stored choice for the tiles, the category bar and
   # every queue. The change comes back through updateCounts.
   toggleMine: (e) =>
-    e.preventDefault()
-    App.VmCounts.setOnlyMine(!@onlyMine)
+    App.VmCounts.setOnlyMine($(e.currentTarget).prop('checked'))
 
   applyOnlyMine: =>
     if !_.find(@visibleTickets(), (t) => t.id is @ticketId)

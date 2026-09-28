@@ -1229,6 +1229,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  row-gap: 6px;
   padding: 12px 14px;
   border-bottom: 1px solid var(--vm-gray-200);
   flex: 0 0 auto;
@@ -1240,22 +1242,7 @@
   text-transform: uppercase;
   color: var(--vm-gray-500);
   font-weight: 600;
-}
-
-.vm-work__qfilter {
-  border: 1px solid var(--vm-gray-300);
-  background: #fff;
-  color: var(--vm-gray-700);
-  font-size: 12px;
-  padding: 3px 10px;
-  border-radius: 999px;
-  cursor: pointer;
-}
-
-.vm-work__qfilter.is-active {
-  background: var(--vm-red-soft);
-  border-color: var(--vm-red);
-  color: var(--vm-red);
+  white-space: nowrap;
 }
 
 .vm-work__qlist { overflow-y: auto; flex: 1 1 auto; }
@@ -1784,13 +1771,19 @@ a.vm-profile__orderNr:hover {
 }
 
 /* "Nur meine Tickets" switch on the board, and the hints that say what the
-   "mine" view leaves out, so no category looks empty when it is not. */
+   "mine" view leaves out, so no category looks empty when it is not. Boxed
+   with its own background so the control reads as a distinct, deliberate
+   toggle instead of a line of small text easy to scroll past. */
 .vm-tiles__filter {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 8px 16px;
   margin-top: 12px;
+  padding: 10px 16px;
+  background: var(--vm-gray-100);
+  border: 1px solid var(--vm-gray-200);
+  border-radius: var(--vm-radius);
 }
 
 .vm-switch {
@@ -1799,7 +1792,7 @@ a.vm-profile__orderNr:hover {
   gap: 8px;
   margin: 0;
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   font-weight: 600;
   text-transform: none;
   letter-spacing: normal;
@@ -1818,11 +1811,11 @@ a.vm-profile__orderNr:hover {
 
 .vm-switch__track {
   position: relative;
-  width: 36px;
-  height: 20px;
+  width: 38px;
+  height: 22px;
   flex: 0 0 auto;
   border-radius: 999px;
-  background: var(--vm-gray-200);
+  background: var(--vm-gray-300);
   transition: background 0.15s;
 }
 
@@ -1831,8 +1824,8 @@ a.vm-profile__orderNr:hover {
   position: absolute;
   top: 2px;
   left: 2px;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: #fff;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
@@ -1842,6 +1835,29 @@ a.vm-profile__orderNr:hover {
 .vm-switch input:checked + .vm-switch__track { background: var(--vm-red); }
 .vm-switch input:checked + .vm-switch__track::after { transform: translateX(16px); }
 .vm-switch input:focus-visible + .vm-switch__track { outline: 2px solid var(--vm-red); outline-offset: 2px; }
+
+/* Compact variant for the workspace queue header, where space is tight.
+   Same switch component (checkbox + track + label) as the board, boxed as a
+   small pill so it still reads as its own control and not running text --
+   the two places share one visual language for "this is a toggle". Rules
+   here come after the base .vm-switch block on purpose: several selectors
+   below tie with the base ones on specificity, and the later rule wins. */
+.vm-switch--sm {
+  font-size: 12px;
+  font-weight: 600;
+  gap: 6px;
+  padding: 3px 10px 3px 8px;
+  background: #fff;
+  border: 1px solid var(--vm-gray-300);
+  border-radius: 999px;
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.vm-switch--sm .vm-switch__track { width: 26px; height: 15px; }
+.vm-switch--sm .vm-switch__track::after { width: 11px; height: 11px; }
+.vm-switch--sm input:checked + .vm-switch__track { background: var(--vm-red); }
+.vm-switch--sm input:checked + .vm-switch__track::after { transform: translateX(11px); }
 
 .vm-tiles__hidden {
   font-size: 0.875rem;
@@ -1854,6 +1870,62 @@ a.vm-profile__orderNr:hover {
   font-size: 0.75rem;
   color: var(--vm-gray-700);
 }
+
+/* One-time hint on the board, pointing at the "Meine Tickets" tile and the
+   "Nur meine Tickets" switch just above it. A light card, not a modal: it
+   sits inline and never blocks the tiles underneath. */
+.vm-intro {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  background: var(--vm-red-soft);
+  border-left: 3px solid var(--vm-red);
+  border-radius: 0 var(--vm-radius) var(--vm-radius) 0;
+  max-width: 62ch;
+}
+
+.vm-intro__text {
+  flex: 1 1 auto;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--vm-gray-800);
+}
+
+.vm-intro__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+.vm-intro__ok {
+  border: 1px solid var(--vm-red);
+  background: var(--vm-red);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.vm-intro__ok:hover { background: var(--vm-red-dark); border-color: var(--vm-red-dark); }
+
+.vm-intro__close {
+  border: 0;
+  background: none;
+  color: var(--vm-gray-500);
+  font-size: 18px;
+  line-height: 1;
+  padding: 0 2px;
+  cursor: pointer;
+}
+
+.vm-intro__close:hover { color: var(--vm-gray-800); }
 
 .vm-work__qhidden {
   margin: 8px 12px;

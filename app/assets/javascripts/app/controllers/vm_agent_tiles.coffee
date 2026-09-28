@@ -14,6 +14,11 @@
 # While the number is not known yet the tile shows a neutral loading marker,
 # never an empty spot that reads as "nothing waiting".
 #
+# The board also shows a one-time hint, on the first screen a fresh agent
+# lands on, pointing at the "Meine Tickets" tile and the "Nur meine Tickets"
+# switch below. App.VmCounts owns whether it has been seen; see
+# `App.VmCounts.shouldShowIntro`.
+#
 # Artwork is inline SVG on purpose: it inherits the surrounding colour, stays
 # sharp at any zoom and on any display, needs no build step and no external
 # request. A PNG set would be four files per tile and blurry on the fifth
@@ -21,8 +26,9 @@
 
 class App.VmAgentTiles extends App.Controller
   events:
-    'click .js-vmTile':       'openOverview'
-    'change .js-vmOnlyMine':  'toggleOnlyMine'
+    'click .js-vmTile':        'openOverview'
+    'change .js-vmOnlyMine':   'toggleOnlyMine'
+    'click .js-vmIntroDismiss':'dismissIntro'
 
   # Each entry: the overview slug it opens, what it does, what it can do, and
   # which sources it reads. `sources` are the real ones from the pipeline
@@ -164,6 +170,10 @@ class App.VmAgentTiles extends App.Controller
 
   toggleOnlyMine: (e) =>
     App.VmCounts.setOnlyMine($(e.currentTarget).prop('checked'))
+
+  dismissIntro: (e) =>
+    e.preventDefault()
+    App.VmCounts.markIntroSeen()
 
   # A tile opens the workspace for that category, not the bare overview list:
   # the queue is there too, but with the ticket and the assistant beside it,

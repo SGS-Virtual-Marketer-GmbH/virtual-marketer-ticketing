@@ -25,6 +25,18 @@
         </span>
       <% end %>
     </div>
+
+    <% if App.VmCounts.shouldShowIntro(@state): %>
+      <div class="vm-intro js-vmIntro">
+        <p class="vm-intro__text">
+          <%- @T('Die Kachel "Meine Tickets" ganz oben zeigt alle offenen Tickets, die Ihnen zugewiesen sind, aus allen Bereichen an einem Ort. Mit dem Schalter "Nur meine Tickets" blenden Sie überall Tickets aus, die schon jemand anderem gehören.') %>
+        </p>
+        <span class="vm-intro__actions">
+          <button type="button" class="vm-intro__ok js-vmIntroDismiss"><%- @T('Verstanden') %></button>
+          <button type="button" class="vm-intro__close js-vmIntroDismiss" aria-label="<%- @T('Schließen') %>">&times;</button>
+        </span>
+      </div>
+    <% end %>
   </div>
 
   <div class="vm-tiles__grid">

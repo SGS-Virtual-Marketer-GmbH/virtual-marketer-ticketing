@@ -23,7 +23,11 @@
     <div class="vm-work__col vm-work__col--queue">
       <div class="vm-work__qhead">
         <span class="vm-work__qtitle"><%- @T('Warteschlange') %></span>
-        <button type="button" class="vm-work__qfilter js-vmMine<%= ' is-active' if @onlyMine %>" title="<%- @T('Gilt für alle Kategorien und die Übersicht') %>"><%- @T('Nur meine') %></button>
+        <label class="vm-switch vm-switch--sm" title="<%- @T('Gilt für alle Kategorien und die Übersicht') %>">
+          <input type="checkbox" class="js-vmMine"<%= ' checked' if @onlyMine %>>
+          <span class="vm-switch__track" aria-hidden="true"></span>
+          <span class="vm-switch__label"><%- @T('Nur meine') %></span>
+        </label>
       </div>
       <div class="vm-work__qlist js-vmQueue"></div>
     </div>
