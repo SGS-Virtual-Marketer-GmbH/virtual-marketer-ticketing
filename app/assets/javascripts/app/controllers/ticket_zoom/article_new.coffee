@@ -19,6 +19,10 @@ class App.TicketZoomArticleNew extends App.Controller
     '.editControls-item':                 'editControlItem'
     '.js-letterCount':                    'letterCount'
     '.js-signature':                      'signature'
+    '.js-voiceRecorder':                  'voiceRecorderEl'
+    '.js-voiceRecorderIdle':              'voiceRecorderIdle'
+    '.js-voiceRecorderRecording':         'voiceRecorderRecordingEl'
+    '.js-voiceRecorderTime':              'voiceRecorderTime'
 
   events:
     'click .js-toggleVisibility':    'toggleVisibility'
@@ -32,6 +36,9 @@ class App.TicketZoomArticleNew extends App.Controller
     'blur .js-textarea':             'blurTextarea'
     'click .js-active-toggle':       'toggleButton'
     'click .js-active-toggle-type':  'toggleTypeButton'
+    'click .js-voiceRecorderStart':  'startVoiceRecording'
+    'click .js-voiceRecorderStop':   'stopVoiceRecording'
+    'click .js-voiceRecorderCancel': 'cancelVoiceRecording'
 
   constructor: ->
     super
@@ -198,6 +205,8 @@ class App.TicketZoomArticleNew extends App.Controller
       App.Ticket.unsubscribe(@subscribeIdTextModule)
 
     @releaseGlobalClickEvents()
+    @voiceRecorderStopTimer()
+    @voiceRecorderCleanupStream()
 
   releaseGlobalClickEvents: ->
     $(window).off 'click.ticket-zoom-select-type'
@@ -481,6 +490,10 @@ class App.TicketZoomArticleNew extends App.Controller
     type = @normalizeArticleType(type)
     wasScrolledToBottom = @isScrolledToBottom()
 
+    # a running recording has no meaning outside the whatsapp message type
+    # it was started in - abandon it rather than let it record on unseen
+    @cancelVoiceRecording() if @voiceRecorderActive && type isnt 'whatsapp message'
+
     # reset old params
     if type isnt @type
       for key in ['to', 'cc', 'bcc', 'subject', 'in_reply_to']
@@ -520,10 +533,13 @@ class App.TicketZoomArticleNew extends App.Controller
         for name in articleType.attributes
           @$("[name=#{name}]").closest('.form-group').removeClass('hide')
         @$('.article-attachment, .attachments, .js-textSizeLimit').addClass('hide')
+        @voiceRecorderEl?.addClass('hide')
         for name in articleType.features
           switch name
             when 'attachment'
               @$('.article-attachment, .attachments').removeClass('hide')
+            when 'voice:record'
+              @voiceRecorderEl?.removeClass('hide')
             when 'body:initials'
               @updateInitials()
             when 'body:limit'
@@ -966,3 +982,224 @@ class App.TicketZoomArticleNew extends App.Controller
     $('<div class="alert alert--warning js-warning-body-presence"></div>')
       .text(noCaption)
       .prependTo(@attachmentsHolder)
+
+  # -------------------------------------------------------------------------
+  # WhatsApp voice messages: record in the browser, remux to Ogg Opus (the
+  # only Opus-flavoured format WhatsApp's Cloud API accepts - its own
+  # MediaRecorder 'audio/mp4' option actually contains an Opus payload, not
+  # AAC, and would silently be rejected/misread by WhatsApp) and hand the
+  # result to the exact same attachment upload path a manually-picked file
+  # would go through, so it shows up in the attachment list and respects
+  # attachmentsLimit/size like any other attachment.
+  #
+  # Codec choice, in order:
+  #   1. audio/ogg;codecs=opus  - used as recorded (Firefox)
+  #   2. audio/webm;codecs=opus - remuxed via window.VmOggOpus (Chrome/Chromium)
+  #   3. audio/mp4 (AAC)        - used as recorded, but ONLY on a non-Chromium
+  #                                browser (Safari), since Chromium's mp4
+  #                                option is Opus-in-mp4, not AAC-in-mp4.
+  voiceRecorderMaxSeconds: 300
+
+  voiceRecorderPickFormat: =>
+    return null if !window.MediaRecorder
+
+    if MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')
+      return { mimeType: 'audio/ogg;codecs=opus', remux: false, extension: 'ogg', outputType: 'audio/ogg' }
+
+    if MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+      return { mimeType: 'audio/webm;codecs=opus', remux: true, extension: 'ogg', outputType: 'audio/ogg' }
+
+    if !@voiceRecorderIsChromium()
+      if MediaRecorder.isTypeSupported('audio/mp4;codecs=mp4a.40.2')
+        return { mimeType: 'audio/mp4;codecs=mp4a.40.2', remux: false, extension: 'm4a', outputType: 'audio/mp4' }
+      if MediaRecorder.isTypeSupported('audio/mp4')
+        return { mimeType: 'audio/mp4', remux: false, extension: 'm4a', outputType: 'audio/mp4' }
+
+    null
+
+  # Chromium's MediaRecorder reports 'audio/mp4' as supported, but the
+  # payload inside is Opus, not AAC - unusable for WhatsApp. UAParser's
+  # rendering engine (Blink = every Chromium-based browser) is a more
+  # reliable signal for this than the browser name, since Edge/Opera/etc.
+  # all share the same trap.
+  voiceRecorderIsChromium: =>
+    return @voiceRecorderIsChromiumCache if @voiceRecorderIsChromiumCache isnt undefined
+
+    engineName = undefined
+    try
+      engineName = new UAParser().getEngine()?.name
+    catch error
+      engineName = undefined
+    @voiceRecorderIsChromiumCache = engineName is 'Blink'
+    @voiceRecorderIsChromiumCache
+
+  startVoiceRecording: (event) =>
+    event?.stopPropagation()
+
+    return if @voiceRecorderActive
+
+    if !navigator.mediaDevices?.getUserMedia || !window.MediaRecorder
+      @voiceRecorderError(__('Ihr Browser unterstützt keine Sprachnachrichten.'))
+      return
+
+    format = @voiceRecorderPickFormat()
+    if !format
+      @voiceRecorderError(__('Ihr Browser unterstützt keine Sprachnachrichten.'))
+      return
+
+    navigator.mediaDevices.getUserMedia(audio: true)
+      .then( (stream) => @voiceRecorderBegin(stream, format) )
+      .catch( (error) =>
+        App.Log.error('TicketZoomArticleNew', 'voice message getUserMedia failed', error)
+        @voiceRecorderError(__('Der Zugriff auf das Mikrofon wurde verweigert. Bitte erlauben Sie den Mikrofonzugriff in Ihren Browsereinstellungen.'))
+      )
+
+  voiceRecorderBegin: (stream, format) =>
+    @voiceRecorderActive  = true
+    @voiceRecorderStream  = stream
+    @voiceRecorderChunks  = []
+    @voiceRecorderFormat  = format
+    @voiceRecorderStarted = Date.now()
+    @voiceRecorderFinalize = false
+
+    recorder = undefined
+    try
+      recorder = new MediaRecorder(stream, mimeType: format.mimeType)
+    catch error
+      App.Log.error('TicketZoomArticleNew', 'voice message MediaRecorder construction failed', error)
+      @voiceRecorderError(__('Die Aufnahme konnte nicht gestartet werden.'))
+      @voiceRecorderCleanupStream()
+      @voiceRecorderActive = false
+      return
+
+    @voiceRecorderRecorder = recorder
+
+    recorder.ondataavailable = (event) =>
+      @voiceRecorderChunks.push(event.data) if event.data?.size > 0
+
+    recorder.onstop = @voiceRecorderHandleStop
+
+    recorder.onerror = (event) =>
+      App.Log.error('TicketZoomArticleNew', 'voice message MediaRecorder error', event.error)
+      @voiceRecorderFinalize = false
+
+    recorder.start()
+
+    @voiceRecorderIdle.addClass('hide')
+    @voiceRecorderRecordingEl.removeClass('hide')
+    @voiceRecorderUpdateTime()
+    @voiceRecorderTimerId = setInterval(@voiceRecorderUpdateTime, 1000)
+
+  voiceRecorderUpdateTime: =>
+    return if !@voiceRecorderActive
+
+    elapsed = Math.floor((Date.now() - @voiceRecorderStarted) / 1000)
+
+    if elapsed >= @voiceRecorderMaxSeconds
+      @stopVoiceRecording()
+      return
+
+    minutes = Math.floor(elapsed / 60)
+    seconds = elapsed % 60
+    secondsPadded = if seconds < 10 then "0#{seconds}" else "#{seconds}"
+    @voiceRecorderTime.text("#{minutes}:#{secondsPadded}")
+
+  stopVoiceRecording: (event) =>
+    event?.stopPropagation()
+    return if !@voiceRecorderActive
+
+    @voiceRecorderFinalize = true
+    @voiceRecorderRecorder?.stop()
+
+  cancelVoiceRecording: (event) =>
+    event?.stopPropagation()
+    return if !@voiceRecorderActive
+
+    @voiceRecorderFinalize = false
+    @voiceRecorderRecorder?.stop()
+
+  voiceRecorderHandleStop: =>
+    @voiceRecorderStopTimer()
+
+    finalize = @voiceRecorderFinalize
+    format   = @voiceRecorderFormat
+    chunks   = @voiceRecorderChunks
+
+    @voiceRecorderCleanupStream()
+    @voiceRecorderReset()
+
+    return if !finalize
+    return if _.isEmpty(chunks)
+
+    blob = new Blob(chunks, type: format.mimeType.split(';')[0])
+
+    if !format.remux
+      @voiceRecorderUpload(blob, format)
+      return
+
+    reader = new FileReader()
+    reader.onload = =>
+      oggBytes = undefined
+      try
+        oggBytes = window.VmOggOpus.fromWebm(reader.result)
+      catch error
+        App.Log.error('TicketZoomArticleNew', 'VmOggOpus remux failed', error)
+        @voiceRecorderError(__('Die Aufnahme konnte nicht verarbeitet werden.'))
+        return
+      @voiceRecorderUpload(new Blob([oggBytes], type: format.outputType), format)
+    reader.onerror = =>
+      App.Log.error('TicketZoomArticleNew', 'voice message FileReader failed', reader.error)
+      @voiceRecorderError(__('Die Aufnahme konnte nicht verarbeitet werden.'))
+    reader.readAsArrayBuffer(blob)
+
+  voiceRecorderStopTimer: =>
+    if @voiceRecorderTimerId
+      clearInterval(@voiceRecorderTimerId)
+      @voiceRecorderTimerId = null
+
+  voiceRecorderCleanupStream: =>
+    if @voiceRecorderStream
+      track.stop() for track in @voiceRecorderStream.getTracks()
+    @voiceRecorderStream = null
+
+  voiceRecorderReset: =>
+    @voiceRecorderActive   = false
+    @voiceRecorderRecorder = null
+    @voiceRecorderChunks   = []
+
+    @voiceRecorderRecordingEl?.addClass('hide')
+    @voiceRecorderIdle?.removeClass('hide')
+    @voiceRecorderTime?.text('0:00')
+
+  voiceRecorderUpload: (blob, format) =>
+    filename = "Sprachnachricht-#{@voiceRecorderFilenameTimestamp()}.#{format.extension}"
+    file = new File([blob], filename, type: format.outputType)
+
+    dataTransfer = new DataTransfer()
+    dataTransfer.items.add(file)
+
+    input = @el.find('.article-attachment input[type=file]').get(0)
+    return if !input
+
+    # go through the exact same path a manually-picked/dropped file would:
+    # html5Upload's rebound 'change' listener on this input reads
+    # this.files and calls processFiles(), including the existing
+    # attachmentsLimit/size validation (canUploadFiles).
+    input.files = dataTransfer.files
+    input.dispatchEvent(new Event('change', bubbles: true))
+
+  voiceRecorderFilenameTimestamp: ->
+    now = new Date()
+    pad = (number) -> if number < 10 then "0#{number}" else "#{number}"
+    "#{now.getFullYear()}-#{pad(now.getMonth() + 1)}-#{pad(now.getDate())}-#{pad(now.getHours())}#{pad(now.getMinutes())}"
+
+  voiceRecorderError: (message) =>
+    @voiceRecorderStopTimer()
+    @voiceRecorderCleanupStream()
+    @voiceRecorderReset()
+
+    new App.ErrorModal(
+      head:          __('Sprachnachricht')
+      contentInline: message
+      container:     @el.closest('.content')
+    )
