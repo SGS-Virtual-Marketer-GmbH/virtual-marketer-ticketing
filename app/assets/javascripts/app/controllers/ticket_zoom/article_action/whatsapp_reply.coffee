@@ -52,7 +52,7 @@ class WhatsappReply
       icon:              'whatsapp'
       attributes:        []
       internal:          false,
-      features:          ['body:limit', 'attachment', 'attachments:limit', 'attachments:size', 'body:ensureNoCaption', 'body:allowNoCaption']
+      features:          ['body:limit', 'attachment', 'attachments:limit', 'attachments:size', 'body:ensureNoCaption', 'body:allowNoCaption', 'voice:record']
       maxTextLength:     4096
       warningTextLength: -1
       attachmentsLimit:  1

@@ -1946,3 +1946,82 @@ a.vm-profile__orderNr:hover {
   max-width: 420px;
   height: 36px;
 }
+
+/* Voice message recorder in the WhatsApp reply composer
+   (views/ticket_zoom/article_new.jst.eco, controllers/ticket_zoom/article_new.coffee).
+   Sits next to the normal attachment picker inside .article-attachment and
+   is only shown for the 'whatsapp message' article type (the 'voice:record'
+   feature flag). Two states, toggled by adding/removing .hide:
+   .voiceRecorder-idle (a single mic button) and .voiceRecorder-active
+   (elapsed time + stop/cancel), never both visible at once. */
+.voiceRecorder {
+  display: flex;
+  align-items: center;
+  margin: 4px 0 0 8px;
+}
+.voiceRecorder.hide {
+  display: none;
+}
+
+.voiceRecorder-idle,
+.voiceRecorder-active {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.voiceRecorder-idle.hide,
+.voiceRecorder-active.hide {
+  display: none;
+}
+
+.voiceRecorder-recordButton,
+.voiceRecorder-stopButton,
+.voiceRecorder-cancelButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--vm-gray-200);
+  color: var(--vm-gray-700);
+  cursor: pointer;
+}
+
+.voiceRecorder-recordButton:hover,
+.voiceRecorder-stopButton:hover,
+.voiceRecorder-cancelButton:hover {
+  background: var(--vm-red-soft);
+  color: var(--vm-red);
+}
+
+.voiceRecorder-stopButton {
+  background: var(--vm-red);
+  color: #fff;
+}
+.voiceRecorder-stopButton:hover {
+  background: var(--vm-red-dark);
+  color: #fff;
+}
+
+.voiceRecorder-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--vm-red);
+  animation: voiceRecorderPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes voiceRecorderPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.voiceRecorder-time {
+  min-width: 32px;
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+  color: var(--vm-gray-800);
+}

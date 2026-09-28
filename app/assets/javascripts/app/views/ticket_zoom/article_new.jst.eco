@@ -102,6 +102,23 @@
               </label>
             </span>
           </div>
+          <div class="js-voiceRecorder voiceRecorder hide">
+            <div class="voiceRecorder-idle js-voiceRecorderIdle">
+              <button type="button" class="voiceRecorder-recordButton js-voiceRecorderStart" title="<%- @Ti('Sprachnachricht aufnehmen') %>">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v4"/><path d="M8 22h8"/></svg>
+              </button>
+            </div>
+            <div class="voiceRecorder-active js-voiceRecorderRecording hide">
+              <span class="voiceRecorder-dot" aria-hidden="true"></span>
+              <span class="voiceRecorder-time js-voiceRecorderTime">0:00</span>
+              <button type="button" class="voiceRecorder-stopButton js-voiceRecorderStop" title="<%- @Ti('Aufnahme beenden und senden') %>">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
+              </button>
+              <button type="button" class="voiceRecorder-cancelButton js-voiceRecorderCancel" title="<%- @Ti('Aufnahme verwerfen') %>">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+              </button>
+            </div>
+          </div>
           <div class="attachmentUpload hide">
             <div class="horizontal">
               <div class="u-highlight">
