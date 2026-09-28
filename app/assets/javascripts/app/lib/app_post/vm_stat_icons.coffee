@@ -75,3 +75,11 @@ App.VmStatIcons =
   chat: """
     <path d="M4.4 5.8h15.2v9.6h-9l-3.8 3.2v-3.2H4.4z"/>
   """
+
+  # Instagram Direct article badge (ticket_zoom article view "Channel" row) -
+  # a plain rounded-square camera outline, same house style as the rest of
+  # this set. Deliberately not added to the app-wide sprite (public/assets/
+  # images/icons.svg) per this feature's constraint of not touching it.
+  instagram: """
+    <rect x="3.6" y="3.6" width="16.8" height="16.8" rx="5"/><circle cx="12" cy="12" r="4.4"/><circle cx="16.4" cy="7.6" r="0.4" fill="currentColor" stroke="none"/>
+  """

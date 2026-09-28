@@ -162,9 +162,17 @@
       <div class="horizontal article-meta-row">
         <div class="article-meta-key"><%- @T('Channel') %></div>
         <div class="article-meta-value">
-          <% icon = @article.type.name.split(" ")%>
-          <%- @Icon(icon[0], 'article-meta-icon') %>
-          <%- @T(@article.type.name) %>
+          <% if @article.type.name is 'messenger message': %>
+            <%- @Icon('facebook', 'article-meta-icon') %>
+            <%- @T('Facebook Messenger') %>
+          <% else if @article.type.name is 'instagram message': %>
+            <%- @VmIcon('instagram', 'article-meta-icon') %>
+            <%- @T('Instagram') %>
+          <% else: %>
+            <% icon = @article.type.name.split(" ")%>
+            <%- @Icon(icon[0], 'article-meta-icon') %>
+            <%- @T(@article.type.name) %>
+          <% end %>
           <div class="article-meta-links">
           <% if @links: %>
             <% count = 0 %>

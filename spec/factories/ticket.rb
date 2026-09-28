@@ -58,5 +58,10 @@ FactoryBot.define do
       with_channel
       channel_name { :facebook_channel }
     end
+
+    factory :vm_meta_ticket do
+      with_channel
+      channel_name { :vm_meta_channel }
+    end
   end
 end
