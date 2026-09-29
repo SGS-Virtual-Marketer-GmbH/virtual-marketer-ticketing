@@ -25,6 +25,16 @@ class App.CluesBase extends App.Controller
 
     ###
     @position = 0
+
+    # Skip clues whose target is not on the page (e.g. a menu entry this fork
+    # hides). Measuring a missing element throws, and the backdrop then stays
+    # on top and swallows every click.
+    @clues = _.filter(@clues, (clue) => @appEl.find(clue.container).length > 0)
+    if !@clues.length
+      @options.onComplete()
+      @remove()
+      return
+
     @render()
 
     @controllerBind('ui:rerender', =>
