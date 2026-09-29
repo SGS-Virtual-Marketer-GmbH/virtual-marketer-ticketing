@@ -27,7 +27,7 @@ RSpec.describe 'VmWhatsappTemplates', type: :request do
     {
       name:               'media_header',
       language:           'de',
-      category:           'MARKETING',
+      category:           'UTILITY',
       header:             nil,
       header_format:      'IMAGE',
       body:               'Hallo',
@@ -40,8 +40,12 @@ RSpec.describe 'VmWhatsappTemplates', type: :request do
     }
   end
 
+  let(:marketing_template) do
+    approved_template.merge(name: 'fruehjahrsaktion', category: 'MARKETING', body: 'Hallo {{1}}, unsere Aktion {{2}} läuft.')
+  end
+
   before do
-    allow_any_instance_of(Whatsapp::Account::Templates).to receive(:all).and_return([approved_template, unsupported_template])
+    allow_any_instance_of(Whatsapp::Account::Templates).to receive(:all).and_return([approved_template, unsupported_template, marketing_template])
   end
 
   describe '#index' do
@@ -60,7 +64,15 @@ RSpec.describe 'VmWhatsappTemplates', type: :request do
         get "/api/v1/vm_whatsapp/templates?ticket_id=#{ticket.id}"
 
         expect(response).to have_http_status(:ok)
-        expect(json_response['templates'].map { |t| t['name'] }).to contain_exactly('order_update', 'media_header')
+        expect(json_response['templates'].map { |t| t['name'] }).to contain_exactly('order_update', 'media_header', 'fruehjahrsaktion')
+      end
+
+      it 'lists marketing templates as not sendable from a ticket' do
+        get "/api/v1/vm_whatsapp/templates?ticket_id=#{ticket.id}"
+
+        marketing = json_response['templates'].find { |t| t['name'] == 'fruehjahrsaktion' }
+        expect(marketing).to include('supported' => false, 'unsupported_reason' => include('Kampagne'))
+        expect(json_response['templates'].find { |t| t['name'] == 'order_update' }).to include('supported' => true)
       end
 
       context 'when the ticket has no WhatsApp channel' do
@@ -166,6 +178,17 @@ RSpec.describe 'VmWhatsappTemplates', type: :request do
 
           expect(response).to have_http_status(:unprocessable_content)
           expect(json_response['error']).to include(unsupported_template[:unsupported_reason])
+        end
+      end
+
+      context 'with a marketing template' do
+        it 'refuses without creating an article, even with every placeholder filled' do
+          expect do
+            post '/api/v1/vm_whatsapp/templates/send', params: base_params.merge(name: 'fruehjahrsaktion'), as: :json
+          end.not_to change(Ticket::Article, :count)
+
+          expect(response).to have_http_status(:unprocessable_content)
+          expect(json_response['error']).to include('Kampagne')
         end
       end
 

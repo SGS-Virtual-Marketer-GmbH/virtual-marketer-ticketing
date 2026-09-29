@@ -21,7 +21,7 @@ class VmWhatsappTemplatesController < ApplicationController
     channel = whatsapp_channel_for(ticket)
     return render_no_channel if !channel
 
-    render json: { templates: cached_templates(channel) }
+    render json: { templates: ticket_templates(channel) }
   rescue ActiveRecord::RecordNotFound
     render json: { error: __('Ticket wurde nicht gefunden.') }, status: :not_found
   rescue Whatsapp::Client::CloudAPIError => e
@@ -98,7 +98,25 @@ class VmWhatsappTemplatesController < ApplicationController
   def find_template(channel, name, language)
     return if name.blank? || language.blank?
 
-    cached_templates(channel).find { |t| t[:name] == name && t[:language] == language }
+    ticket_templates(channel).find { |t| t[:name] == name && t[:language] == language }
+  end
+
+  # Marketing templates are not sent from a ticket. Advertising over WhatsApp
+  # needs the contact's recorded opt-in, which only the campaign send path
+  # checks (against the tenant's consent ledger, right before each send). A
+  # ticket has no such check, so an agent could otherwise message a customer
+  # who never agreed to advertising, or one who opted out. Utility and
+  # authentication templates, the ones that reopen a conversation about the
+  # customer's own request, stay available.
+  def ticket_templates(channel)
+    cached_templates(channel).map do |template|
+      next template if template[:category].to_s.upcase != 'MARKETING'
+
+      template.merge(
+        supported:          false,
+        unsupported_reason: __('Werbevorlage: wird nur über eine Kampagne mit geprüfter Einwilligung versendet, nicht aus dem Ticket.'),
+      )
+    end
   end
 
   # Accepts either a plain value ("Max"), or a { name:, value: } object (the
