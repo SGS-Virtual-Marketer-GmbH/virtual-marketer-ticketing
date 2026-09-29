@@ -54,6 +54,9 @@
           <span class="vm-profile__muted"><%= @data.passenderAuftrag.datum %></span>
           <span class="vm-profile__orderTotal"><%= @data.passenderAuftrag.summeFormatiert %></span>
         </div>
+        <% if @data.passenderAuftrag.statusText: %>
+          <div class="vm-profile__muted"><%- @T('Status') %>: <%= @data.passenderAuftrag.statusText %></div>
+        <% end %>
         <% if @data.passenderAuftrag.positionen.length: %>
           <ul class="vm-profile__items">
             <% for item in @data.passenderAuftrag.positionen: %>
@@ -72,6 +75,77 @@
               </li>
             <% end %>
           </ul>
+        <% end %>
+        <%# Stock per article, where it is booked and what is inbound from open purchase orders: the same data as the internal note and the assistant (denta-care-agent orderStock.js). zulauf null means purchasing could not be read, so nothing is claimed either way. %>
+        <% lager = @data.passenderAuftrag.lager %>
+        <% if lager and lager.artikel and lager.artikel.length: %>
+          <div class="vm-profile__stock">
+            <div class="vm-profile__subHead">
+              <%- @T('Lager & Zulauf') %>
+              <% if lager.versandlager: %><span class="vm-profile__muted">· <%- @T('Versandlager') %> <%= lager.versandlager %></span><% end %>
+            </div>
+            <ul class="vm-profile__stockList">
+              <% for art in lager.artikel: %>
+                <% short = art.verfuegbar is null or (art.bestellt isnt null and art.verfuegbar < art.bestellt) %>
+                <li class="vm-profile__stockItem">
+                  <div class="vm-profile__stockHead">
+                    <span class="vm-profile__stockNr"><%= art.artikelnummer %></span>
+                    <span class="vm-profile__stockName" title="<%= art.name %>"><%= art.name %></span>
+                  </div>
+                  <div class="vm-profile__stockFigures">
+                    <span class="vm-profile__stockBadge vm-profile__stockBadge--<%= if short then 'short' else 'ok' %>">
+                      <%- @T('verfügbar') %> <%= if art.verfuegbar is null then '?' else art.verfuegbar %>
+                    </span>
+                    <% if art.bestellt isnt null: %><span class="vm-profile__muted"><%- @T('bestellt') %> <%= art.bestellt %></span><% end %>
+                    <% if art.reserviert: %><span class="vm-profile__muted"><%- @T('reserviert') %> <%= art.reserviert %></span><% end %>
+                  </div>
+                  <% if art.lagerorte.length: %>
+                    <div class="vm-profile__stockLocations">
+                      <% for ort in art.lagerorte: %>
+                        <span class="vm-profile__stockLocation<%= if ort.partnerlager then ' vm-profile__stockLocation--remote' else '' %>"><%= ort.lager %><% if ort.lagerplatz: %> / <%= ort.lagerplatz %><% end %>: <%= ort.menge %></span>
+                      <% end %>
+                    </div>
+                  <% else: %>
+                    <div class="vm-profile__muted"><%- @T('kein Bestand gebucht') %></div>
+                  <% end %>
+                  <% if art.zulauf is null: %>
+                    <div class="vm-profile__hint"><%- @T('Einkauf konnte nicht gelesen werden, Zulauf unbekannt.') %></div>
+                  <% else if art.zulauf.length: %>
+                    <ul class="vm-profile__inbound">
+                      <% for z in art.zulauf: %>
+                        <li>
+                          <div>
+                            <% if z.link: %>
+                              <a class="vm-profile__cta" href="<%= z.link %>" target="_blank" rel="noopener"><%- @T('Bestellung') %> <%= z.bestellung %></a>
+                            <% else: %>
+                              <span><%- @T('Bestellung') %> <%= z.bestellung %></span>
+                            <% end %>
+                            <span class="vm-profile__muted"><%= z.geliefert %> / <%= z.bestellt %> <%- @T('geliefert') %></span>
+                          </div>
+                          <div class="vm-profile__muted">
+                            <% if z.lieferant: %><%= z.lieferant %> · <% end %><%= z.statusText %><% if z.datumFormatiert: %> · <%- @T('vom') %> <%= z.datumFormatiert %><% end %>
+                          </div>
+                          <% if z.lieferterminFormatiert: %>
+                            <div class="vm-profile__inboundDate vm-profile__inboundDate--confirmed"><%- @T('Liefertermin bestätigt') %>: <%= z.lieferterminFormatiert %></div>
+                          <% else: %>
+                            <div class="vm-profile__inboundDate"><%- @T('Kein bestätigter Liefertermin') %><% if z.wunschterminFormatiert: %> (<%- @T('Wunschtermin') %> <%= z.wunschterminFormatiert %>)<% end %></div>
+                          <% end %>
+                        </li>
+                      <% end %>
+                    </ul>
+                  <% else if short: %>
+                    <div class="vm-profile__hint"><%- @T('Keine offene Einkaufsbestellung für diesen Artikel.') %></div>
+                  <% end %>
+                </li>
+              <% end %>
+            </ul>
+            <% if lager.weitereArtikel: %>
+              <div class="vm-profile__muted"><%- @T('und') %> <%= lager.weitereArtikel %> <%- @T('weitere Artikel, siehe Auftrag in Xentral') %></div>
+            <% end %>
+            <% for hinweis in lager.hinweise: %>
+              <div class="vm-profile__hint"><%= hinweis %></div>
+            <% end %>
+          </div>
         <% end %>
         <% if @data.passenderAuftrag.sendungen and @data.passenderAuftrag.sendungen.length: %>
           <ul class="vm-profile__shipments">
