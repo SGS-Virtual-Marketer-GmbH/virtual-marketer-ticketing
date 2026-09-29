@@ -1093,9 +1093,15 @@
    a long ticket scrolls.
    --------------------------------------------------------------------------- */
 
+/* The task container is a horizontal flexbox, so without flex/min-width the
+   workspace takes the width of the unwrapped category bar. On a narrow window
+   it then overflows, and focusing the assistant input on ticket open scrolls
+   the whole screen sideways. */
 .vm-work {
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
   height: 100vh;
   min-height: 0;
   background: var(--vm-gray-100);
