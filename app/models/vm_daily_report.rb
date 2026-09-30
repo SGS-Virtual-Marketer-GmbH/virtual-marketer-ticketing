@@ -282,6 +282,7 @@ class VmDailyReport
         .kpi     { flex: 1 1 120px; background: #f8f9fc; border-radius: 5px; padding: 12px 16px; text-align: center; }
         .kpi .val { font-size: 26px; font-weight: bold; color: #1a2a4a; }
         .kpi .lbl { font-size: 11px; color: #777; margin-top: 2px; }
+        .kpi .sub { font-size: 10px; color: #aaa; margin-top: 3px; }
         table  { width: 100%; border-collapse: collapse; font-size: 13px; }
         th     { text-align: left; color: #777; font-weight: normal; font-size: 12px; padding: 4px 8px 4px 0; border-bottom: 1px solid #eee; }
         td     { padding: 5px 8px 5px 0; border-bottom: 1px solid #f3f3f3; }
@@ -301,8 +302,7 @@ class VmDailyReport
           <h2>Ticket-Eingang gestern</h2>
           <div class="kpi-row">
             <div class="kpi"><div class="val">#{total}</div><div class="lbl">Tickets eingegangen</div></div>
-            <div class="kpi"><div class="val">#{classified}</div><div class="lbl">KI-klassifiziert (#{pct}%)</div></div>
-            <div class="kpi"><div class="val">#{prehandled}</div><div class="lbl">vorab erkannt</div></div>
+            <div class="kpi"><div class="val">#{classified}</div><div class="lbl">KI-klassifiziert (#{pct}%)</div><div class="sub">#{prehandled} deterministisch &middot; #{classified - prehandled} KI</div></div>
             #{voicemails.positive? ? "<div class=\"kpi\"><div class=\"val\">#{voicemails}</div><div class=\"lbl\">Voicemails</div></div>" : ''}
             #{faxes.positive? ? "<div class=\"kpi\"><div class=\"val\">#{faxes}</div><div class=\"lbl\">Faxe</div></div>" : ''}
           </div>
