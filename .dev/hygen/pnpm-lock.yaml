@@ -202,8 +202,8 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
-  js-yaml@3.15.1:
-    resolution: {integrity: sha512-S99WuO3HlhO3XN41EtYUNl9zzXjoJx7QvmipxsJVxtCBT0YHEFy+iOJhjSvrmV12nYhWpZaM8lPHkJm0yUMbag==}
+  js-yaml@3.15.2:
+    resolution: {integrity: sha512-6EuL879VkRA+1Cz578mKMiKvjPNEuk6+r1JaFzoSWejZmtf7xWbIyw1e3KkxlkzTIt9Taw6JBhEppG7utc1P+w==}
     hasBin: true
 
   jsonfile@6.2.1:
@@ -489,7 +489,7 @@ snapshots:
 
   front-matter@4.0.2:
     dependencies:
-      js-yaml: 3.15.1
+      js-yaml: 3.15.2
 
   fs-extra@10.1.0:
     dependencies:
@@ -561,7 +561,7 @@ snapshots:
       filelist: 1.0.6
       picocolors: 1.1.1
 
-  js-yaml@3.15.1:
+  js-yaml@3.15.2:
     dependencies:
       argparse: 1.0.10
       esprima: 4.0.1

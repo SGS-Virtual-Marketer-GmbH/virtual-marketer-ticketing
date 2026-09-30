@@ -9,7 +9,7 @@
 # pnpm 11 reads overrides from here, not from package.json.
 overrides:
   brace-expansion@1: ^1.1.16
-  svgo@2: ^2.8.3
+  svgo@2: ^2.8.4
 
 # es5-ext's install script only prints a sponsorship banner. Declared false
 # rather than left unanswered, because pnpm otherwise writes a placeholder into
