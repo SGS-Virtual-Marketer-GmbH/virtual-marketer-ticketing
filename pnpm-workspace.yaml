@@ -22,10 +22,12 @@ overrides:
   postcss@8: ^8.5.23
   fast-uri@3: ^3.1.6
   js-yaml@5: ^5.4.1
-  brace-expansion@2: ^2.1.2
+  brace-expansion@2: ^2.1.7
   # The parents of these three allow the patched version, but under pnpm 11
   # `pnpm update --depth Infinity` still left them on the old one, so they are
   # pinned here too. browserslist also pulls a newer caniuse-lite with it.
   browserslist@4: ^4.28.7
   baseline-browser-mapping@2: ^2.11.0
   vitest@4: ^4.1.11
+  "@babel/core@7": ^7.29.6
+  "@babel/plugin-transform-modules-systemjs@7": ^7.29.4

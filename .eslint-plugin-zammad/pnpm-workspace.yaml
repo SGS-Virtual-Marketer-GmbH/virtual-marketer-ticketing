@@ -7,3 +7,8 @@
 
 # Restore old default behavior like in pnpm v10.
 verifyDepsBeforeRun: false
+
+# mocha 11 pins serialize-javascript 6, and only 7.0.5 is fixed. 7 keeps the
+# same CommonJS entry point; its breaking change is Node >= 20.
+overrides:
+  serialize-javascript@6: ^7.0.5
