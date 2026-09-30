@@ -170,11 +170,10 @@ class VmDailyReport
       .group(:tag_item_id)
       .count
 
-    # invert the id => name map for the result
-    id_to_name = items.transform_keys { |name, item| item.id }.invert
-    # rebuild: name => count
+    # { tag_item_id => tag_name } for the reverse lookup
+    id_to_name = items.to_h { |name, item| [item.id, name] }
     counts.each_with_object({}) do |(tag_item_id, count), acc|
-      name = items.find { |_n, item| item.id == tag_item_id }&.first
+      name = id_to_name[tag_item_id]
       acc[name] = count if name
     end
   end
