@@ -229,12 +229,18 @@ class App.VmAssistant extends App.Controller
     card.data('done', true)
     card.find('button').prop('disabled', true)
     @replyStatus(card, __('Wird gesendet …'))
-    App.VmReplyHelper.send(context, text, (error) =>
+    App.VmReplyHelper.send(context, text, (error, detail) =>
       if error
         card.data('done', false)
         card.find('button').prop('disabled', false)
         button.data('armed', false).removeClass('vm-reply__btn--armed').text(__('Senden'))
-        message = if error is 403 then __('Dafür fehlen dir die Rechte an diesem Ticket.') else __('Die Antwort konnte nicht gesendet werden. Es wurde nichts verschickt.')
+        message =
+          if error is 403
+            __('Dafür fehlen dir die Rechte an diesem Ticket.')
+          else if /no email address/i.test(String(detail or ''))
+            __('Die Gruppe dieses Tickets hat keine Absenderadresse. Bitte im Admin-Bereich eine E-Mail-Adresse für die Gruppe hinterlegen. Es wurde nichts verschickt.')
+          else
+            __('Die Antwort konnte nicht gesendet werden. Es wurde nichts verschickt.')
         @replyStatus(card, message, true)
         return
       card.find('.js-vmReplyText').prop('readonly', true)

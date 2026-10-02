@@ -99,7 +99,7 @@ class App.VmReplyHelper
       data: JSON.stringify(attrs)
       processData: true
       success: (data) -> callback(null, data)
-      error: (xhr) -> callback(xhr.status or 'error')
+      error: (xhr) -> callback(xhr.status or 'error', xhr.responseJSON?.error or xhr.responseText)
     )
 
   # Park the reply as the ticket's shared draft. The agent sees "Entwurf
