@@ -199,6 +199,9 @@ class App.VmAssistant extends App.Controller
     $(e.currentTarget).prop('disabled', true)
     App.VmReplyHelper.saveDraft(context, text, (error) =>
       $(e.currentTarget).prop('disabled', false)
+      if error is 'exists'
+        @replyStatus(card, __('Zu diesem Ticket gibt es schon einen Entwurf, von einer Kollegin, einem Kollegen oder von Virtual Marketer. Er wurde nicht überschrieben. Öffne das Ticket, dort kannst du den vorhandenen Entwurf übernehmen oder den Text von hand einfügen.'), true)
+        return
       if error
         @replyStatus(card, __('Der Entwurf konnte nicht gespeichert werden.'), true)
         return
@@ -217,13 +220,16 @@ class App.VmAssistant extends App.Controller
     return if !context or !context.canMail or !text.trim() or card.data('done')
 
     if !button.data('armed')
-      button.data('armed', true).addClass('vm-reply__btn--armed')
+      button.data('armed', true).data('armedAt', Date.now()).addClass('vm-reply__btn--armed')
       button.text("#{__('Ja, jetzt an')} #{context.to} #{__('senden')}")
       clearTimeout(button.data('timer'))
       button.data('timer', setTimeout(=>
         button.data('armed', false).removeClass('vm-reply__btn--armed').text(__('Senden'))
       , 8000))
       return
+
+    # A double click arms and sends in one go and the recipient is never read.
+    return if Date.now() - (button.data('armedAt') or 0) < 700
 
     clearTimeout(button.data('timer'))
     card.data('done', true)
@@ -243,6 +249,7 @@ class App.VmAssistant extends App.Controller
             __('Die Antwort konnte nicht gesendet werden. Es wurde nichts verschickt.')
         @replyStatus(card, message, true)
         return
+      App.VmReplyHelper.claimIfUnowned(context)
       card.find('.js-vmReplyText').prop('readonly', true)
       card.find('.js-vmReplyCopy').prop('disabled', false)
       button.text(__('Gesendet'))

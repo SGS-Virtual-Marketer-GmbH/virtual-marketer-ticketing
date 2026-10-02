@@ -104,18 +104,44 @@ class App.VmReplyHelper
 
   # Park the reply as the ticket's shared draft. The agent sees "Entwurf
   # verfügbar" in the reply box and applies it with one click; nothing is sent.
+  # A draft that already exists belongs to a colleague or to the pipeline (an
+  # invoice reply with its PDF), and the PUT would replace its text, so look
+  # first and refuse with callback('exists') instead of overwriting.
   @saveDraft: (context, text, callback) ->
+    url = "#{App.Config.get('api_path')}/tickets/#{context.ticket.id}/shared_draft"
+    # show answers 200 with shared_draft_id null when there is no draft.
+    put = =>
+      App.Ajax.request(
+        type: 'PUT'
+        url:  url
+        data: JSON.stringify(
+          form_id:           App.ControllerForm.formId()
+          new_article:       @articleAttributes(context, text)
+          ticket_attributes: {}
+        )
+        processData: true
+        success: (data) -> callback(null, data)
+        error: (xhr) -> callback(xhr.status or 'error')
+      )
+    App.Ajax.request(
+      type: 'GET'
+      url:  url
+      processData: true
+      success: (data) -> if data?.shared_draft_id then callback('exists') else put()
+      error: (xhr) -> callback(xhr.status or 'error')
+    )
+
+  # After a reply went out from here, an unowned ticket belongs to the agent
+  # who answered it. Posting an article does not set an owner, so without this
+  # the ticket stays in the unowned queue and a colleague can answer it again.
+  # Best effort: the mail is already gone, a failure here changes nothing.
+  @claimIfUnowned: (context) ->
+    return if context.ticket.owner_id isnt 1
     App.Ajax.request(
       type: 'PUT'
-      url:  "#{App.Config.get('api_path')}/tickets/#{context.ticket.id}/shared_draft"
-      data: JSON.stringify(
-        form_id:           App.ControllerForm.formId()
-        new_article:       @articleAttributes(context, text)
-        ticket_attributes: {}
-      )
+      url:  "#{App.Config.get('api_path')}/tickets/#{context.ticket.id}"
+      data: JSON.stringify(owner_id: App.Session.get('id'))
       processData: true
-      success: (data) -> callback(null, data)
-      error: (xhr) -> callback(xhr.status or 'error')
     )
 
   # Fill the open ticket's reply box (ticket zoom only). The signature is added

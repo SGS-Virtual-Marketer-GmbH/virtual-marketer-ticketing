@@ -73,7 +73,7 @@ class VmDailyReport
 
   def initialize(date: Date.yesterday, recipients: nil)
     @date       = date
-    @recipients = Array(recipients || ENV.fetch('VM_DAILY_REPORT_RECIPIENTS', 'info@virtual-marketer.de').split(',').map(&:strip))
+    @recipients = Array(recipients || ENV.fetch('VM_DAILY_REPORT_RECIPIENTS', 'info@virtual-marketer.de').split(',')).map(&:strip).reject(&:blank?)
   end
 
   def stats
@@ -88,6 +88,10 @@ class VmDailyReport
   # via the instance's own mail channel. Triggers and agent notifications are
   # suppressed so the report ticket does not appear in any queue.
   def deliver!
+    # An empty list would still create a ticket (find_by(email: nil) matches any
+    # user without an address) and mail nobody, silently.
+    raise 'VmDailyReport: no recipients configured (VM_DAILY_REPORT_RECIPIENTS)' if recipients.empty?
+
     channel_email = sending_channel_email
     group         = sending_group
 
@@ -300,16 +304,16 @@ class VmDailyReport
   def ai_stats
     base  = Ticket::Article.where(created_at: day_range, internal: true)
     notes = base.where("body LIKE '%Klassifikation</h3>%'").pluck(:ticket_id, :body)
-    pre   = base.where("body LIKE '%Vorab-Erkennung</h3>%'").pluck(:ticket_id).uniq.size
+    pre_ids = base.where("body LIKE '%Vorab-Erkennung</h3>%'").pluck(:ticket_id).uniq
 
     # A ticket can carry two notes if the pipeline ran twice; count it once.
     by_ticket = notes.each_with_object({}) { |(tid, body), acc| acc[tid] = body }
     bodies    = by_ticket.values
 
     {
-      tickets_with_note:  by_ticket.size + pre,
+      tickets_with_note:  (by_ticket.keys | pre_ids).size,
       needs_reply:        by_ticket.size,
-      pre_handled:        pre,
+      pre_handled:        (pre_ids - by_ticket.keys).size,
       xentral_lookups:    bodies.sum { |b| b.scan('<b>Xentral (').size },
       customers_found:    bodies.count { |b| b.include?('module=adresse') },
       orders_found:       bodies.count { |b| b.include?('module=auftrag') },
@@ -407,7 +411,8 @@ class VmDailyReport
     total = s[:created_total]
 
     pre_rows   = PREHANDLED.filter_map { |t, (label, note)| (tag[t] || 0).positive? ? [label, note, tag[t]] : nil }
-    prehandled = pre_rows.sum { |_, _, n| n }
+    # A ticket can carry two pre-handling tags; never report more than all.
+    prehandled = [pre_rows.sum { |_, _, n| n }, total].min
     lines      = summary_lines(s, ai, prehandled)
 
     <<~HTML
