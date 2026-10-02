@@ -102,7 +102,7 @@ class App.VmAgentTiles extends App.Controller
     }
     {
       key: 'vertrieb'
-      name: __('Produktberatung')
+      name: __('Vertrieb & Produktberatung')
       icon: 'tag'
       description: __('Beantwortet Produkt-, Verfügbarkeits- und Angebotsfragen, ohne interne Daten preiszugeben.')
       can: [__('Artikel finden'), __('Antwortentwurf')]
