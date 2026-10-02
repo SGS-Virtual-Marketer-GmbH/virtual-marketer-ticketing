@@ -564,6 +564,12 @@ class App.TicketZoom extends App.Controller
         el:        elLocal.find('.js-ticketMetaContainer')
       )
 
+      if @ticket.currentView() is 'agent'
+        @collisionBanner = new App.VmCollisionBanner(
+          taskKey: @taskKey
+          el:      elLocal.find('.js-vmCollab')
+        )
+
       @attributeBar = new App.TicketZoomAttributeBar(
         ticket:        @ticket
         el:            elLocal.find('.js-attributeBar')

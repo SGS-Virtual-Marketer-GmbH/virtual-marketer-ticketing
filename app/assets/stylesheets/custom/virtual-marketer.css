@@ -2246,3 +2246,28 @@ a.vm-profile__orderNr:hover {
   font-size: 13px;
   color: var(--vm-gray-800);
 }
+
+/* Colleague has the same ticket open (App.VmCollisionBanner). */
+.vm-collab {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0 0 12px 0;
+  padding: 10px 14px;
+  border-radius: 6px;
+  border-left: 5px solid;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.vm-collab.hide { display: none; }
+.vm-collab-icon { font-size: 18px; line-height: 1.2; }
+.vm-collab--editing {
+  background: #fff4e5;
+  border-color: #e08a00;
+  color: #5c3a00;
+}
+.vm-collab--viewing {
+  background: var(--vm-gray-100);
+  border-color: var(--vm-blue);
+  color: var(--vm-gray-700);
+}
