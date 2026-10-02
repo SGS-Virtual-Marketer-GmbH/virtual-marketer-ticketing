@@ -351,83 +351,71 @@ class VmDailyReport
     ENV.fetch('VM_DAILY_REPORT_FROM_NAME', 'Virtual Marketer AI')
   end
 
-
   # -------------------------------------------------------------------------
   # HTML rendering
   #
   # Mail clients ignore <style> blocks and flexbox (Outlook renders with the
-  # Word engine), so everything is table layout with inline styles. No
-  # external fonts or images.
+  # Word engine), so everything is table layout with inline styles, bgcolor
+  # attributes next to every background, and pixel widths on bar cells (a
+  # percentage-width table nested in a cell collapses in Gmail).
+  #
+  # Every sentence in the report comes from a fixed template filled with
+  # numbers from the database. Nothing is estimated and nothing is written by
+  # a language model, so the same data always yields the same report.
+  #
+  # Colours are the Virtual Marketer palette (virtual-marketer.css).
   # -------------------------------------------------------------------------
 
-  FONT   = "font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;".freeze
-  NAVY   = '#1a2a4a'.freeze
-  BLUE   = '#3a7bd5'.freeze
-  INK    = '#222b3a'.freeze
-  MUTED  = '#6b7686'.freeze
-  LINE   = '#e6e9ef'.freeze
-  CARD   = '#f4f6fa'.freeze
-  GREEN  = '#2e8b57'.freeze
+  FONT      = "font-family:Inter,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;".freeze
+  RED       = '#94152b'.freeze
+  RED_SOFT  = '#fbf2f3'.freeze
+  BLUE      = '#66a3ce'.freeze
+  BLUE_SOFT = '#eef5fa'.freeze
+  INK       = '#1a202c'.freeze
+  TEXT      = '#2d3748'.freeze
+  MUTED     = '#4a5568'.freeze
+  SOFT      = '#718096'.freeze
+  LINE      = '#e2e8f0'.freeze
+  CARD      = '#f7fafc'.freeze
+  GREEN     = '#1a7a3c'.freeze
+  PAGE      = '#edf2f7'.freeze
+  BAR_MAX_PX = 290
 
   WEEKDAYS = %w[Sonntag Montag Dienstag Mittwoch Donnerstag Freitag Samstag].freeze
   MONTHS   = %w[Januar Februar März April Mai Juni Juli August September Oktober November Dezember].freeze
 
+  # Tickets Virtual Marketer recognises up front as needing no answer.
+  PREHANDLED = {
+    'automatisierte_benachrichtigung' => ['Automatische Meldungen', 'Mails von Systemen, zum Beispiel Versand- oder Zahlungsmeldungen.'],
+    'ai_newsletter_detected'          => ['Newsletter', 'Newsletter und Abmeldungen.'],
+    'ai_creditreform_detected'        => ['Creditreform', 'Anfragen der Auskunftei Creditreform.'],
+  }.freeze
+
   def build_html
-    s   = stats
-    tag = s[:tag_counts]
-    ai  = s[:ai]
+    s     = stats
+    tag   = s[:tag_counts]
+    ai    = s[:ai]
+    total = s[:created_total]
 
-    classified = tag['ai_classified'] || 0
-    prehandled = %w[automatisierte_benachrichtigung ai_newsletter_detected ai_creditreform_detected].sum { |t| tag[t] || 0 }
-    total      = s[:created_total]
-
-    category_rows = CATEGORY_TAGS.filter_map do |t|
-      n = tag[t] || 0
-      n.positive? ? [CATEGORY_LABELS.fetch(t, t), n] : nil
-    end.sort_by { |_, n| -n }
-    prehandled_rows = %w[automatisierte_benachrichtigung ai_newsletter_detected ai_creditreform_detected].filter_map do |t|
-      n = tag[t] || 0
-      n.positive? ? [CATEGORY_LABELS.fetch(t, t), n] : nil
-    end
-
-    cards = [
-      kpi_card(total, 'Tickets eingegangen', nil),
-      kpi_card(s[:closed_yesterday], 'erledigt', nil),
-      kpi_card(s[:open_now], 'offen gesamt', nil),
-      (s[:first_response_measured] && s[:avg_first_response_minutes] ? kpi_card(duration(s[:avg_first_response_minutes]), 'Erstantwort', '30 Tage Ø') : nil),
-    ].compact
-    extra = []
-    extra << [tag['voicemail'], 'Voicemails'] if (tag['voicemail'] || 0).positive?
-    extra << [tag['fax'], 'Faxe']             if (tag['fax'] || 0).positive?
+    pre_rows   = PREHANDLED.filter_map { |t, (label, note)| (tag[t] || 0).positive? ? [label, note, tag[t]] : nil }
+    prehandled = pre_rows.sum { |_, _, n| n }
+    lines      = summary_lines(s, ai, prehandled)
 
     <<~HTML
       <!DOCTYPE html>
-      <html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Tagesbericht #{h date.strftime('%d.%m.%Y')}</title></head>
-      <body style="margin:0;padding:0;background:#eef1f6;">
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#eef1f6;"><tr><td align="center" style="padding:24px 12px;">
-      <table role="presentation" width="640" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:640px;background:#ffffff;border-radius:8px;overflow:hidden;#{FONT}color:#{INK};">
+      <html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>Tagesbericht #{h date.strftime('%d.%m.%Y')}</title></head>
+      <body style="margin:0;padding:0;background:#{PAGE};" bgcolor="#{PAGE}">
+      <div style="display:none;max-height:0;overflow:hidden;font-size:1px;line-height:1px;color:#{PAGE};">#{h lines.first}</div>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#{PAGE}" style="background:#{PAGE};"><tr><td align="center" style="padding:24px 12px;">
+      <table role="presentation" width="640" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="width:100%;max-width:640px;background:#ffffff;#{FONT}color:#{TEXT};">
 
-        <tr><td style="background:#{NAVY};padding:26px 32px 22px;">
-          <div style="#{FONT}font-size:12px;letter-spacing:1.2px;text-transform:uppercase;color:#9fb3d1;">Tagesbericht</div>
-          <div style="#{FONT}font-size:24px;font-weight:700;color:#ffffff;margin-top:6px;">#{h long_date(date)}</div>
-          <div style="#{FONT}font-size:13px;color:#9fb3d1;margin-top:6px;">#{h(Setting.get('fqdn') || 'Ticketing')} &middot; Virtual Marketer</div>
-        </td></tr>
-
-        <tr><td style="padding:24px 32px 8px;">
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>#{cards.join}</tr></table>
-          #{extra.any? ? "<div style=\"#{FONT}font-size:12px;color:#{MUTED};margin-top:12px;\">Darunter: " + extra.map { |n, l| "#{n} #{l}" }.join(', ') + '</div>' : ''}
-        </td></tr>
-
-        #{category_rows.any? ? category_section(category_rows, prehandled_rows, classified, prehandled, total) : ''}
-        #{ai_section(ai, total)}
-        #{s[:agents].any? ? agent_section(s[:agents]) : ''}
-
-        <tr><td style="padding:20px 32px 28px;#{FONT}font-size:11px;line-height:1.6;color:#{MUTED};">
-          Erstellt automatisch am #{Time.zone.now.in_time_zone('Europe/Berlin').strftime('%d.%m.%Y um %H:%M')} Uhr.
-          Erstantwort: Durchschnitt der letzten 30 Tage, gemessen ab Anbindung des Postfachs.
-          Aktive Zeit: Zeitspanne zwischen Änderungen im System, Pausen über #{ACTIVE_GAP_MINUTES} Minuten zählen nicht mit; reines Ansehen eines Tickets wird nicht erfasst.
-          Antwortzeit: Median von der letzten Kundennachricht bis zur Antwort, rund um die Uhr gerechnet.
-        </td></tr>
+        #{header_row}
+        #{overview_row(lines)}
+        #{numbers_row(s)}
+        #{categories_row(tag, total, prehandled, pre_rows)}
+        #{prepared_row(ai)}
+        #{team_row(s[:agents])}
+        #{footer_row}
 
       </table>
       </td></tr></table>
@@ -435,125 +423,305 @@ class VmDailyReport
     HTML
   end
 
-  def kpi_card(value, label, sub)
+  # --- text ----------------------------------------------------------------
+
+  # Fixed sentence templates. The first one doubles as the inbox preview text.
+  def summary_lines(s, ai, prehandled)
+    tag    = s[:tag_counts]
+    total  = s[:created_total]
+    closed = s[:closed_yesterday]
+
+    lines = ["Gestern #{total == 1 ? 'ist 1 neues Ticket' : "sind #{total} neue Tickets"} eingegangen, #{closed} #{closed == 1 ? 'wurde' : 'wurden'} erledigt. Offen sind aktuell #{s[:open_now]} Tickets."]
+
+    if total.positive?
+      real = [total - prehandled, 0].max
+      lines << "#{prehandled} von #{total} neuen Tickets (#{prehandled * 100 / total} %) hat Virtual Marketer vorab als Newsletter, automatische Meldung oder Creditreform erkannt. Sie brauchen keine Antwort."
+      lines << "#{real} #{real == 1 ? 'Ticket braucht' : 'Tickets brauchen'} eine Bearbeitung durch das Team."
+    end
+
+    drafts = ai ? ai[:drafts] : 0
+    lines << "Für #{drafts} #{drafts == 1 ? 'Ticket liegt ein Antwortentwurf' : 'Tickets liegt ein Antwortentwurf'} bereit. Das ist nur ein Vorschlag, es wird nichts automatisch gesendet." if drafts.positive?
+
+    channels = []
+    channels << "#{tag['voicemail']} #{tag['voicemail'] == 1 ? 'Voicemail' : 'Voicemails'}" if (tag['voicemail'] || 0).positive?
+    channels << "#{tag['fax']} #{tag['fax'] == 1 ? 'Fax' : 'Faxe'}" if (tag['fax'] || 0).positive?
+    if channels.any?
+      singular = channels.size == 1 && [tag['voicemail'], tag['fax']].compact.sum == 1
+      lines << "Darunter #{singular ? 'war' : 'waren'} #{channels.join(' und ')}."
+    end
+
+    lines << "Gestern kamen mehr Tickets herein (#{total}) als erledigt wurden (#{closed})." if total > closed
+    lines
+  end
+
+  # --- building blocks -----------------------------------------------------
+
+  def header_row
+    logo = "#{Setting.get('http_type')}://#{Setting.get('fqdn')}/apple-touch-icon.png"
+    org  = Setting.get('organization').presence || 'Ticketsystem'
+    <<~HTML
+      <tr><td height="6" bgcolor="#{RED}" style="height:6px;line-height:6px;font-size:1px;background:#{RED};">&nbsp;</td></tr>
+      <tr><td bgcolor="#ffffff" style="padding:26px 32px 24px;border-bottom:1px solid #{LINE};">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+          <td width="58" valign="middle"><img src="#{h logo}" width="44" height="44" alt="Virtual Marketer" style="display:block;border:0;border-radius:10px;"></td>
+          <td valign="middle">
+            <div style="#{FONT}font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#{RED};">Tagesbericht</div>
+            <div style="#{FONT}font-size:22px;font-weight:700;color:#{INK};line-height:1.25;margin-top:3px;">#{h long_date(date)}</div>
+          </td>
+          <td valign="middle" align="right" style="#{FONT}font-size:12px;line-height:1.5;color:#{SOFT};">Virtual Marketer<br>#{h org}</td>
+        </tr></table>
+      </td></tr>
+    HTML
+  end
+
+  def overview_row(lines)
+    items = lines.map do |l|
+      <<~LI
+        <tr>
+          <td width="18" valign="top" style="padding:5px 0 0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td width="7" height="7" bgcolor="#{RED}" style="width:7px;height:7px;font-size:1px;line-height:1px;background:#{RED};">&nbsp;</td></tr></table></td>
+          <td style="padding:0 0 9px;#{FONT}font-size:15px;line-height:1.5;color:#{INK};">#{h l}</td>
+        </tr>
+      LI
+    end.join
+
+    <<~HTML
+      <tr><td bgcolor="#ffffff" style="padding:28px 32px 0;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#{RED_SOFT}" style="background:#{RED_SOFT};border-left:4px solid #{RED};"><tr><td style="padding:18px 20px 10px;">
+          <div style="#{FONT}font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#{RED};padding-bottom:10px;">Auf einen Blick</div>
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">#{items}</table>
+        </td></tr></table>
+      </td></tr>
+    HTML
+  end
+
+  # label, title and a plain-language intro, then the section body.
+  def section(label, title, intro, body)
+    <<~HTML
+      <tr><td bgcolor="#ffffff" style="padding:36px 32px 0;">
+        <div style="#{FONT}font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#{RED};">#{h label}</div>
+        <div style="#{FONT}font-size:20px;font-weight:700;color:#{INK};line-height:1.25;margin-top:4px;">#{h title}</div>
+        <div style="#{FONT}font-size:14px;line-height:1.55;color:#{MUTED};margin-top:6px;">#{h intro}</div>
+        #{body}
+      </td></tr>
+    HTML
+  end
+
+  def kpi_cell(value, label, note, side)
+    pad = side == :left ? 'padding:0 6px 12px 0;' : 'padding:0 0 12px 6px;'
     <<~TD
-      <td width="25%" valign="top" style="padding:0 4px;">
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#{CARD};border-radius:6px;"><tr><td align="center" style="padding:14px 6px;">
-          <div style="#{FONT}font-size:26px;font-weight:700;color:#{NAVY};line-height:1.1;">#{h value}</div>
-          <div style="#{FONT}font-size:11px;color:#{MUTED};margin-top:4px;">#{h label}</div>
-          #{sub ? "<div style=\"#{FONT}font-size:10px;color:#9aa4b2;margin-top:2px;\">#{h sub}</div>" : ''}
+      <td width="50%" valign="top" style="#{pad}">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#{CARD}" style="background:#{CARD};border-left:4px solid #{BLUE};"><tr><td style="padding:14px 16px 15px;">
+          <div style="#{FONT}font-size:30px;font-weight:700;color:#{INK};line-height:1.15;">#{h value}</div>
+          <div style="#{FONT}font-size:14px;font-weight:700;color:#{TEXT};margin-top:3px;">#{h label}</div>
+          <div style="#{FONT}font-size:12px;line-height:1.5;color:#{SOFT};margin-top:4px;">#{h note}</div>
         </td></tr></table>
       </td>
     TD
   end
 
-  def section_open(title, lead = nil)
-    <<~HTML
-      <tr><td style="padding:22px 32px 4px;">
-        <div style="#{FONT}font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#{BLUE};padding-bottom:6px;border-bottom:2px solid #{LINE};">#{h title}</div>
-        #{lead ? "<div style=\"#{FONT}font-size:12px;line-height:1.5;color:#{MUTED};margin-top:8px;\">#{h lead}</div>" : ''}
+  # --- sections ------------------------------------------------------------
+
+  def numbers_row(s)
+    first = if s[:first_response_measured] && s[:avg_first_response_minutes]
+              duration_long(s[:avg_first_response_minutes])
+            else
+              'noch offen'
+            end
+
+    grid = <<~HTML
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:16px;">
+        <tr>
+          #{kpi_cell(s[:created_total], 'Neue Tickets', 'Gestern eingegangen. Zusammengeführte Duplikate sind nicht mitgezählt.', :left)}
+          #{kpi_cell(s[:closed_yesterday], 'Erledigt', 'Gestern auf Erledigt gesetzt, egal wann das Ticket eingegangen ist.', :right)}
+        </tr>
+        <tr>
+          #{kpi_cell(s[:open_now], 'Offen insgesamt', 'Alle Tickets, die beim Erstellen dieses Berichts noch nicht erledigt waren, auch ältere.', :left)}
+          #{kpi_cell(first, 'Erstantwort (Ø 30 Tage)', 'Zeit vom Eingang bis zur ersten Antwort an den Kunden, im Schnitt der letzten 30 Tage. Wird erst gemessen, seit das Postfach angebunden ist.', :right)}
+        </tr>
+      </table>
     HTML
+
+    section('1 · Zahlen des Tages', 'Wie viel war los?', 'Die vier wichtigsten Zahlen für gestern.', grid)
   end
 
-  def category_section(category_rows, prehandled_rows, classified, prehandled, total)
-    max  = [category_rows.map(&:last).max || 1, 1].max
-    rows = category_rows.map do |label, n|
-      pct = [(n * 100.0 / max).round, 3].max
+  def categories_row(tag, total, prehandled, pre_rows)
+    return '' if total.zero?
+
+    rows = CATEGORY_TAGS.filter_map do |t|
+      n = tag[t] || 0
+      n.positive? ? [CATEGORY_LABELS.fetch(t, t), n] : nil
+    end.sort_by { |_, n| -n }
+    max = [rows.map(&:last).max || 1, 1].max
+
+    bars = rows.map do |label, n|
+      px  = [(n * BAR_MAX_PX.to_f / max).round, 4].max
+      pct = n * 100 / total
       <<~TR
         <tr>
-          <td width="110" style="padding:6px 0;#{FONT}font-size:13px;color:#{INK};">#{h label}</td>
-          <td style="padding:6px 8px;"><table role="presentation" width="#{pct}%" cellpadding="0" cellspacing="0" border="0"><tr><td height="10" style="background:#{BLUE};border-radius:3px;font-size:1px;line-height:10px;">&nbsp;</td></tr></table></td>
-          <td width="36" align="right" style="padding:6px 0;#{FONT}font-size:13px;font-weight:700;color:#{NAVY};">#{n}</td>
+          <td width="118" style="padding:7px 0;#{FONT}font-size:14px;color:#{TEXT};">#{h label}</td>
+          <td style="padding:7px 8px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td width="#{px}" height="14" bgcolor="#{BLUE}" style="width:#{px}px;height:14px;line-height:14px;font-size:1px;background:#{BLUE};">&nbsp;</td></tr></table></td>
+          <td width="30" align="right" style="padding:7px 0;#{FONT}font-size:14px;font-weight:700;color:#{INK};">#{n}</td>
+          <td width="44" align="right" style="padding:7px 0;#{FONT}font-size:12px;color:#{SOFT};">#{pct} %</td>
         </tr>
       TR
     end.join
 
-    pre = prehandled_rows.map do |label, n|
-      "<tr><td style=\"padding:3px 0;#{FONT}font-size:12px;color:#{MUTED};\">#{h label}</td><td></td><td align=\"right\" style=\"padding:3px 0;#{FONT}font-size:12px;color:#{MUTED};\">#{n}</td></tr>"
-    end.join
+    uncategorised = total - prehandled - rows.sum(&:last)
+    notes = []
+    notes << "#{uncategorised} #{uncategorised == 1 ? 'Ticket' : 'Tickets'} ohne erkannten Bereich sind nicht aufgeführt." if uncategorised.positive?
+    notes << 'Voicemails und Faxe zählen zusätzlich in ihrem Bereich mit.' if (tag['voicemail'] || 0).positive? || (tag['fax'] || 0).positive?
 
-    pct = total.positive? ? (classified * 100 / total) : 0
-    section_open('Nach Bereich') + <<~HTML
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:6px;">#{rows}</table>
-        #{prehandled_rows.any? ? "<div style=\"#{FONT}font-size:11px;color:#{MUTED};margin-top:10px;\">Vorab erkannt, kein Handlungsbedarf</div><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">#{pre}</table>" : ''}
-        <div style="#{FONT}font-size:12px;color:#{MUTED};margin-top:10px;">#{classified} von #{total} Tickets (#{pct} %) wurden von Virtual Marketer klassifiziert, davon #{prehandled} vorab als nicht handlungsrelevant erkannt.</div>
-      </td></tr>
+    pre = ''
+    if pre_rows.any?
+      lines = pre_rows.map do |label, note, n|
+        <<~TR
+          <tr>
+            <td width="150" valign="top" style="padding:5px 0;#{FONT}font-size:14px;font-weight:700;color:#{TEXT};">#{h label}</td>
+            <td valign="top" style="padding:5px 8px;#{FONT}font-size:12px;line-height:1.5;color:#{SOFT};">#{h note}</td>
+            <td width="30" valign="top" align="right" style="padding:5px 0;#{FONT}font-size:14px;font-weight:700;color:#{INK};">#{n}</td>
+          </tr>
+        TR
+      end.join
+      pre = <<~HTML
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#{CARD}" style="background:#{CARD};margin-top:18px;"><tr><td style="padding:14px 16px 10px;">
+          <div style="#{FONT}font-size:14px;font-weight:700;color:#{INK};">Ohne Bearbeitung erkannt: #{prehandled}</div>
+          <div style="#{FONT}font-size:12px;line-height:1.5;color:#{SOFT};margin:3px 0 8px;">Diese Tickets hat Virtual Marketer sofort erkannt. Sie brauchen keine Antwort und stehen nicht in der Liste oben.</div>
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">#{lines}</table>
+        </td></tr></table>
+      HTML
+    end
+
+    body = <<~HTML
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:12px;">#{bars}</table>
+      #{notes.any? ? "<div style=\"#{FONT}font-size:12px;line-height:1.5;color:#{SOFT};margin-top:6px;\">#{h notes.join(' ')}</div>" : ''}
+      #{pre}
     HTML
+
+    section('2 · Themen', 'Worum ging es?',
+            'Neue Tickets von gestern nach Themenbereich. Den Bereich erkennt Virtual Marketer aus dem Text der Nachricht, bei Voicemails aus der Aufnahme und bei Faxen aus dem Dokument. Der Prozentwert ist der Anteil an allen neuen Tickets.',
+            body)
   end
 
-  def ai_section(ai, total)
+  def prepared_row(ai)
     return '' if ai.nil? || ai[:tickets_with_note].zero?
 
-    needs  = ai[:needs_reply]
-    drafts = ai[:drafts]
-    pct    = needs.positive? ? (drafts * 100 / needs) : 0
+    needs = ai[:needs_reply]
+    pct   = needs.positive? ? (ai[:drafts] * 100 / needs) : 0
 
-    cards = [
-      kpi_card(needs, 'Tickets mit Anliegen', nil),
-      kpi_card(drafts, 'Antwortentwürfe', "#{pct} % davon"),
-      kpi_card(ai[:xentral_lookups], 'Xentral Abfragen', nil),
-      kpi_card(ai[:customers_found], 'Kunden erkannt', nil),
-    ].join
+    items = [
+      [needs,                'Tickets analysiert',     "Bereich, Anliegen und Kundendaten geprüft. Dazu kommen #{ai[:pre_handled]} Tickets, die ohne Bearbeitung erkannt wurden."],
+      [ai[:drafts],          'Antwortentwürfe',        "#{pct} % der analysierten Tickets. Vorschlag für die Antwort an den Kunden, nur wenn belastbare Daten gefunden wurden."],
+      [ai[:xentral_lookups], 'Abfragen in Xentral',    'Kunde, Auftrag, Rechnung oder Artikel nachgeschlagen, jeweils mit Link zum Datensatz in der Notiz.'],
+      [ai[:customers_found], 'Kunden zugeordnet',      'Das Kundenkonto in Xentral wurde gefunden.'],
+      [ai[:orders_found],    'Aufträge gefunden',      'Der genannte Auftrag existiert in Xentral.'],
+      [ai[:invoices_found],  'Rechnungen gefunden',    'Die genannte Rechnung existiert in Xentral.'],
+      [ai[:invoice_pdfs],    'Rechnungs-PDF angehängt', 'Bei Rechnungsanfragen liegt die Rechnung als PDF an der Notiz.'],
+      [ai[:shop_links],      'Tickets mit Shop-Links', 'Produktseiten aus dem Shop, die zur Anfrage passen.'],
+    ]
 
-    cards2 = [
-      kpi_card(ai[:orders_found], 'Aufträge gefunden', nil),
-      kpi_card(ai[:invoices_found], 'Rechnungen gefunden', nil),
-      kpi_card(ai[:invoice_pdfs], 'Rechnungs PDF angehängt', nil),
-      kpi_card(ai[:shop_links], 'mit Shop Links', nil),
-    ].join
-
-    section_open('Vorbereitet von Virtual Marketer', 'Virtual Marketer prüft jedes eingehende Ticket und legt die Ergebnisse als interne Notiz ab. Es wird nichts automatisch an Kunden gesendet, die Antwort schreibt und sendet weiterhin das Team.') + <<~HTML
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:12px;"><tr>#{cards}</tr></table>
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:8px;"><tr>#{cards2}</tr></table>
-        <div style="#{FONT}font-size:12px;color:#{MUTED};margin-top:10px;">#{ai[:pre_handled]} weitere Tickets (Newsletter, Benachrichtigungen, Creditreform) wurden vorab erkannt und brauchen keine Antwort.</div>
-      </td></tr>
-    HTML
-  end
-
-  def agent_section(agents)
-    th = "padding:6px 4px;#{FONT}font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#{MUTED};border-bottom:1px solid #{LINE};"
-    rows = agents.map do |a|
-      color = a[:system] ? '#9aa4b2' : INK
-      td    = "padding:8px 4px;#{FONT}font-size:12px;color:#{color};border-bottom:1px solid #{LINE};"
-      window = a[:first_at] ? "#{berlin(a[:first_at])} bis #{berlin(a[:last_at])}" : 'keine Aktivität'
-      active = a[:first_at] ? duration(a[:active_minutes]) : ''
-      per    = a[:minutes_per_ticket] ? duration(a[:minutes_per_ticket]) : ''
-      reply  = a[:median_reply_minutes] ? "#{duration(a[:median_reply_minutes])} (#{a[:replies]})" : ''
-      if a[:system]
-        window = 'Automatik'
-        active = per = reply = ''
-      end
+    rows = items.map do |value, label, note|
+      color = value.positive? ? RED : '#a0aec0'
       <<~TR
         <tr>
-          <td style="#{td}font-weight:700;">#{h a[:name]}</td>
-          <td style="#{td}">#{h window}</td>
-          <td style="#{td}" align="right">#{h active}</td>
-          <td style="#{td}" align="right">#{a[:first_at] && !a[:system] ? a[:tickets] : ''}</td>
-          <td style="#{td}" align="right">#{h per}</td>
-          <td style="#{td}" align="right">#{h reply}</td>
-          <td style="#{td}color:#{a[:system] ? color : GREEN};font-weight:700;" align="right">#{a[:solved]}</td>
-          <td style="#{td}" align="right">#{a[:open]}</td>
+          <td width="58" valign="top" style="padding:11px 0;border-bottom:1px solid #{LINE};#{FONT}font-size:26px;font-weight:700;line-height:1.1;color:#{color};">#{value}</td>
+          <td valign="top" style="padding:11px 0;border-bottom:1px solid #{LINE};">
+            <div style="#{FONT}font-size:14px;font-weight:700;color:#{TEXT};">#{h label}</div>
+            <div style="#{FONT}font-size:12px;line-height:1.5;color:#{SOFT};margin-top:2px;">#{h note}</div>
+          </td>
         </tr>
       TR
     end.join
 
-    section_open('Team gestern') + <<~HTML
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:6px;border-collapse:collapse;">
+    body = <<~HTML
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:8px;">#{rows}</table>
+      <div style="#{FONT}font-size:12px;line-height:1.5;color:#{SOFT};margin-top:10px;">Gezählt wird nach den internen Notizen, die Virtual Marketer gestern geschrieben hat.</div>
+    HTML
+
+    section('3 · Virtual Marketer', 'Was wurde vorbereitet?',
+            'Virtual Marketer liest jedes neue Ticket, schlägt in Xentral nach und legt das Ergebnis als interne Notiz ins Ticket. Gesendet wird nichts: Antworten schreibt und verschickt das Team.',
+            body)
+  end
+
+  def team_row(agents)
+    return '' if agents.empty?
+
+    th = "padding:0 4px 8px;#{FONT}font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#{SOFT};border-bottom:2px solid #{LINE};"
+    rows = agents.map do |a|
+      td   = "padding:11px 4px;border-bottom:1px solid #{LINE};#{FONT}vertical-align:top;"
+      sub  = "#{FONT}font-size:12px;color:#{SOFT};margin-top:2px;"
+      num  = ->(v, color = INK) { "<div style=\"font-size:15px;font-weight:700;color:#{v.to_i.positive? ? color : '#a0aec0'};\">#{v}</div>" }
+
+      if a[:system]
+        <<~TR
           <tr>
-            <td style="#{th}">Person</td>
-            <td style="#{th}">Aktiv</td>
-            <td style="#{th}" align="right">Zeit</td>
-            <td style="#{th}" align="right">Tickets</td>
-            <td style="#{th}" align="right">Ø je Ticket</td>
-            <td style="#{th}" align="right">Antwortzeit</td>
-            <td style="#{th}" align="right">Erledigt</td>
-            <td style="#{th}" align="right">Offen</td>
+            <td style="#{td}"><div style="font-size:14px;font-weight:700;color:#{SOFT};">#{h a[:name]}</div><div style="#{sub}">Automatik, keine Person</div></td>
+            <td style="#{td}" align="right">#{num.call(a[:solved], GREEN)}</td>
+            <td style="#{td}" align="right">#{num.call(a[:open])}</td>
+            <td style="#{td}"></td><td style="#{td}"></td><td style="#{td}"></td>
           </tr>
-          #{rows}
-        </table>
+        TR
+      else
+        active = a[:first_at] ? "<div style=\"font-size:14px;color:#{TEXT};\">#{berlin(a[:first_at])} bis #{berlin(a[:last_at])}</div><div style=\"#{sub}\">#{duration_long(a[:active_minutes])} aktiv</div>" : "<div style=\"font-size:13px;color:#{SOFT};\">keine Aktivität</div>"
+        handled = a[:first_at] ? "<div style=\"font-size:15px;font-weight:700;color:#{INK};\">#{a[:tickets]}</div>#{a[:minutes_per_ticket] ? "<div style=\"#{sub}\">Ø #{duration_long(a[:minutes_per_ticket])}</div>" : ''}" : ''
+        reply   = a[:median_reply_minutes] ? "<div style=\"font-size:14px;color:#{TEXT};\">#{duration_long(a[:median_reply_minutes])}</div><div style=\"#{sub}\">#{a[:replies]} #{a[:replies] == 1 ? 'Antwort' : 'Antworten'}</div>" : ''
+        <<~TR
+          <tr>
+            <td style="#{td}"><div style="font-size:14px;font-weight:700;color:#{INK};">#{h a[:name]}</div></td>
+            <td style="#{td}" align="right">#{num.call(a[:solved], GREEN)}</td>
+            <td style="#{td}" align="right">#{num.call(a[:open])}</td>
+            <td style="#{td}" align="right">#{handled}</td>
+            <td style="#{td}" align="right">#{active}</td>
+            <td style="#{td}" align="right">#{reply}</td>
+          </tr>
+        TR
+      end
+    end.join
+
+    legend = [
+      ['Erledigt',     'Gestern auf Erledigt gesetzte Tickets, die der Person gehören.'],
+      ['Offen',        'Tickets, die der Person jetzt gehören und noch nicht erledigt sind.'],
+      ['Bearbeitet',   'Tickets, in denen die Person gestern etwas geändert hat (Notiz, Antwort, Status, Zuweisung). Darunter die durchschnittliche aktive Zeit je Ticket.'],
+      ['Aktiv',        "Von der ersten bis zur letzten Änderung. Pausen über #{ACTIVE_GAP_MINUTES} Minuten zählen nicht mit. Reines Ansehen eines Tickets wird nicht erfasst, die Zeit ist deshalb eher zu niedrig als zu hoch."],
+      ['Antwortzeit',  'Mittlere Zeit (Median) von der letzten Kundennachricht bis zur Antwort per E-Mail, rund um die Uhr gerechnet, also mit Nacht und Wochenende.'],
+    ].map do |term, text|
+      "<tr><td width=\"88\" valign=\"top\" style=\"padding:3px 0;#{FONT}font-size:12px;font-weight:700;color:#{TEXT};\">#{term}</td><td valign=\"top\" style=\"padding:3px 0;#{FONT}font-size:12px;line-height:1.5;color:#{SOFT};\">#{h text}</td></tr>"
+    end.join
+
+    body = <<~HTML
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:14px;border-collapse:collapse;">
+        <tr>
+          <td style="#{th}">Person</td>
+          <td style="#{th}" align="right">Erledigt</td>
+          <td style="#{th}" align="right">Offen</td>
+          <td style="#{th}" align="right">Bearbeitet</td>
+          <td style="#{th}" align="right">Aktiv</td>
+          <td style="#{th}" align="right">Antwortzeit</td>
+        </tr>
+        #{rows}
+      </table>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#{CARD}" style="background:#{CARD};margin-top:16px;"><tr><td style="padding:12px 16px;">
+        <div style="#{FONT}font-size:12px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#{SOFT};padding-bottom:4px;">So sind die Spalten gemeint</div>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">#{legend}</table>
+      </td></tr></table>
+    HTML
+
+    section('4 · Team', 'Wer hat was getan?',
+            'Was jede Person gestern im Ticketsystem getan hat, aus dem Änderungsprotokoll berechnet.',
+            body)
+  end
+
+  def footer_row
+    <<~HTML
+      <tr><td bgcolor="#ffffff" style="padding:36px 32px 28px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #{LINE};"><tr><td style="padding-top:16px;#{FONT}font-size:12px;line-height:1.6;color:#{SOFT};">
+          Zahlen und Texte dieses Berichts werden nach festen Regeln aus den Ticketdaten berechnet, nichts davon wird geschätzt. Nur die Einordnung in Themenbereiche stammt von Virtual Marketer.<br>
+          Erstellt automatisch am #{Time.zone.now.in_time_zone('Europe/Berlin').strftime('%d.%m.%Y um %H:%M')} Uhr. Fragen oder Wünsche zum Bericht: <a href="mailto:info@virtual-marketer.de" style="color:#{RED};text-decoration:underline;">info@virtual-marketer.de</a>
+        </td></tr></table>
       </td></tr>
     HTML
   end
+
+  # --- formatting ----------------------------------------------------------
 
   def long_date(d)
     "#{WEEKDAYS[d.wday]}, #{d.day}. #{MONTHS[d.month - 1]} #{d.year}"
@@ -563,12 +731,16 @@ class VmDailyReport
     time.in_time_zone('Europe/Berlin').strftime('%H:%M')
   end
 
-  def duration(minutes)
+  # "unter 1 min", "34 min", "1 h 15 min", "1 Tag 21 h". Past a day the minutes
+  # are dropped: nobody reads "45 h 24 min" faster than "1 Tag 21 h".
+  def duration_long(minutes)
     return '' if minutes.nil?
-
     return 'unter 1 min' if minutes.zero?
 
-    hours, mins = minutes.divmod(60)
+    days, rest = minutes.divmod(1440)
+    hours, mins = rest.divmod(60)
+    return "#{days} #{days == 1 ? 'Tag' : 'Tage'} #{hours} h" if days.positive?
+
     hours.positive? ? "#{hours} h #{mins} min" : "#{mins} min"
   end
 
