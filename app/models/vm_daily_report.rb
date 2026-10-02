@@ -416,7 +416,7 @@ class VmDailyReport
       <body style="margin:0;padding:0;background:#{PAGE};" bgcolor="#{PAGE}">
       <div style="display:none;max-height:0;overflow:hidden;font-size:1px;line-height:1px;color:#{PAGE};">#{h lines.first}</div>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#{PAGE}" style="background:#{PAGE};"><tr><td align="center" style="padding:24px 12px;">
-      <table role="presentation" width="640" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="width:100%;max-width:640px;background:#ffffff;#{FONT}color:#{TEXT};">
+      <table role="presentation" align="center" width="640" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="width:100%;max-width:640px;margin:0 auto;background:#ffffff;#{FONT}color:#{TEXT};">
 
         #{header_row}
         #{overview_row(lines)}
@@ -469,7 +469,7 @@ class VmDailyReport
     logo = "#{Setting.get('http_type')}://#{Setting.get('fqdn')}/apple-touch-icon.png"
     org  = Setting.get('organization').presence || 'Ticketsystem'
     <<~HTML
-      <tr><td height="6" bgcolor="#{RED}" style="height:6px;line-height:6px;font-size:1px;background:#{RED};">&nbsp;</td></tr>
+      <tr><td bgcolor="#{RED}" style="border-top:6px solid #{RED};font-size:0;line-height:0;background:#{RED};"></td></tr>
       <tr><td bgcolor="#ffffff" style="padding:26px 32px 24px;border-bottom:1px solid #{LINE};">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
           <td width="58" valign="middle"><img src="#{h logo}" width="44" height="44" alt="Virtual Marketer" style="display:block;border:0;border-radius:10px;"></td>
@@ -487,7 +487,7 @@ class VmDailyReport
     items = lines.map do |l|
       <<~LI
         <tr>
-          <td width="18" valign="top" style="padding:5px 0 0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td width="7" height="7" bgcolor="#{RED}" style="width:7px;height:7px;font-size:1px;line-height:1px;background:#{RED};">&nbsp;</td></tr></table></td>
+          <td width="18" valign="top" style="padding:0 0 9px;#{FONT}font-size:15px;line-height:1.5;color:#{RED};">&bull;</td>
           <td style="padding:0 0 9px;#{FONT}font-size:15px;line-height:1.5;color:#{INK};">#{h l}</td>
         </tr>
       LI
@@ -568,7 +568,7 @@ class VmDailyReport
       <<~TR
         <tr>
           <td width="118" style="padding:7px 0;#{FONT}font-size:14px;color:#{TEXT};">#{h label}</td>
-          <td style="padding:7px 8px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td width="#{px}" height="14" bgcolor="#{BLUE}" style="width:#{px}px;height:14px;line-height:14px;font-size:1px;background:#{BLUE};">&nbsp;</td></tr></table></td>
+          <td style="padding:7px 8px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td width="#{px}" style="width:#{px}px;border-top:14px solid #{BLUE};font-size:0;line-height:0;"></td></tr></table></td>
           <td width="30" align="right" style="padding:7px 0;#{FONT}font-size:14px;font-weight:700;color:#{INK};">#{n}</td>
           <td width="44" align="right" style="padding:7px 0;#{FONT}font-size:12px;color:#{SOFT};">#{pct} %</td>
         </tr>
