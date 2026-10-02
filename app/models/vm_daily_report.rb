@@ -97,7 +97,7 @@ class VmDailyReport
         group_id:       group.id,
         state_id:       Ticket::State.find_by(name: 'closed').id,
         priority_id:    Ticket::Priority.find_by(default_create: true)&.id || Ticket::Priority.first.id,
-        customer_id:    User.find_by(email: recipients.first) || User.first,
+        customer_id:    (User.find_by(email: recipients.first) || User.find(1)).id,
         created_by_id:  1,
         updated_by_id:  1,
       )
