@@ -91,7 +91,7 @@ class VmDailyReport
     channel_email = sending_channel_email
     group         = sending_group
 
-    Transaction.execute(disable: [Trigger, Notification, TimeBasedTrigger]) do
+    Transaction.execute(disable: %w[Transaction::Trigger Transaction::Notification Transaction::TimeBasedTrigger]) do
       ticket = Ticket.create!(
         title:          "Tagesbericht #{date.strftime('%d.%m.%Y')} | Virtual Marketer AI",
         group_id:       group.id,
