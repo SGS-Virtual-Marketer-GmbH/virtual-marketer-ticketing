@@ -262,9 +262,10 @@ class App.VmWorkspace extends App.Controller
       @assistant = new App.VmAssistant(
         el:           @assistantEl
         ticketNumber: ticket?.number
+        ticketId:     ticket?.id
       )
     else
-      @assistant.setTicket(ticket?.number)
+      @assistant.setTicket(ticket?.number, ticket?.id)
 
   # --- data ------------------------------------------------------------------
 

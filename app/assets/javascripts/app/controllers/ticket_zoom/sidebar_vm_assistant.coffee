@@ -32,6 +32,8 @@ class SidebarVMAssistant extends App.Controller
     @assistant = new App.VmAssistant(
       el:           el
       ticketNumber: @ticket.number
+      ticketId:     @ticket.id
+      inZoom:       true
     )
 
 App.Config.set('400-VMAssistant', SidebarVMAssistant, 'TicketZoomSidebar')

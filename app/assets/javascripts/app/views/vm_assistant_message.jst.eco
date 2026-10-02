@@ -3,7 +3,24 @@
 <%# Two eco traps, both of which fail as RENDERED TEXT rather than as an error: %>
 <%# a comment may not span lines, and it may not contain a closing percent-gt. %>
 <div class="vm-msg vm-msg--<%= @role %>">
-  <div class="vm-msg__body"><%- @html %></div>
+  <% if @html: %>
+    <div class="vm-msg__body"><%- @html %></div>
+  <% end %>
+
+  <%# Reply draft as its own block: plain text the agent can edit, no quote markers to copy along. %>
+  <% if @reply: %>
+    <div class="vm-reply js-vmReply" data-ticket-id="<%= @reply.ticketId %>">
+      <div class="vm-reply__label"><%- @T('Antwortentwurf') %></div>
+      <textarea class="vm-reply__text js-vmReplyText" rows="9"><%= @reply.text %></textarea>
+      <div class="vm-reply__meta js-vmReplyMeta"><%- @T('Empfänger wird geprüft …') %></div>
+      <div class="vm-reply__buttons">
+        <button type="button" class="vm-reply__btn js-vmReplyApply" disabled><%- @T('In Antwortfeld übernehmen') %></button>
+        <button type="button" class="vm-reply__btn vm-reply__btn--send js-vmReplySend" disabled><%- @T('Senden') %></button>
+        <button type="button" class="vm-reply__btn vm-reply__btn--ghost js-vmReplyCopy"><%- @T('Text kopieren') %></button>
+      </div>
+      <div class="vm-reply__status js-vmReplyStatus" role="status"></div>
+    </div>
+  <% end %>
 
   <%# What the assistant did, so a note on a ticket is never a surprise. %>
   <% if @actions.length: %>
