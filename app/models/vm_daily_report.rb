@@ -392,7 +392,12 @@ class VmDailyReport
   CARD      = '#f7fafc'.freeze
   GREEN     = '#1a7a3c'.freeze
   PAGE      = '#edf2f7'.freeze
-  BAR_MAX_PX = 290
+  # A phone leaves about 270 px for content (360 px screen, page and card
+  # padding). Nothing in the layout may be wider than that, or Gmail on the
+  # phone cuts the right side off: no fixed widths that add up past it, and
+  # no row with more than three columns.
+  BAR_MAX_PX = 240
+  PAD_X      = 20
 
   WEEKDAYS = %w[Sonntag Montag Dienstag Mittwoch Donnerstag Freitag Samstag].freeze
   MONTHS   = %w[Januar Februar März April Mai Juni Juli August September Oktober November Dezember].freeze
@@ -420,7 +425,7 @@ class VmDailyReport
       <html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>Tagesbericht #{h date.strftime('%d.%m.%Y')}</title></head>
       <body style="margin:0;padding:0;background:#{PAGE};" bgcolor="#{PAGE}">
       <div style="display:none;max-height:0;overflow:hidden;font-size:1px;line-height:1px;color:#{PAGE};">#{h lines.first}</div>
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#{PAGE}" style="background:#{PAGE};"><tr><td align="center" style="padding:24px 12px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#{PAGE}" style="background:#{PAGE};"><tr><td align="center" style="padding:16px 8px;">
       <table role="presentation" align="center" width="640" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="width:100%;max-width:640px;margin:0 auto;background:#ffffff;#{FONT}color:#{TEXT};">
 
         #{header_row}
@@ -475,14 +480,14 @@ class VmDailyReport
     org  = Setting.get('organization').presence || 'Ticketsystem'
     <<~HTML
       <tr><td bgcolor="#{RED}" style="border-top:6px solid #{RED};font-size:0;line-height:0;background:#{RED};"></td></tr>
-      <tr><td bgcolor="#ffffff" style="padding:26px 32px 24px;border-bottom:1px solid #{LINE};">
+      <tr><td bgcolor="#ffffff" style="padding:22px #{PAD_X}px 20px;border-bottom:1px solid #{LINE};">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-          <td width="58" valign="middle"><img src="#{h logo}" width="44" height="44" alt="Virtual Marketer" style="display:block;border:0;border-radius:10px;"></td>
+          <td width="56" valign="middle"><img src="#{h logo}" width="44" height="44" alt="Virtual Marketer" style="display:block;border:0;border-radius:10px;"></td>
           <td valign="middle">
             <div style="#{FONT}font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#{RED};">Tagesbericht</div>
-            <div style="#{FONT}font-size:22px;font-weight:700;color:#{INK};line-height:1.25;margin-top:3px;">#{h long_date(date)}</div>
+            <div style="#{FONT}font-size:20px;font-weight:700;color:#{INK};line-height:1.25;margin-top:3px;">#{h long_date(date)}</div>
+            <div style="#{FONT}font-size:12px;line-height:1.5;color:#{SOFT};margin-top:2px;">Virtual Marketer für #{h org}</div>
           </td>
-          <td valign="middle" align="right" style="#{FONT}font-size:12px;line-height:1.5;color:#{SOFT};">Virtual Marketer<br>#{h org}</td>
         </tr></table>
       </td></tr>
     HTML
@@ -499,7 +504,7 @@ class VmDailyReport
     end.join
 
     <<~HTML
-      <tr><td bgcolor="#ffffff" style="padding:28px 32px 0;">
+      <tr><td bgcolor="#ffffff" style="padding:24px #{PAD_X}px 0;">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#{RED_SOFT}" style="background:#{RED_SOFT};border-left:4px solid #{RED};"><tr><td style="padding:18px 20px 10px;">
           <div style="#{FONT}font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#{RED};padding-bottom:10px;">Auf einen Blick</div>
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">#{items}</table>
@@ -511,7 +516,7 @@ class VmDailyReport
   # label, title and a plain-language intro, then the section body.
   def section(label, title, intro, body)
     <<~HTML
-      <tr><td bgcolor="#ffffff" style="padding:36px 32px 0;">
+      <tr><td bgcolor="#ffffff" style="padding:32px #{PAD_X}px 0;">
         <div style="#{FONT}font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#{RED};">#{h label}</div>
         <div style="#{FONT}font-size:20px;font-weight:700;color:#{INK};line-height:1.25;margin-top:4px;">#{h title}</div>
         <div style="#{FONT}font-size:14px;line-height:1.55;color:#{MUTED};margin-top:6px;">#{h intro}</div>
@@ -524,8 +529,8 @@ class VmDailyReport
     pad = side == :left ? 'padding:0 6px 12px 0;' : 'padding:0 0 12px 6px;'
     <<~TD
       <td width="50%" valign="top" style="#{pad}">
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#{CARD}" style="background:#{CARD};border-left:4px solid #{BLUE};"><tr><td style="padding:14px 16px 15px;">
-          <div style="#{FONT}font-size:30px;font-weight:700;color:#{INK};line-height:1.15;">#{h value}</div>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#{CARD}" style="background:#{CARD};border-left:4px solid #{BLUE};"><tr><td style="padding:12px 12px 13px;">
+          <div style="#{FONT}font-size:26px;font-weight:700;color:#{INK};line-height:1.15;">#{h value}</div>
           <div style="#{FONT}font-size:14px;font-weight:700;color:#{TEXT};margin-top:3px;">#{h label}</div>
           <div style="#{FONT}font-size:12px;line-height:1.5;color:#{SOFT};margin-top:4px;">#{h note}</div>
         </td></tr></table>
@@ -572,10 +577,12 @@ class VmDailyReport
       pct = n * 100 / total
       <<~TR
         <tr>
-          <td width="118" style="padding:7px 0;#{FONT}font-size:14px;color:#{TEXT};">#{h label}</td>
-          <td style="padding:7px 8px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td width="#{px}" style="width:#{px}px;border-top:14px solid #{BLUE};font-size:0;line-height:0;"></td></tr></table></td>
-          <td width="30" align="right" style="padding:7px 0;#{FONT}font-size:14px;font-weight:700;color:#{INK};">#{n}</td>
-          <td width="44" align="right" style="padding:7px 0;#{FONT}font-size:12px;color:#{SOFT};">#{pct} %</td>
+          <td style="padding:8px 0 4px;#{FONT}font-size:14px;color:#{TEXT};">#{h label}</td>
+          <td width="34" align="right" style="padding:8px 0 4px;#{FONT}font-size:14px;font-weight:700;color:#{INK};">#{n}</td>
+          <td width="46" align="right" style="padding:8px 0 4px;#{FONT}font-size:12px;color:#{SOFT};">#{pct} %</td>
+        </tr>
+        <tr>
+          <td colspan="3" style="padding:0 0 6px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td width="#{px}" style="width:#{px}px;border-top:12px solid #{BLUE};font-size:0;line-height:0;"></td></tr></table></td>
         </tr>
       TR
     end.join
@@ -590,9 +597,11 @@ class VmDailyReport
       lines = pre_rows.map do |label, note, n|
         <<~TR
           <tr>
-            <td width="150" valign="top" style="padding:5px 0;#{FONT}font-size:14px;font-weight:700;color:#{TEXT};">#{h label}</td>
-            <td valign="top" style="padding:5px 8px;#{FONT}font-size:12px;line-height:1.5;color:#{SOFT};">#{h note}</td>
-            <td width="30" valign="top" align="right" style="padding:5px 0;#{FONT}font-size:14px;font-weight:700;color:#{INK};">#{n}</td>
+            <td valign="top" style="padding:6px 0;#{FONT}">
+              <div style="font-size:14px;font-weight:700;color:#{TEXT};">#{h label}</div>
+              <div style="font-size:12px;line-height:1.5;color:#{SOFT};margin-top:1px;">#{h note}</div>
+            </td>
+            <td width="34" valign="top" align="right" style="padding:6px 0;#{FONT}font-size:14px;font-weight:700;color:#{INK};">#{n}</td>
           </tr>
         TR
       end.join
@@ -659,36 +668,40 @@ class VmDailyReport
   def team_row(agents)
     return '' if agents.empty?
 
-    th = "padding:0 4px 8px;#{FONT}font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#{SOFT};border-bottom:2px solid #{LINE};"
-    rows = agents.map do |a|
-      td   = "padding:11px 4px;border-bottom:1px solid #{LINE};#{FONT}vertical-align:top;"
-      sub  = "#{FONT}font-size:12px;color:#{SOFT};margin-top:2px;"
-      num  = ->(v, color = INK) { "<div style=\"font-size:15px;font-weight:700;color:#{v.to_i.positive? ? color : '#a0aec0'};\">#{v}</div>" }
+    # One card per person instead of a six-column table: six columns do not
+    # fit a phone, and the mail is read on the phone as often as on the desk.
+    sub  = "#{FONT}font-size:12px;color:#{SOFT};margin-top:2px;"
+    stat = lambda do |label, value_html, width|
+      "<td width=\"#{width}\" valign=\"top\" style=\"padding:8px 6px 0 0;#{FONT}\"><div style=\"font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#{SOFT};\">#{label}</div>#{value_html}</td>"
+    end
+    num = ->(v, color = INK) { "<div style=\"font-size:16px;font-weight:700;margin-top:2px;color:#{v.to_i.positive? ? color : '#a0aec0'};\">#{v}</div>" }
+    grid = ->(cells) { "<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr>#{cells.join}</tr></table>" }
 
+    rows = agents.map do |a|
       if a[:system]
-        <<~TR
-          <tr>
-            <td style="#{td}"><div style="font-size:14px;font-weight:700;color:#{SOFT};">#{h a[:name]}</div><div style="#{sub}">Automatik, keine Person</div></td>
-            <td style="#{td}" align="right">#{num.call(a[:solved], GREEN)}</td>
-            <td style="#{td}" align="right">#{num.call(a[:open])}</td>
-            <td style="#{td}"></td><td style="#{td}"></td><td style="#{td}"></td>
-          </tr>
-        TR
+        cards = grid.call([stat.call('Erledigt', num.call(a[:solved], GREEN), '33%'), stat.call('Offen', num.call(a[:open]), '67%')])
+        name  = "<div style=\"#{FONT}font-size:15px;font-weight:700;color:#{SOFT};\">#{h a[:name]}</div><div style=\"#{sub}\">Automatik, keine Person</div>"
       else
-        active = a[:first_at] ? "<div style=\"font-size:14px;color:#{TEXT};\">#{berlin(a[:first_at])} bis #{berlin(a[:last_at])}</div><div style=\"#{sub}\">#{duration_long(a[:active_minutes])} aktiv</div>" : "<div style=\"font-size:13px;color:#{SOFT};\">keine Aktivität</div>"
-        handled = a[:first_at] ? "<div style=\"font-size:15px;font-weight:700;color:#{INK};\">#{a[:tickets]}</div>#{a[:minutes_per_ticket] ? "<div style=\"#{sub}\">Ø #{duration_long(a[:minutes_per_ticket])}</div>" : ''}" : ''
-        reply   = a[:median_reply_minutes] ? "<div style=\"font-size:14px;color:#{TEXT};\">#{duration_long(a[:median_reply_minutes])}</div><div style=\"#{sub}\">#{a[:replies]} #{a[:replies] == 1 ? 'Antwort' : 'Antworten'}</div>" : ''
-        <<~TR
-          <tr>
-            <td style="#{td}"><div style="font-size:14px;font-weight:700;color:#{INK};">#{h a[:name]}</div></td>
-            <td style="#{td}" align="right">#{num.call(a[:solved], GREEN)}</td>
-            <td style="#{td}" align="right">#{num.call(a[:open])}</td>
-            <td style="#{td}" align="right">#{handled}</td>
-            <td style="#{td}" align="right">#{active}</td>
-            <td style="#{td}" align="right">#{reply}</td>
-          </tr>
-        TR
+        handled = if a[:first_at]
+                    "<div style=\"font-size:16px;font-weight:700;margin-top:2px;color:#{INK};\">#{a[:tickets]}</div>#{a[:minutes_per_ticket] ? "<div style=\"#{sub}\">Ø #{duration_long(a[:minutes_per_ticket])}</div>" : ''}"
+                  else
+                    num.call(0)
+                  end
+        active = if a[:first_at]
+                   "<div style=\"font-size:14px;margin-top:2px;color:#{TEXT};\">#{berlin(a[:first_at])} bis #{berlin(a[:last_at])}</div><div style=\"#{sub}\">#{duration_long(a[:active_minutes])} aktiv</div>"
+                 else
+                   "<div style=\"font-size:13px;margin-top:2px;color:#{SOFT};\">keine Aktivität</div>"
+                 end
+        reply = if a[:median_reply_minutes]
+                  "<div style=\"font-size:14px;margin-top:2px;color:#{TEXT};\">#{duration_long(a[:median_reply_minutes])}</div><div style=\"#{sub}\">#{a[:replies]} #{a[:replies] == 1 ? 'Antwort' : 'Antworten'}</div>"
+                else
+                  "<div style=\"font-size:13px;margin-top:2px;color:#{SOFT};\">keine</div>"
+                end
+        cards = grid.call([stat.call('Erledigt', num.call(a[:solved], GREEN), '33%'), stat.call('Offen', num.call(a[:open]), '33%'), stat.call('Bearbeitet', handled, '34%')]) +
+                grid.call([stat.call('Aktiv', active, '50%'), stat.call('Antwortzeit', reply, '50%')])
+        name  = "<div style=\"#{FONT}font-size:15px;font-weight:700;color:#{INK};\">#{h a[:name]}</div>"
       end
+      "<tr><td style=\"padding:14px 0;border-bottom:1px solid #{LINE};\">#{name}#{cards}</td></tr>"
     end.join
 
     legend = [
@@ -702,19 +715,9 @@ class VmDailyReport
     end.join
 
     body = <<~HTML
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:14px;border-collapse:collapse;">
-        <tr>
-          <td style="#{th}">Person</td>
-          <td style="#{th}" align="right">Erledigt</td>
-          <td style="#{th}" align="right">Offen</td>
-          <td style="#{th}" align="right">Bearbeitet</td>
-          <td style="#{th}" align="right">Aktiv</td>
-          <td style="#{th}" align="right">Antwortzeit</td>
-        </tr>
-        #{rows}
-      </table>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:8px;border-top:2px solid #{LINE};">#{rows}</table>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#{CARD}" style="background:#{CARD};margin-top:16px;"><tr><td style="padding:12px 16px;">
-        <div style="#{FONT}font-size:12px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#{SOFT};padding-bottom:4px;">So sind die Spalten gemeint</div>
+        <div style="#{FONT}font-size:12px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#{SOFT};padding-bottom:4px;">So sind die Angaben gemeint</div>
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">#{legend}</table>
       </td></tr></table>
     HTML
@@ -726,7 +729,7 @@ class VmDailyReport
 
   def footer_row
     <<~HTML
-      <tr><td bgcolor="#ffffff" style="padding:36px 32px 28px;">
+      <tr><td bgcolor="#ffffff" style="padding:32px #{PAD_X}px 24px;">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #{LINE};"><tr><td style="padding-top:16px;#{FONT}font-size:12px;line-height:1.6;color:#{SOFT};">
           Zahlen und Texte dieses Berichts werden nach festen Regeln aus den Ticketdaten berechnet, nichts davon wird geschätzt. Nur die Einordnung in Themenbereiche stammt von Virtual Marketer.<br>
           Erstellt automatisch am #{Time.zone.now.in_time_zone('Europe/Berlin').strftime('%d.%m.%Y um %H:%M')} Uhr. Fragen oder Wünsche zum Bericht: <a href="mailto:info@virtual-marketer.de" style="color:#{RED};text-decoration:underline;">info@virtual-marketer.de</a>
