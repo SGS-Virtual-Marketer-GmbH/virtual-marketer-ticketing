@@ -201,7 +201,7 @@ class VmDailyReport
   def agent_stats(closed_yesterday, open_state_ids)
     agents = User.with_permissions('ticket.agent').where(active: true).where.not(id: 1).to_a.uniq
 
-    closed_by = closed_yesterday.where.not(owner_id: 1).group(:owner_id).count
+    closed_by = closed_by_user(agents.map(&:id))
     open_by   = Ticket.where(state_id: open_state_ids).where.not(owner_id: 1).group(:owner_id).count
     history   = history_by_user(agents.map(&:id))
     replies   = reply_minutes_by_user(agents.map(&:id))
@@ -233,6 +233,24 @@ class VmDailyReport
           median_reply_minutes: median(rep),
         }
       end
+  end
+
+  # { user_id => tickets this person set to a closed state on the report day }.
+  # Counted from the history, not from the owner: most tickets are closed by
+  # whoever picks them up while the owner stays "nobody", so counting by owner
+  # showed Nora at 2 for a week in which she closed 70.
+  def closed_by_user(user_ids)
+    ticket_obj = History::Object.find_by(name: 'Ticket')
+    state_attr = History::Attribute.find_by(name: 'state')
+    return {} unless ticket_obj && state_attr
+
+    History
+      .where(history_object_id: ticket_obj.id, history_attribute_id: state_attr.id,
+             created_by_id: user_ids, created_at: day_range,
+             value_to: Ticket::State.where(id: Ticket::State.by_category_ids(:closed)).pluck(:name))
+      .group(:created_by_id)
+      .distinct
+      .count(:o_id)
   end
 
   # { user_id => { first_at:, last_at:, active_minutes:, tickets: } } from the
@@ -705,7 +723,7 @@ class VmDailyReport
     end.join
 
     legend = [
-      ['Erledigt',     'Gestern auf Erledigt gesetzte Tickets, die der Person gehören.'],
+      ['Erledigt',     'Tickets, die die Person gestern auf Erledigt gesetzt hat, auch wenn sie niemandem zugewiesen waren.'],
       ['Offen',        'Tickets, die der Person jetzt gehören und noch nicht erledigt sind.'],
       ['Bearbeitet',   'Tickets, in denen die Person gestern etwas geändert hat (Notiz, Antwort, Status, Zuweisung). Darunter die durchschnittliche aktive Zeit je Ticket.'],
       ['Aktiv',        "Von der ersten bis zur letzten Änderung. Pausen über #{ACTIVE_GAP_MINUTES} Minuten zählen nicht mit. Reines Ansehen eines Tickets wird nicht erfasst, die Zeit ist deshalb eher zu niedrig als zu hoch."],
