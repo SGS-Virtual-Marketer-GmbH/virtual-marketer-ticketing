@@ -94,5 +94,14 @@ RSpec.describe Whatsapp::Webhook::Message::Text, :aggregate_failures, current_us
         )
       end
     end
+
+    context 'when Meta redelivers the same message' do
+      it 'imports it only once' do
+        described_class.new(data:, channel:).process
+        expect { described_class.new(data:, channel:).process }
+          .to not_change(Ticket::Article, :count)
+          .and not_change(Ticket, :count)
+      end
+    end
   end
 end

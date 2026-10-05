@@ -11,6 +11,12 @@ class Whatsapp::Webhook::Message
   end
 
   def process
+    # Meta redelivers a webhook it considers undelivered (timeout, non-200), with
+    # the same message id. Upstream imports it again as a second article; the
+    # agent then sees the customer's message twice and every article trigger
+    # fires twice. The message id is Meta's own and unique per message.
+    return if already_imported?
+
     @user = create_or_update_user
 
     UserInfo.current_user_id = user.id
@@ -21,6 +27,16 @@ class Whatsapp::Webhook::Message
   end
 
   private
+
+  def already_imported?
+    message_id = article_preferences[:message_id]
+    return false if message_id.blank?
+
+    Ticket::Article.exists?(
+      message_id_md5: Digest::MD5.hexdigest(message_id.to_s),
+      type_id:        Ticket::Article::Type.lookup(name: 'whatsapp message').id,
+    )
+  end
 
   def attachment?
     false
