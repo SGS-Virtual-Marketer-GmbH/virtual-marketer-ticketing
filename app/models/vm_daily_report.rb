@@ -139,12 +139,16 @@ class VmDailyReport
     open_state_ids   = Ticket::State.by_category_ids(:open)
     closed_state_ids = Ticket::State.by_category_ids(:closed)
 
+    # The report's own ticket is created closed, so without this every report
+    # counted yesterday's report once as new and once as solved.
+    own_reports = Ticket.where(created_by_id: 1).where('title LIKE ?', 'Tagesbericht %| Virtual Marketer AI')
+
     # Tickets created yesterday, excluding duplicates (merged state).
-    created = Ticket.where(created_at: range).where.not(state_id: merged_state_ids)
+    created = Ticket.where(created_at: range).where.not(state_id: merged_state_ids).where.not(id: own_reports)
     created_ids = created.pluck(:id)
 
     # Tickets closed yesterday.
-    closed_yesterday = Ticket.where(close_at: range).where.not(state_id: merged_state_ids)
+    closed_yesterday = Ticket.where(close_at: range).where.not(state_id: merged_state_ids).where.not(id: own_reports)
 
     # Current open count.
     open_now = Ticket.where(state_id: open_state_ids).count
