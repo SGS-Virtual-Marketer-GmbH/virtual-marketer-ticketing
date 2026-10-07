@@ -1,4 +1,9 @@
 ---
+# The visual regression plugin pins sharp 0.35.4; 0.35.5 carries the fixed
+# librsvg (GHSA-wq5f-xc86-pv6w).
+overrides:
+  sharp@0: ^0.35.5
+
 allowBuilds:
   cypress: true
   sharp: true

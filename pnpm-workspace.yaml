@@ -24,6 +24,17 @@ overrides:
   js-yaml@5: ^5.4.1
   brace-expansion@2: ^2.1.7
   source-map-js@1: ^1.2.2
+  # Fixed releases of the same major, pinned below by their parents' ranges.
+  shell-quote@1: ^1.11.0
+  smol-toml@1: ^1.9.0
+  '@graphql-tools/executor-legacy-ws@1': ^1.1.35
+  postcss-selector-parser@7: ^7.1.6
+  tinypool@2: ^2.1.2
+  '@fastify/busboy@3': ^3.2.2
+  colord@2: ^2.9.4
+  # markdownlint pins katex ^0.16 through micromark-extension-math; the fix is
+  # 0.18.2. Only markdownlint uses it (lint run checked with the override).
+  katex@0: ^0.18.2
   # The parents of these three allow the patched version, but under pnpm 11
   # `pnpm update --depth Infinity` still left them on the old one, so they are
   # pinned here too. browserslist also pulls a newer caniuse-lite with it.
