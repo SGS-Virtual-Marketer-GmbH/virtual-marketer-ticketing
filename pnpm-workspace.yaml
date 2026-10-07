@@ -23,6 +23,7 @@ overrides:
   fast-uri@3: ^3.1.6
   js-yaml@5: ^5.4.1
   brace-expansion@2: ^2.1.7
+  source-map-js@1: ^1.2.2
   # The parents of these three allow the patched version, but under pnpm 11
   # `pnpm update --depth Infinity` still left them on the old one, so they are
   # pinned here too. browserslist also pulls a newer caniuse-lite with it.

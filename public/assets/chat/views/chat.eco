@@ -1,5 +1,5 @@
-<div class="zammad-chat<%= ' zammad-chat--flat' if @flat %>"<%= " style='font-size: #{ @fontSize }'" if @fontSize %>>
-  <div class="zammad-chat-header js-chat-open"<%= " style='background: #{ @background }'" if @background %>>
+<div class="zammad-chat<%= ' zammad-chat--flat' if @flat %>"<% if @fontSize: %> style="font-size: <%= @fontSize %>"<% end %>>
+  <div class="zammad-chat-header js-chat-open"<% if @background: %> style="background: <%= @background %>"<% end %>>
     <div class="zammad-chat-header-controls js-chat-toggle">
       <span class="zammad-chat-agent-status zammad-chat-is-hidden js-chat-status" data-status="online"></span>
       <span class="zammad-chat-header-icon">
@@ -22,6 +22,6 @@
   <div class="zammad-chat-body"></div>
   <form class="zammad-chat-controls">
     <div class="zammad-chat-input" rows="1" placeholder="<%- @T('Compose your message…') %>" contenteditable="true"></div>
-    <button type="submit" class="zammad-chat-button zammad-chat-send"<%= " style='background: #{ @background }'" if @background %>><%- @T('Send') %></button>
+    <button type="submit" class="zammad-chat-button zammad-chat-send"<% if @background: %> style="background: <%= @background %>"<% end %>><%- @T('Send') %></button>
   </form>
 </div>
