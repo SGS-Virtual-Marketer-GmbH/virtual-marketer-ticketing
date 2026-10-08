@@ -86,6 +86,12 @@ App.VmAgentTileIcons =
     <path d="M12 17.3v.1"/></svg>
   """
 
+  # Automatische Meldungen: a bell, "something arrived on its own".
+  bell: """
+    <svg #{W}><path d="M6.2 16.6V11a5.8 5.8 0 0 1 11.6 0v5.6l1.6 1.8H4.6z"/>
+    <path d="M10 20.6a2.2 2.2 0 0 0 4 0"/></svg>
+  """
+
   # Meine Tickets: a person with a tick, "the ones that are mine".
   mine: """
     <svg #{W}><circle cx="9.5" cy="8" r="3.4"/><path d="M3.5 19.5c.6-3.4 3-5.4 6-5.4 1.4 0 2.6.4 3.6 1.1"/>

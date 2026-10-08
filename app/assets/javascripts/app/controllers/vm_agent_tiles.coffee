@@ -143,6 +143,19 @@ class App.VmAgentTiles extends App.Controller
       sees: [__('Tickettext')]
       highlight: true
     }
+    # Automated mail that may still need a person: supplier invoices, eBay
+    # notices, return labels, lower ratings. Pure information (payouts, debit
+    # notices, five-star ratings, ...) is closed by the pipeline on arrival and
+    # never shows up here. Last on the board on purpose: the categories above
+    # are the work, this is the post to look through.
+    {
+      key: 'automatische-meldungen'
+      name: __('Automatische Meldungen')
+      icon: 'bell'
+      description: __('Mails von Plattformen und Systemen, die jemand ansehen sollte: Rechnungen von Lieferanten, eBay-Hinweise, Retourenlabels, Bewertungen. Reine Infos schließt Virtual Marketer selbst.')
+      can: [__('Vorsortieren'), __('Infos schließen')]
+      sees: [__('Absender'), __('Betreff')]
+    }
   ]
 
   constructor: ->
