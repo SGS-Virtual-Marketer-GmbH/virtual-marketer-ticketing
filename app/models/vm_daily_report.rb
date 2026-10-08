@@ -210,8 +210,10 @@ class VmDailyReport
     history   = history_by_user(agents.map(&:id))
     replies   = reply_minutes_by_user(agents.map(&:id))
 
+    # Ranked by tickets solved, most first. The automation account takes its
+    # place in that ranking like a person: what it closes (noise, phishing,
+    # silent voicemails) is work nobody on the team had to do.
     agents
-      .sort_by { |u| [SYSTEM_ACCOUNT_LOGINS.include?(u.login) ? 1 : 0, u.fullname.downcase] }
       .filter_map do |u|
         system = SYSTEM_ACCOUNT_LOGINS.include?(u.login)
         solved = closed_by[u.id] || 0
@@ -237,6 +239,7 @@ class VmDailyReport
           median_reply_minutes: median(rep),
         }
       end
+      .sort_by { |a| [-a[:solved], a[:system] ? 1 : 0, a[:name].downcase] }
   end
 
   # { user_id => tickets this person set to a closed state on the report day }.
@@ -491,6 +494,9 @@ class VmDailyReport
       lines << "Darunter #{singular ? 'war' : 'waren'} #{channels.join(' und ')}."
     end
 
+    auto = s[:agents].select { |a| a[:system] }.sum { |a| a[:solved] }
+    lines << "#{auto} #{auto == 1 ? 'Ticket hat' : 'Tickets hat'} Virtual Marketer selbst geschlossen: automatische Meldungen ohne Anliegen, Phishing und Anrufe ohne Nachricht." if auto.positive?
+
     lines << "Gestern kamen mehr Tickets herein (#{total}) als erledigt wurden (#{closed})." if total > closed
     lines
   end
@@ -702,7 +708,7 @@ class VmDailyReport
     rows = agents.map do |a|
       if a[:system]
         cards = grid.call([stat.call('Erledigt', num.call(a[:solved], GREEN), '33%'), stat.call('Offen', num.call(a[:open]), '67%')])
-        name  = "<div style=\"#{FONT}font-size:15px;font-weight:700;color:#{SOFT};\">#{h a[:name]}</div><div style=\"#{sub}\">Automatik, keine Person</div>"
+        name  = "<div style=\"#{FONT}font-size:15px;font-weight:700;color:#{SOFT};\">#{h a[:name]}</div><div style=\"#{sub}\">Automatik, keine Person: schließt Meldungen ohne Anliegen, Phishing und Anrufe ohne Nachricht</div>"
       else
         handled = if a[:first_at]
                     "<div style=\"font-size:16px;font-weight:700;margin-top:2px;color:#{INK};\">#{a[:tickets]}</div>#{a[:minutes_per_ticket] ? "<div style=\"#{sub}\">Ø #{duration_long(a[:minutes_per_ticket])}</div>" : ''}"
@@ -727,7 +733,7 @@ class VmDailyReport
     end.join
 
     legend = [
-      ['Erledigt',     'Tickets, die die Person gestern auf Erledigt gesetzt hat, auch wenn sie niemandem zugewiesen waren.'],
+      ['Erledigt',     'Tickets, die die Person gestern auf Erledigt gesetzt hat, auch wenn sie niemandem zugewiesen waren. Bei Virtual Marketer sind es die automatisch geschlossenen Tickets. Die Liste ist danach sortiert, wer am meisten erledigt hat.'],
       ['Offen',        'Tickets, die der Person jetzt gehören und noch nicht erledigt sind.'],
       ['Bearbeitet',   'Tickets, in denen die Person gestern etwas geändert hat (Notiz, Antwort, Status, Zuweisung). Darunter die durchschnittliche aktive Zeit je Ticket.'],
       ['Aktiv',        "Von der ersten bis zur letzten Änderung. Pausen über #{ACTIVE_GAP_MINUTES} Minuten zählen nicht mit. Reines Ansehen eines Tickets wird nicht erfasst, die Zeit ist deshalb eher zu niedrig als zu hoch."],
