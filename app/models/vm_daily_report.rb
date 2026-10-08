@@ -69,6 +69,11 @@ class VmDailyReport
 
   SYSTEM_ACCOUNT_LOGINS = %w[info@virtual-marketer.de ai@the-platform-group.com].freeze
 
+  # The account the Virtual Marketer pipeline writes as. Zammad runs triggers as
+  # the system user (id 1), so what a rule closes (newsletter unsubscribes, spam)
+  # shows up under id 1 in the history; both count as Virtual Marketer.
+  AUTOMATION_LOGIN = 'info@virtual-marketer.de'.freeze
+
   attr_reader :date, :recipients
 
   def initialize(date: Date.yesterday, recipients: nil)
@@ -206,13 +211,17 @@ class VmDailyReport
     agents = User.with_permissions('ticket.agent').where(active: true).where.not(id: 1).to_a.uniq
 
     closed_by = closed_by_user(agents.map(&:id))
+    if (automation = agents.find { |u| u.login == AUTOMATION_LOGIN })
+      closed_by[automation.id] = closed_history([1, automation.id]).distinct.count(:o_id)
+    end
     open_by   = Ticket.where(state_id: open_state_ids).where.not(owner_id: 1).group(:owner_id).count
     history   = history_by_user(agents.map(&:id))
     replies   = reply_minutes_by_user(agents.map(&:id))
 
     # Ranked by tickets solved, most first. The automation account takes its
     # place in that ranking like a person: what it closes (noise, phishing,
-    # silent voicemails) is work nobody on the team had to do.
+    # silent voicemails, and through Zammad rules newsletter unsubscribes and
+    # spam) is work nobody on the team had to do.
     agents
       .filter_map do |u|
         system = SYSTEM_ACCOUNT_LOGINS.include?(u.login)
@@ -247,17 +256,20 @@ class VmDailyReport
   # whoever picks them up while the owner stays "nobody", so counting by owner
   # showed Nora at 2 for a week in which she closed 70.
   def closed_by_user(user_ids)
+    closed_history(user_ids).group(:created_by_id).distinct.count(:o_id)
+  end
+
+  # History rows of the report day in which one of these users set a ticket to
+  # a closed state.
+  def closed_history(user_ids)
     ticket_obj = History::Object.find_by(name: 'Ticket')
     state_attr = History::Attribute.find_by(name: 'state')
-    return {} unless ticket_obj && state_attr
+    return History.none unless ticket_obj && state_attr
 
     History
       .where(history_object_id: ticket_obj.id, history_attribute_id: state_attr.id,
              created_by_id: user_ids, created_at: day_range,
              value_to: Ticket::State.where(id: Ticket::State.by_category_ids(:closed)).pluck(:name))
-      .group(:created_by_id)
-      .distinct
-      .count(:o_id)
   end
 
   # { user_id => { first_at:, last_at:, active_minutes:, tickets: } } from the
@@ -495,7 +507,7 @@ class VmDailyReport
     end
 
     auto = s[:agents].select { |a| a[:system] }.sum { |a| a[:solved] }
-    lines << "#{auto} #{auto == 1 ? 'Ticket hat' : 'Tickets hat'} Virtual Marketer selbst geschlossen: automatische Meldungen ohne Anliegen, Phishing und Anrufe ohne Nachricht." if auto.positive?
+    lines << "#{auto} #{auto == 1 ? 'Ticket hat' : 'Tickets hat'} Virtual Marketer selbst geschlossen: automatische Meldungen ohne Anliegen, Newsletter-Abmeldungen, Spam, Phishing und Anrufe ohne Nachricht. Jedes davon trägt das Tag auto_geschlossen und eine Notiz mit dem Grund." if auto.positive?
 
     lines << "Gestern kamen mehr Tickets herein (#{total}) als erledigt wurden (#{closed})." if total > closed
     lines
@@ -708,7 +720,7 @@ class VmDailyReport
     rows = agents.map do |a|
       if a[:system]
         cards = grid.call([stat.call('Erledigt', num.call(a[:solved], GREEN), '33%'), stat.call('Offen', num.call(a[:open]), '67%')])
-        name  = "<div style=\"#{FONT}font-size:15px;font-weight:700;color:#{SOFT};\">#{h a[:name]}</div><div style=\"#{sub}\">Automatik, keine Person: schließt Meldungen ohne Anliegen, Phishing und Anrufe ohne Nachricht</div>"
+        name  = "<div style=\"#{FONT}font-size:15px;font-weight:700;color:#{SOFT};\">#{h a[:name]}</div><div style=\"#{sub}\">Automatik, keine Person: schließt Meldungen ohne Anliegen, Newsletter-Abmeldungen, Spam, Phishing und Anrufe ohne Nachricht</div>"
       else
         handled = if a[:first_at]
                     "<div style=\"font-size:16px;font-weight:700;margin-top:2px;color:#{INK};\">#{a[:tickets]}</div>#{a[:minutes_per_ticket] ? "<div style=\"#{sub}\">Ø #{duration_long(a[:minutes_per_ticket])}</div>" : ''}"
