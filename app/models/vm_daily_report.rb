@@ -30,6 +30,7 @@ class VmDailyReport
     ai_classified
     automatisierte_benachrichtigung
     ai_newsletter_detected
+    ai_werbung_detected
     ai_creditreform_detected
     voicemail
     fax
@@ -63,14 +64,15 @@ class VmDailyReport
     'allgemeine_fragen'    => 'Allg. Fragen',
     'grosshandel'          => 'Grosshandel',
     'automatisierte_benachrichtigung' => 'Benachrichtigungen',
-    'ai_newsletter_detected'          => 'Newsletter',
+    'ai_newsletter_detected'          => 'Abmeldungen',
+    'ai_werbung_detected'             => 'Werbung',
     'ai_creditreform_detected'        => 'Creditreform',
   }.freeze
 
   SYSTEM_ACCOUNT_LOGINS = %w[info@virtual-marketer.de ai@the-platform-group.com].freeze
 
   # The account the Virtual Marketer pipeline writes as. Zammad runs triggers as
-  # the system user (id 1), so what a rule closes (newsletter unsubscribes, spam)
+  # the system user (id 1), so what a rule closes (spam)
   # shows up under id 1 in the history; both count as Virtual Marketer.
   AUTOMATION_LOGIN = 'info@virtual-marketer.de'.freeze
 
@@ -220,8 +222,8 @@ class VmDailyReport
 
     # Ranked by tickets solved, most first. The automation account takes its
     # place in that ranking like a person: what it closes (noise, phishing,
-    # silent voicemails, and through Zammad rules newsletter unsubscribes and
-    # spam) is work nobody on the team had to do.
+    # silent voicemails, advertising, and through a Zammad rule spam) is work
+    # nobody on the team had to do.
     agents
       .filter_map do |u|
         system = SYSTEM_ACCOUNT_LOGINS.include?(u.login)
@@ -442,7 +444,8 @@ class VmDailyReport
   # Tickets Virtual Marketer recognises up front as needing no answer.
   PREHANDLED = {
     'automatisierte_benachrichtigung' => ['Automatische Meldungen', 'Mails von Systemen, zum Beispiel Versand- oder Zahlungsmeldungen.'],
-    'ai_newsletter_detected'          => ['Newsletter', 'Newsletter und Abmeldungen.'],
+    'ai_werbung_detected'             => ['Werbung', 'Werbung und Kaltakquise an DentaTec, von Virtual Marketer geschlossen.'],
+    'ai_newsletter_detected'          => ['Abmeldungen', 'Wünsche, aus dem Newsletter von DentaTec ausgetragen zu werden. Gehen an Tim Pfeiffer.'],
     'ai_creditreform_detected'        => ['Creditreform', 'Anfragen der Auskunftei Creditreform.'],
   }.freeze
 
@@ -507,7 +510,7 @@ class VmDailyReport
     end
 
     auto = s[:agents].select { |a| a[:system] }.sum { |a| a[:solved] }
-    lines << "#{auto} #{auto == 1 ? 'Ticket hat' : 'Tickets hat'} Virtual Marketer selbst geschlossen: automatische Meldungen ohne Anliegen, Newsletter-Abmeldungen, Spam, Phishing und Anrufe ohne Nachricht. Jedes davon trägt das Tag auto_geschlossen und eine Notiz mit dem Grund." if auto.positive?
+    lines << "#{auto} #{auto == 1 ? 'Ticket hat' : 'Tickets hat'} Virtual Marketer selbst geschlossen: automatische Meldungen ohne Anliegen, Werbung, Spam, Phishing und Anrufe ohne Nachricht. Jedes davon trägt das Tag auto_geschlossen und eine Notiz mit dem Grund." if auto.positive?
 
     lines << "Gestern kamen mehr Tickets herein (#{total}) als erledigt wurden (#{closed})." if total > closed
     lines
@@ -720,7 +723,7 @@ class VmDailyReport
     rows = agents.map do |a|
       if a[:system]
         cards = grid.call([stat.call('Erledigt', num.call(a[:solved], GREEN), '33%'), stat.call('Offen', num.call(a[:open]), '67%')])
-        name  = "<div style=\"#{FONT}font-size:15px;font-weight:700;color:#{SOFT};\">#{h a[:name]}</div><div style=\"#{sub}\">Automatik, keine Person: schließt Meldungen ohne Anliegen, Newsletter-Abmeldungen, Spam, Phishing und Anrufe ohne Nachricht</div>"
+        name  = "<div style=\"#{FONT}font-size:15px;font-weight:700;color:#{SOFT};\">#{h a[:name]}</div><div style=\"#{sub}\">Automatik, keine Person: schließt Meldungen ohne Anliegen, Werbung, Spam, Phishing und Anrufe ohne Nachricht</div>"
       else
         handled = if a[:first_at]
                     "<div style=\"font-size:16px;font-weight:700;margin-top:2px;color:#{INK};\">#{a[:tickets]}</div>#{a[:minutes_per_ticket] ? "<div style=\"#{sub}\">Ø #{duration_long(a[:minutes_per_ticket])}</div>" : ''}"
