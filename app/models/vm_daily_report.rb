@@ -494,7 +494,7 @@ class VmDailyReport
 
     if total.positive?
       real = [total - prehandled, 0].max
-      lines << "#{prehandled} von #{total} neuen Tickets (#{prehandled * 100 / total} %) hat Virtual Marketer vorab als Newsletter, automatische Meldung oder Creditreform erkannt. Sie brauchen keine Antwort."
+      lines << "#{prehandled} von #{total} neuen Tickets (#{prehandled * 100 / total} %) hat Virtual Marketer vorab erkannt: Werbung, automatische Meldungen, Abmeldungen oder Creditreform. Keines davon braucht eine Antwort an den Absender."
       lines << "#{real} #{real == 1 ? 'Ticket braucht' : 'Tickets brauchen'} eine Bearbeitung durch das Team."
     end
 
