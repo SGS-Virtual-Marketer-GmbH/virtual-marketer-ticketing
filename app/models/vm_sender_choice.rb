@@ -21,6 +21,7 @@ class VmSenderChoice
     Email::Notification
     Google::Account
     Microsoft365::Account
+    MicrosoftGraph::Account
   ].freeze
 
   # Whether outgoing mail may be sent from this address.
