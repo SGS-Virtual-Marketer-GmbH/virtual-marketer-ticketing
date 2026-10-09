@@ -55,8 +55,8 @@ module Ticket::Article::AddsMetadataEmail
   end
 
   def metadata_email_process_email_address
-    # set sender
-    email_address = ticket.group.email_address
+    # set sender (the group's address, unless the agent picked another one)
+    email_address = sender_email_address
 
     if !email_address
       raise "No email address found for group '#{ticket.group.fullname}' (#{ticket.group_id})"
@@ -80,8 +80,15 @@ module Ticket::Article::AddsMetadataEmail
     email_address.name
   end
 
+  # The address this email is sent from: the ticket group's own address, or
+  # another active system address when the client asked for one. Refuses an
+  # address that is not allowed, see VmSenderChoice.
+  def sender_email_address
+    VmSenderChoice.resolve(ticket.group, preferences[VmSenderChoice::PREFERENCE_KEY])
+  end
+
   def metadata_email_process_from
-    email_address = ticket.group.email_address
+    email_address = sender_email_address
 
     self.from = Channel::EmailBuild.recipient_line(recipient_name(email_address), email_address.email)
   end
