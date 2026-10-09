@@ -7,6 +7,7 @@
     <h1 class="vm-work__th"><%= @ticket.title %></h1>
 
     <div class="vm-work__tmeta">
+      <%- App.VmSignal.badge(App.VmSignal.of(@ticket)) %>
       <% if @note and @note.category(): %>
         <span class="vm-work__pill vm-work__pill--cat"><%= @note.category() %></span>
       <% end %>

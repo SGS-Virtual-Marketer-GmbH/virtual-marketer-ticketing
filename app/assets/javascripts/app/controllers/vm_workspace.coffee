@@ -344,10 +344,15 @@ class App.VmWorkspace extends App.Controller
 
   # --- state -----------------------------------------------------------------
 
+  # Sorted by status signal (see App.VmSignal): what needs us first, what only
+  # waits last. Inside one signal the server's order stays, and arrow keys, the
+  # position counter and "Erledigt & weiter" all walk this same order.
   visibleTickets: =>
-    return @tickets if !@onlyMine
-    me = App.Session.get('id')
-    (t for t in @tickets when t.owner_id is me)
+    list = @tickets
+    if @onlyMine
+      me = App.Session.get('id')
+      list = (t for t in @tickets when t.owner_id is me)
+    App.VmSignal.sort(list)
 
   currentTicket: =>
     _.find(@visibleTickets(), (t) => t.id is @ticketId) or null

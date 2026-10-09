@@ -7,11 +7,11 @@
   </p>
 <% else: %>
   <% for ticket in @tickets: %>
-    <% state = ticket.state_id and App.TicketState.find(ticket.state_id) %>
-    <% closed = state and state.name is 'closed' %>
+    <% signal = App.VmSignal.of(ticket) %>
+    <% closed = !signal %>
     <button type="button" class="vm-work__qi js-vmQueueItem<%= ' is-active' if ticket.id is @ticketId %><%= ' is-done' if closed %>" data-id="<%= ticket.id %>">
       <span class="vm-work__qtop">
-        <span class="vm-work__qdot vm-work__qdot--<%= if closed then 'done' else if state and state.name is 'new' then 'new' else 'open' %>"></span>
+        <%- App.VmSignal.badge(signal) %>
         <span class="vm-work__qnr">#<%= ticket.number %></span>
         <span class="vm-work__qage"><%- @humanTime(ticket.created_at) %></span>
       </span>
