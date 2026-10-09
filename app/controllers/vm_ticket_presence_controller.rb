@@ -8,6 +8,10 @@
 # GET /api/v1/vm_ticket_presence?ids=1,2,3
 #   -> { presence: { "2": [{ user_id, name, editing }] } }
 #
+# Only the snapshot: when the queue opens, and after a websocket reconnect.
+# Afterwards the changes arrive as "vm_ticket_presence" events pushed by
+# Taskbar::VmPresenceBroadcast, so the client never polls.
+#
 # Same meaning as the banner: a taskbar row of another agent counts while its
 # last_contact is younger than IDLE_WINDOW; `editing` is a draft in progress
 # (reply or note typed). Only tickets the viewer may read are answered, so this
@@ -17,7 +21,7 @@
 class VmTicketPresenceController < ApplicationController
   prepend_before_action :authenticate_and_authorize!
 
-  IDLE_WINDOW = 5.minutes
+  IDLE_WINDOW = Taskbar::VmPresenceBroadcast::IDLE_WINDOW
   MAX_IDS     = 100
 
   def show
@@ -33,15 +37,12 @@ class VmTicketPresenceController < ApplicationController
       .where('last_contact > ?', IDLE_WINDOW.ago)
       .includes(:user)
 
-    presence = Hash.new { |hash, key| hash[key] = {} }
-    rows.each do |row|
-      ticket_id = keys[row.key]
-      next if ticket_id.blank? || row.user.blank?
-
-      entry = presence[ticket_id][row.user_id] ||= { user_id: row.user_id, name: row.user.fullname, editing: false }
-      entry[:editing] ||= row.state_changed?
+    grouped = rows.select { |row| keys[row.key] && row.user }.group_by { |row| [keys[row.key], row.user_id] }
+    presence = Hash.new { |hash, id| hash[id] = [] }
+    grouped.each do |(ticket_id, _user_id), user_rows|
+      presence[ticket_id] << Taskbar::VmPresenceBroadcast.entry_for(user_rows, user_rows.first.user)
     end
 
-    render json: { presence: presence.transform_values(&:values) }
+    render json: { presence: presence }
   end
 end

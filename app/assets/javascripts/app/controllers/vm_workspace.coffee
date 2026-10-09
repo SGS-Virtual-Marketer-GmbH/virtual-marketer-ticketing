@@ -60,9 +60,13 @@ class App.VmWorkspace extends App.Controller
     App.VmCounts.refresh('workspace')
     @bindQueue()
     @bindKeys()
-    # Who else has a queue ticket open: asked for the whole list at once, every
-    # 30 seconds, and again whenever the list itself changes.
-    @presenceIntervalId = @interval(@refreshPresence, 30000, 'vm-workspace-presence')
+    # Who else has a queue ticket open. One snapshot for the whole list when it
+    # loads (and after a reconnect, when events may have been missed); from
+    # there the server pushes every change, so nothing is polled. A colleague
+    # who just goes quiet sends no event, so each entry carries its own expiry
+    # and one local timer drops it -- no request involved.
+    @controllerBind('vm_ticket_presence', @applyPresenceEvent)
+    @controllerBind('ws:login', @refreshPresence)
     # The push for this queue is only a hint to ask the server sooner. The
     # list itself always comes from our own request (refreshData).
     @controllerBind('ticket_overview_list', (data) =>
@@ -77,7 +81,7 @@ class App.VmWorkspace extends App.Controller
   release: =>
     $(document).off('keydown.vmWorkspace')
     App.VmCounts.unsubscribe(@countsSubId) if @countsSubId
-    @clearInterval(@presenceIntervalId) if @presenceIntervalId
+    @clearDelay('vm-workspace-presence-expiry')
 
   # This task is persistent (see VmWorkspaceRouter below), so re-entering its
   # route -- from the tile board, a bookmark, or browser back/forward -- does
@@ -207,11 +211,55 @@ class App.VmWorkspace extends App.Controller
       data:        { ids: ids.join(',') }
       processData: true
       success: (data) =>
-        next = data?.presence or {}
-        return if JSON.stringify(next) is JSON.stringify(@presence)
+        now  = Date.now()
+        next = {}
+        for id, people of (data?.presence or {})
+          next[id] = (@presenceEntry(person, now) for person in people)
         @presence = next
         @renderQueue()
+        @scheduleExpiry()
     )
+
+  # The server says how long the person has been idle, not at what time: that
+  # stays right even when this computer's clock is off.
+  presenceEntry: (person, now) ->
+    user_id:   person.user_id
+    name:      person.name
+    editing:   !!person.editing
+    expiresAt: now + Math.max(0, 300 - (person.idle_seconds or 0)) * 1000
+
+  # One change pushed by the server for one colleague on one ticket.
+  applyPresenceEvent: (data) =>
+    return if !data?.ticket_id
+    id     = String(data.ticket_id)
+    people = _.reject(@presence[id] or [], (p) -> p.user_id is data.user_id)
+    people.push(@presenceEntry(data, Date.now())) if data.present
+    if people.length then @presence[id] = people else delete @presence[id]
+    # Only a row that is on screen needs redrawing.
+    @renderQueue() if _.find(@visibleTickets(), (t) -> String(t.id) is id)
+    @scheduleExpiry()
+
+  # Drops entries whose idle window ran out. Armed for the earliest expiry
+  # only, so nothing ticks while no one is around.
+  scheduleExpiry: =>
+    @clearDelay('vm-workspace-presence-expiry')
+    soonest = null
+    for id, people of @presence
+      for person in people
+        soonest = person.expiresAt if soonest is null or person.expiresAt < soonest
+    return if soonest is null
+    @delay(@expirePresence, Math.max(1000, soonest - Date.now()), 'vm-workspace-presence-expiry')
+
+  expirePresence: =>
+    now     = Date.now()
+    changed = false
+    for id, people of @presence
+      alive = _.filter(people, (p) -> p.expiresAt > now)
+      continue if alive.length is people.length
+      changed = true
+      if alive.length then @presence[id] = alive else delete @presence[id]
+    @renderQueue() if changed
+    @scheduleExpiry()
 
   # Tooltip text for the dot; names are escaped by the template (<%= %>).
   @presenceTitle: (people) ->
