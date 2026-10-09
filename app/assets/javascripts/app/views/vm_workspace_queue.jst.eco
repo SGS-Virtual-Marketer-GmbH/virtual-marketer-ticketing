@@ -9,9 +9,14 @@
   <% for ticket in @tickets: %>
     <% signal = App.VmSignal.of(ticket) %>
     <% closed = !signal %>
+    <% people = @presence?[ticket.id] or [] %>
     <button type="button" class="vm-work__qi js-vmQueueItem<%= ' is-active' if ticket.id is @ticketId %><%= ' is-done' if closed %>" data-id="<%= ticket.id %>">
       <span class="vm-work__qtop">
         <%- App.VmSignal.badge(signal) %>
+        <% if people.length: %>
+          <% level = if _.some(people, (p) -> p.editing) then 'editing' else 'viewing' %>
+          <span class="vm-work__qpres vm-work__qpres--<%= level %>" title="<%= App.VmWorkspace.presenceTitle(people) %>" aria-label="<%= App.VmWorkspace.presenceTitle(people) %>" role="img"></span>
+        <% end %>
         <span class="vm-work__qnr">#<%= ticket.number %></span>
         <span class="vm-work__qage"><%- @humanTime(ticket.created_at) %></span>
       </span>

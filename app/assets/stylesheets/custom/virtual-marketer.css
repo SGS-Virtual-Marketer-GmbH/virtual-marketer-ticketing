@@ -1389,6 +1389,18 @@
 .vm-sig--wartet_kunde   { --vm-sig-color: #5f6b7a; }
 .vm-work__tmeta .vm-sig { font-size: 12px; padding: 2px 10px 2px 8px; }
 
+/* A colleague has this ticket open (blue) or is writing in it (orange). Same
+   colours as the banner in the ticket; the meaning is in the hover text. */
+.vm-work__qpres {
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  cursor: help;
+}
+.vm-work__qpres--viewing { background: #66a3ce; box-shadow: 0 0 0 2px rgba(102, 163, 206, 0.28); }
+.vm-work__qpres--editing { background: #e08a00; box-shadow: 0 0 0 2px rgba(224, 138, 0, 0.3); }
+
 .vm-work__qnr { font-size: 12px; color: var(--vm-gray-500); font-variant-numeric: tabular-nums; }
 .vm-work__qage { font-size: 12px; color: var(--vm-gray-500); margin-left: auto; }
 

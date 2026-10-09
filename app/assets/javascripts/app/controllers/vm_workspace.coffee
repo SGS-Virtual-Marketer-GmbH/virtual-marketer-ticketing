@@ -54,11 +54,15 @@ class App.VmWorkspace extends App.Controller
     @listAt    = 0
     @onlyMine  = !!@countState.onlyMine
     @loading   = true
+    @presence  = {}
     @render()
     @countsSubId = App.VmCounts.subscribe(@updateCounts)
     App.VmCounts.refresh('workspace')
     @bindQueue()
     @bindKeys()
+    # Who else has a queue ticket open: asked for the whole list at once, every
+    # 30 seconds, and again whenever the list itself changes.
+    @presenceIntervalId = @interval(@refreshPresence, 30000, 'vm-workspace-presence')
     # The push for this queue is only a hint to ask the server sooner. The
     # list itself always comes from our own request (refreshData).
     @controllerBind('ticket_overview_list', (data) =>
@@ -73,6 +77,7 @@ class App.VmWorkspace extends App.Controller
   release: =>
     $(document).off('keydown.vmWorkspace')
     App.VmCounts.unsubscribe(@countsSubId) if @countsSubId
+    @clearInterval(@presenceIntervalId) if @presenceIntervalId
 
   # This task is persistent (see VmWorkspaceRouter below), so re-entering its
   # route -- from the tile board, a bookmark, or browser back/forward -- does
@@ -180,9 +185,46 @@ class App.VmWorkspace extends App.Controller
       loading:  @loading
       onlyMine: @onlyMine
       hidden:   @hiddenInQueue()
+      presence: @presence
       humanTime: (iso) -> App.VmWorkspace.humanTime(iso)
     )
     @renderPosition()
+
+  # Small dot per queue row: a colleague has the ticket open (blue) or is
+  # writing in it (orange). The same two levels as App.VmCollisionBanner, from
+  # the same shared taskbar data, but asked for the whole queue in one request.
+  # Silent on failure: the dot is a courtesy, never a reason to disturb work.
+  refreshPresence: =>
+    ids = (t.id for t in @visibleTickets())
+    if ids.length is 0
+      return if _.isEmpty(@presence)
+      @presence = {}
+      return @renderQueue()
+    @ajax(
+      id:          'vm-workspace-presence'
+      type:        'GET'
+      url:         "#{@apiPath}/vm_ticket_presence"
+      data:        { ids: ids.join(',') }
+      processData: true
+      success: (data) =>
+        next = data?.presence or {}
+        return if JSON.stringify(next) is JSON.stringify(@presence)
+        @presence = next
+        @renderQueue()
+    )
+
+  # Tooltip text for the dot; names are escaped by the template (<%= %>).
+  @presenceTitle: (people) ->
+    return '' if !people?.length
+    editing = _.filter(people, (p) -> p.editing)
+    list    = if editing.length then editing else people
+    names   = _.map(list, (p) -> p.name)
+    who     = if names.length is 1 then names[0] else "#{names[...-1].join(', ')} und #{names[names.length - 1]}"
+    many    = names.length > 1
+    if editing.length
+      "#{who} #{if many then 'schreiben' else 'schreibt'} gerade eine Antwort oder Notiz in diesem Ticket. Bitte kurz abstimmen, bevor du antwortest."
+    else
+      "#{who} #{if many then 'haben' else 'hat'} dieses Ticket gerade geöffnet."
 
   renderPosition: =>
     return if !@posEl
@@ -314,6 +356,7 @@ class App.VmWorkspace extends App.Controller
     if !@ticketId or !_.find(@visibleTickets(), (t) => t.id is @ticketId)
       @ticketId = @visibleTickets()[0]?.id or null
     @renderQueue()
+    @refreshPresence()
     @fetchTicket()
 
   fetchTicket: =>
