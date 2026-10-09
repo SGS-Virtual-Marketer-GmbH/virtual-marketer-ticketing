@@ -605,6 +605,14 @@ class App.TicketZoom extends App.Controller
             @delay(@markForm, 250, 'ticket-zoom-form-update')
         )
 
+        @draftBanner = new App.VmDraftBanner(
+          ui:        @
+          ticket:    @ticket
+          ticket_id: @ticket_id
+          taskKey:   @taskKey
+          el:        elLocal.find('.js-vmDraftBar')
+        )
+
         @highlighter = new App.TicketZoomHighlighter(
           el:        elLocal.find('.js-highlighterContainer')
           ticket:    @ticket
@@ -1265,6 +1273,7 @@ class App.TicketZoom extends App.Controller
 
   draftFetched: ->
     @updateDraftButton(@sharedDraft()?, 'available')
+    @draftBanner?.refresh()
 
   draftState: ->
     @sharedDraft()?

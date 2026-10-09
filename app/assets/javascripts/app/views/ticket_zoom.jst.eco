@@ -30,6 +30,7 @@
         </div>
       </div>
       <div class="ticket-article"></div>
+      <div class="vm-draftbar hide js-vmDraftBar"></div>
       <div class="article-new"></div>
     </div>
   </div>
