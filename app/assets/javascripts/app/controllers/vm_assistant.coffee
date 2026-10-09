@@ -205,7 +205,7 @@ class App.VmAssistant extends App.Controller
       if error
         @replyStatus(card, __('Der Entwurf konnte nicht gespeichert werden.'), true)
         return
-      @replyStatus(card, __('Als Entwurf im Ticket gespeichert. Im Ticket erscheint "Entwurf verfügbar" über dem Antwortfeld.'))
+      @replyStatus(card, __('Als Entwurf im Ticket gespeichert. Im Ticket erscheint über dem Antwortfeld "Antwortvorschlag liegt bereit" mit der Schaltfläche "Einfügen".'))
       @navigate("#ticket/zoom/#{context.ticket.id}")
     )
 
