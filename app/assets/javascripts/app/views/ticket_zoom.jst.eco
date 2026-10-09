@@ -26,6 +26,7 @@
           </div>
           <div class="js-ticketTitleContainer ticket-title"></div>
           <div class="js-ticketMetaContainer"></div>
+          <div class="vm-collab-pillrow hide js-vmCollabPill"></div>
         </div>
       </div>
       <div class="ticket-article"></div>

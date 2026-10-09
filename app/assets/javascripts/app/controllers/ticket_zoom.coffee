@@ -568,6 +568,7 @@ class App.TicketZoom extends App.Controller
         @collisionBanner = new App.VmCollisionBanner(
           taskKey: @taskKey
           el:      elLocal.find('.js-vmCollab')
+          pillEl:  elLocal.find('.js-vmCollabPill')
         )
 
       @attributeBar = new App.TicketZoomAttributeBar(

@@ -8,13 +8,33 @@
 #
 # Two levels, because they mean different things:
 #   - someone has typed something (the task state is "changed", i.e. a reply
-#     or note in progress): warning, "talk before you answer"
-#   - someone merely has the ticket open: calm information
+#     or note in progress): warning (orange), "talk before you answer"
+#   - someone merely has the ticket open: information (blue)
+#
+# Blue is "a colleague is in this ticket", an overlay on top of the ticket's
+# status signal (App.VmSignal), never a status of its own. The same two levels
+# are also available as a short pill for the ticket header: pass `pillEl` and
+# the pill is filled alongside the banner, or build one yourself with
+# App.VmCollisionBanner.pillHtml(level, names).
+#
 # Anyone idle for 5+ minutes is left out; an abandoned browser tab must not
 # keep a warning up. Deliberately NOT a hard lock for the same reason: a lock
 # that outlives a closed laptop blocks the ticket for everybody.
 class App.VmCollisionBanner extends App.Controller
   IDLE_MS: 300000
+
+  # Short form for the ticket header: "Anna ist im Ticket" / "Anna schreibt
+  # gerade". Names are escaped here; level is 'viewing' or 'editing'.
+  @pillHtml: (level, names) ->
+    return '' if !names?.length
+    who = if names.length is 1 then names[0] else "#{names[0]} +#{names.length - 1}"
+    verb =
+      if level is 'editing'
+        if names.length is 1 then 'schreibt gerade' else 'schreiben gerade'
+      else
+        if names.length is 1 then 'ist im Ticket' else 'sind im Ticket'
+    icon = if level is 'editing' then '&#9998;' else '&#128065;'
+    "<span class=\"vm-collab-pill vm-collab-pill--#{level}\" role=\"status\"><span aria-hidden=\"true\">#{icon}</span> #{App.Utils.htmlEscape(who)} #{verb}</span>"
 
   constructor: ->
     super
@@ -54,6 +74,7 @@ class App.VmCollisionBanner extends App.Controller
 
     if found.length is 0
       @el.addClass('hide').empty()
+      @pillEl?.addClass('hide').empty()
       return
 
     editing = _.filter(found, (f) -> f.editing)
@@ -83,3 +104,4 @@ class App.VmCollisionBanner extends App.Controller
       .addClass("vm-collab--#{level}")
       .attr('role', 'alert')
       .html("<span class=\"vm-collab-icon\">#{if level is 'editing' then '&#9998;' else '&#128065;'}</span><span>#{text}</span>")
+    @pillEl?.removeClass('hide').html(App.VmCollisionBanner.pillHtml(level, names))
