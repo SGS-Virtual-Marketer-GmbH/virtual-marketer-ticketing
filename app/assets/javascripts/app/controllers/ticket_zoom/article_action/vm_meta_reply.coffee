@@ -18,6 +18,7 @@ class VmMetaReply
     'instagram message':
       actionType:   'vmMetaInstagramReply'
       icon:         'instagram'
+      vmIcon:       true
       maxTextLength: 1000
       attachments:  false
 
@@ -73,6 +74,7 @@ class VmMetaReply
     entry = {
       name:              articleTypeCreate
       icon:              config.icon
+      vmIcon:            config.vmIcon
       attributes:        []
       internal:          false,
       features:          ['body:limit']

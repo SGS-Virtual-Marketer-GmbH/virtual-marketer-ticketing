@@ -45,7 +45,7 @@ class App.TicketZoomArticleNew extends App.Controller
 
     @internalSelector = false
     @setPossibleArticleTypes()
-    @type = @normalizeArticleType(@defaults['type'] || 'note')
+    @type = @normalizeArticleType(@defaults['type'] || @defaultChannelType() || 'note')
 
     if @ticket.currentView() is 'agent'
       @internalSelector = true
@@ -108,8 +108,8 @@ class App.TicketZoomArticleNew extends App.Controller
     @controllerBind('ui::ticket::taskReset', (data) =>
       @releaseGlobalClickEvents()
       return if data.ticket_id.toString() isnt @ticket_id.toString()
-      @type        = 'note'
       @defaults    = {}
+      @type        = @defaultChannelType() || 'note'
       @attachments = []
       @render()
     )
@@ -165,6 +165,24 @@ class App.TicketZoomArticleNew extends App.Controller
     for config in @actions()
       if config && config.articleTypes
         @articleTypes = config.articleTypes(@articleTypes, @ticket, @)
+
+  # A chat ticket answers on the channel it came in on. Zammad opens every
+  # ticket on "Notiz", so an agent who just starts typing wrote an internal
+  # note nobody outside ever saw. Only chat channels: an e-mail reply needs its
+  # recipient and subject filled in by the Reply action, which a bare default
+  # would skip. If the channel cannot be answered right now (WhatsApp 24 h
+  # window closed, no channel any more) the type is not in @articleTypes and
+  # the composer stays on "Notiz".
+  CHAT_ARTICLE_TYPES: ['whatsapp message', 'messenger message', 'instagram message']
+
+  defaultChannelType: =>
+    return if @ticket?.currentView() isnt 'agent'
+    typeId = @ticket.create_article_type_id
+    return if !typeId || !App.TicketArticleType.exists(typeId)
+    name = App.TicketArticleType.find(typeId).name
+    return if !_.contains(@CHAT_ARTICLE_TYPES, name)
+    return if !_.some(@articleTypes, (articleType) -> articleType?.name is name)
+    name
 
   normalizeArticleType: (type) =>
     return if not type

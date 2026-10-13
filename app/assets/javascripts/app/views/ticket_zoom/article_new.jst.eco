@@ -19,14 +19,14 @@
         <div class="editControls-iconHolder centered js-selectedArticleType">
           <% for articleType in @articleTypes: %>
           <div class="editControls-icon js-selectableTypes<%- ' hide' if articleType.icon != @article.icon %>" data-type="<%- articleType.name %>">
-          <%- @Icon(articleType.icon) %>
+          <% if articleType.vmIcon: %><%- @VmIcon(articleType.icon) %><% else: %><%- @Icon(articleType.icon) %><% end %>
           </div>
           <% end %>
         </div>
         <div class="pop-selector is-hidden js-articleTypes">
           <% for articleType in @articleTypes: %>
           <div class="editControls-icon pop-selectable js-articleTypeItem" data-value="<%= articleType.name %>">
-            <%- @Icon(articleType.icon, 'pop-selectable-icon') %>
+            <% if articleType.vmIcon: %><%- @VmIcon(articleType.icon, 'pop-selectable-icon') %><% else: %><%- @Icon(articleType.icon, 'pop-selectable-icon') %><% end %>
           </div>
           <% end %>
         </div>
