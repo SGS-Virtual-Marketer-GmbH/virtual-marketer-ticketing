@@ -1,0 +1,10 @@
+<div class="vm-meta-comment">
+  <% if @mode is 'private': %>
+    <p><%- @T('Der Kunde bekommt eine Direktnachricht, die Meta mit seinem Kommentar verknüpft. Das geht nur einmal pro Kommentar und nur innerhalb von 7 Tagen.') %></p>
+    <div class="form-group">
+      <textarea class="form-control js-vmCommentText" rows="6" maxlength="1000" placeholder="<%- @Ti('Ihre Nachricht') %>"></textarea>
+    </div>
+  <% else: %>
+    <p><%- @T('Der Kommentar wird auf Facebook/Instagram für andere ausgeblendet. Nur der Verfasser und seine Freunde sehen ihn weiterhin. Das lässt sich in der App von Meta wieder rückgängig machen.') %></p>
+  <% end %>
+</div>

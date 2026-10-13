@@ -35,6 +35,7 @@ class VmMeta::Webhook::Message
 
     @ticket  = create_or_update_ticket
     @article = create_article
+    add_context_note
 
     ticket
   end
@@ -225,6 +226,56 @@ class VmMeta::Webhook::Message
     create_attachments(article:) if attachments.present?
 
     article
+  end
+
+  # Where this message came from, when it is not just someone opening the chat:
+  # a reply to one of our stories, a mention of us in their story, or a chat
+  # started from an ad. Written as an internal note, so the customer's own text
+  # stays exactly as they wrote it and the agent still knows what it is about.
+  def context_lines
+    lines = []
+
+    story = message.dig(:reply_to, :story)
+    lines << 'Antwort auf eine Story von DentaTec.' if story.present?
+    lines << "Story: #{story[:url]} (nur 24 Stunden abrufbar)" if story.is_a?(Hash) && story[:url].present?
+
+    lines << 'Hat DentaTec in der eigenen Story erwähnt.' if attachments.any? { |attachment| attachment[:type].to_s == 'story_mention' }
+
+    lines.concat(referral_lines)
+    lines
+  end
+
+  def referral_lines
+    referral = data[:referral].presence || message[:referral].presence
+    return [] if !referral.is_a?(Hash)
+
+    ads      = referral[:ads_context_data].is_a?(Hash) ? referral[:ads_context_data] : {}
+    lines    = [referral[:source].to_s.casecmp?('ADS') || referral[:ad_id].present? ? 'Der Chat wurde über eine Anzeige gestartet.' : 'Der Chat wurde über einen Link gestartet.']
+    lines << "Anzeige: #{ads[:ad_title]}" if ads[:ad_title].present?
+    lines << "Anzeigen-ID: #{referral[:ad_id]}" if referral[:ad_id].present?
+    lines << "Bild: #{ads[:photo_url]}" if ads[:photo_url].present?
+    lines << "Link: #{referral[:ref_uri]}" if referral[:ref_uri].present?
+    lines << "Kennung: #{referral[:ref]}" if referral[:ref].present?
+    lines
+  end
+
+  def add_context_note
+    lines = context_lines
+    return if lines.blank?
+
+    Ticket::Article.create!(
+      ticket_id:     ticket.id,
+      content_type:  'text/plain',
+      body:          lines.join("\n"),
+      internal:      true,
+      sender:        Ticket::Article::Sender.find_by(name: 'System'),
+      type:          Ticket::Article::Type.find_by(name: 'note'),
+      preferences:   { vm_meta_context: true },
+      updated_by_id: 1,
+      created_by_id: 1,
+    )
+  rescue => e
+    Rails.logger.error "VmMeta channel (#{channel.options[:callback_url_uuid]}) - context note failed: #{e.message}"
   end
 
   def article_type_name
