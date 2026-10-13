@@ -102,6 +102,8 @@ class VmMeta::Webhook::Message
   end
 
   def update_user(existing)
+    rename_generic_user(existing)
+
     preferences = existing.preferences
     preferences[:vm_meta] ||= {}
     return existing if preferences[:vm_meta][:contact_ref] == contact_ref
@@ -111,12 +113,23 @@ class VmMeta::Webhook::Message
     existing
   end
 
+  # A first message whose name could not be resolved leaves "Facebook-Kontakt"
+  # behind. Ask again with the next message, so the name arrives as soon as
+  # Meta hands it out, instead of staying generic for good.
+  def rename_generic_user(existing)
+    return if existing.firstname != default_profile_name || existing.lastname.present?
+    return if profile_name == default_profile_name
+
+    firstname, lastname = User.name_guess(profile_name)
+    existing.update!(firstname: firstname.presence || profile_name, lastname: lastname.presence || '')
+  end
+
   def profile_name
     @profile_name ||= fetch_profile_name.presence || default_profile_name
   end
 
   def fetch_profile_name
-    VmMeta::Graph::Profile.new(access_token: channel.options[:page_access_token], platform:).name(sender_id)
+    VmMeta::Graph::Profile.new(access_token: channel.options[:page_access_token], platform:, page_id: channel.options[:page_id]).name(sender_id)
   rescue => e
     Rails.logger.error "VmMeta channel (#{channel.options[:callback_url_uuid]}) - profile lookup failed: #{e.message}"
     nil

@@ -15,6 +15,7 @@
         <span class="vm-work__pill vm-work__pill--conf"><%- @T('KI') %> <%= @note.confidence() %> %</span>
       <% end %>
       <span class="vm-work__pill">#<%= @ticket.number %></span>
+      <%- App.VmChannel.chip(App.VmChannel.of(@ticket)) %>
       <% if @ticket.customer_id and App.User.exists(@ticket.customer_id): %>
         <span>&middot;</span><span><%= App.User.find(@ticket.customer_id).displayName() %></span>
       <% end %>

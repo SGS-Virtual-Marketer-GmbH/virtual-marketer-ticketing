@@ -1453,6 +1453,19 @@
   font-size: 12px;
 }
 
+.vm-chan {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16px;
+  white-space: nowrap;
+}
+.vm-chan--whatsapp  { color: #1d8f4e; }
+.vm-chan--facebook  { color: #2f62b5; }
+.vm-chan--instagram { color: #b0356f; }
 .vm-work__pill--cat { background: var(--vm-red-soft); color: var(--vm-red); font-weight: 600; }
 .vm-work__pill--conf { background: rgba(102, 163, 206, 0.16); color: #2c6a96; }
 
