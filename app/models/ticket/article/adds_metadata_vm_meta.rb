@@ -33,6 +33,9 @@ module Ticket::Article::AddsMetadataVmMeta
   end
 
   def vm_meta_platform_label
+    comment_platform = ticket.preferences.dig('vm_meta_comment', 'platform')
+    return (comment_platform == 'instagram' ? 'Instagram-Kommentar' : 'Facebook-Kommentar') if comment_platform
+
     ticket.preferences.dig('vm_meta', 'platform') == 'instagram' ? 'Instagram' : 'Facebook Messenger'
   end
 
