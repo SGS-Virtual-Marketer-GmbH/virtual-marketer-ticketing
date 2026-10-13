@@ -7,7 +7,19 @@ class App.TicketZoomChannel
     # Add a frontend module layer here for other channels, if the need arises.
     return @whatsappAlert() if _.has(@ticket.preferences, 'whatsapp')
     return @vmMetaAlert() if _.has(@ticket.preferences, 'vm_meta')
+    return @vmMetaCommentAlert() if _.has(@ticket.preferences, 'vm_meta_comment')
     null
+
+  # A public comment has no reply window, but the answer is visible to
+  # everyone under the post - say so before somebody types an order number.
+  vmMetaCommentAlert: =>
+    return null if /^(closed|merged|removed)$/.test(@ticket.state.name)
+
+    {
+      text: __('Öffentlicher Kommentar: Die Antwort erscheint für alle sichtbar unter dem Beitrag. Bitte keine persönlichen Daten oder Bestelldetails schreiben, dafür den Kunden per Direktnachricht einladen.')
+      noQuote: true
+      type: 'warning'
+    }
 
   vmMetaAlert: =>
     lastTimestamp = @ticket.preferences.vm_meta.timestamp_incoming

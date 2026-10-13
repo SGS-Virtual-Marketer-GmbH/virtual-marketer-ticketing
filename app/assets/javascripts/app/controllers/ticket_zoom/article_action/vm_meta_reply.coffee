@@ -21,6 +21,17 @@ class VmMetaReply
       vmIcon:       true
       maxTextLength: 1000
       attachments:  false
+    'facebook comment':
+      actionType:   'vmMetaFacebookCommentReply'
+      icon:         'facebook'
+      maxTextLength: 8000
+      attachments:  false
+    'instagram comment':
+      actionType:   'vmMetaInstagramCommentReply'
+      icon:         'instagram'
+      vmIcon:       true
+      maxTextLength: 2200
+      attachments:  false
 
   @action: (actions, ticket, article, ui) ->
     return actions if !ticket.editable()

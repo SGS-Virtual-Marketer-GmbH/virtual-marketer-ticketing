@@ -3,7 +3,7 @@
 module Ticket::Article::EnqueueCommunicateVmMetaJob
   extend ActiveSupport::Concern
 
-  VM_META_TYPES = ['messenger message', 'instagram message'].freeze
+  VM_META_TYPES = VmMeta::ARTICLE_TYPES
 
   included do
     after_create_commit :ticket_article_enqueue_communicate_vm_meta_job

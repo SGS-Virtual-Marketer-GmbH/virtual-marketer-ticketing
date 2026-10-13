@@ -173,7 +173,7 @@ class App.TicketZoomArticleNew extends App.Controller
   # would skip. If the channel cannot be answered right now (WhatsApp 24 h
   # window closed, no channel any more) the type is not in @articleTypes and
   # the composer stays on "Notiz".
-  CHAT_ARTICLE_TYPES: ['whatsapp message', 'messenger message', 'instagram message']
+  CHAT_ARTICLE_TYPES: ['whatsapp message', 'messenger message', 'instagram message', 'facebook comment', 'instagram comment']
 
   defaultChannelType: =>
     return if @ticket?.currentView() isnt 'agent'

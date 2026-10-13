@@ -7,7 +7,7 @@
 module Ticket::Article::AddsMetadataVmMeta
   extend ActiveSupport::Concern
 
-  VM_META_TYPES = ['messenger message', 'instagram message'].freeze
+  VM_META_TYPES = VmMeta::ARTICLE_TYPES
 
   included do
     before_create :ticket_article_add_metadata_vm_meta

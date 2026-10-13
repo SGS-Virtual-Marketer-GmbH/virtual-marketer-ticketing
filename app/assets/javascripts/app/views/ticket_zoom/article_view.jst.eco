@@ -168,6 +168,12 @@
           <% else if @article.type.name is 'instagram message': %>
             <%- @VmIcon('instagram', 'article-meta-icon') %>
             <%- @T('Instagram') %>
+          <% else if @article.type.name is 'facebook comment': %>
+            <%- @Icon('facebook', 'article-meta-icon') %>
+            <%- @T('Facebook-Kommentar') %>
+          <% else if @article.type.name is 'instagram comment': %>
+            <%- @VmIcon('instagram', 'article-meta-icon') %>
+            <%- @T('Instagram-Kommentar') %>
           <% else: %>
             <% icon = @article.type.name.split(" ")%>
             <%- @Icon(icon[0], 'article-meta-icon') %>

@@ -12,6 +12,8 @@ class App.VmChannel
     'whatsapp message':  { key: 'whatsapp',  label: __('WhatsApp') }
     'messenger message': { key: 'facebook',  label: __('Facebook') }
     'instagram message': { key: 'instagram', label: __('Instagram') }
+    'facebook comment':  { key: 'facebook',  label: __('Facebook-Kommentar') }
+    'instagram comment': { key: 'instagram', label: __('Instagram-Kommentar') }
 
   # { key, label } of the ticket's chat channel, or null (e-mail and the rest).
   @of: (ticket) ->

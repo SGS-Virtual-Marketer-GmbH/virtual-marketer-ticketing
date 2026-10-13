@@ -7,6 +7,19 @@ class CommunicateVmMetaJob < ApplicationJob
   }
 
   def perform(article_id)
-    Service::Ticket::Article::Type::VmMetaMessage::Deliver.execute(article_id: article_id)
+    deliver_service(article_id).execute(article_id: article_id)
+  end
+
+  private
+
+  # Direct messages and public comments are delivered by different services.
+  def deliver_service(article_id)
+    type = Ticket::Article.find(article_id).type&.name
+
+    if VmMeta::COMMENT_TYPES.include?(type)
+      Service::Ticket::Article::Type::VmMetaComment::Deliver
+    else
+      Service::Ticket::Article::Type::VmMetaMessage::Deliver
+    end
   end
 end

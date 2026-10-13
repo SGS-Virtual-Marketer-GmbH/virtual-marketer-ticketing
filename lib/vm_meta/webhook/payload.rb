@@ -29,6 +29,7 @@ module VmMeta::Webhook
 
       entries.each do |entry|
         Array(entry[:messaging]).each { |event| process_event(entry:, event:) }
+        Array(entry[:changes]).each { |change| process_change(entry:, change:) }
       end
     end
 
@@ -89,6 +90,38 @@ module VmMeta::Webhook
         channel:  @channel,
         platform:,
       ).process
+    end
+
+    # Public comments arrive as 'changes' (Page field 'feed', Instagram field
+    # 'comments'), not as 'messaging'. Isolated on purpose: whatever goes wrong
+    # with a comment must never fail the webhook, because Meta would then
+    # redeliver - and starve - the direct messages in the same payload.
+    def process_change(entry:, change:)
+      value = change[:value]
+      return if !value.is_a?(Hash)
+
+      comment_platform = comment_platform_of(change)
+      return log_ignored("change #{change[:field]}") if comment_platform.nil?
+
+      VmMeta::Webhook::Comment.new(
+        value:,
+        page_id:  entry[:id].to_s,
+        channel:  @channel,
+        platform: comment_platform,
+      ).process
+    rescue => e
+      Rails.logger.error "VmMeta channel (#{@channel.options[:callback_url_uuid]}) - comment processing failed: #{e.class}: #{e.message}"
+    end
+
+    def comment_platform_of(change)
+      value = change[:value]
+
+      case [@data[:object].to_s, change[:field].to_s]
+      when %w[page feed]
+        'facebook' if value[:item].to_s == 'comment' && value[:verb].to_s == 'add'
+      when %w[instagram comments]
+        'instagram'
+      end
     end
 
     def log_ignored(kind)

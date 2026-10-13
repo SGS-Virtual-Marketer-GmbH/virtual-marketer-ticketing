@@ -8,10 +8,18 @@
 # a 24h/7d reply window, and a background delivery job with retries.
 #
 # Fixed naming (relied on by another codebase, do not rename):
-#   - Article types: 'messenger message', 'instagram message'
+#   - Article types: 'messenger message', 'instagram message',
+#     'facebook comment', 'instagram comment'
 #   - Channel area: 'VmMeta::Page'
 #   - Channel adapter: 'vm_meta'
 module VmMeta
+
+  # Direct messages and public comments are two different things with
+  # different rules (a message has a reply window, a comment is answered in
+  # public, under the post), so they have their own article types.
+  MESSAGE_TYPES = ['messenger message', 'instagram message'].freeze
+  COMMENT_TYPES = ['facebook comment', 'instagram comment'].freeze
+  ARTICLE_TYPES = (MESSAGE_TYPES + COMMENT_TYPES).freeze
 
   GRAPH_API_VERSION = 'v23.0'.freeze
   GRAPH_BASE_URL     = 'https://graph.facebook.com'.freeze

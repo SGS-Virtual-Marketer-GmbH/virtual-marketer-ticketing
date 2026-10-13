@@ -19,3 +19,5 @@ Ticket::Article::Type.create_if_not_exists(id: 14, name: __('whatsapp message'),
 # No fixed ids, so a future upstream type cannot collide with them.
 Ticket::Article::Type.create_if_not_exists(name: 'messenger message', communication: true)
 Ticket::Article::Type.create_if_not_exists(name: 'instagram message', communication: true)
+Ticket::Article::Type.create_if_not_exists(name: 'facebook comment', communication: true)
+Ticket::Article::Type.create_if_not_exists(name: 'instagram comment', communication: true)
