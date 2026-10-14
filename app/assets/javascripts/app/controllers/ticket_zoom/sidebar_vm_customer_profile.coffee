@@ -34,6 +34,7 @@ class SidebarVMCustomerProfile extends App.Controller
     @profile = new App.VmCustomerProfile(
       el:           el
       ticketNumber: @ticket.number
+      customerId:   @ticket.customer_id
     )
 
 # Sorted first (App.Sidebar picks the alphabetically-first tab as the default

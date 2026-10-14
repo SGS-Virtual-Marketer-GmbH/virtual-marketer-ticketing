@@ -14,14 +14,38 @@ class App.VmCustomerProfile extends App.Controller
   constructor: (params) ->
     super
     @ticketNumber = params.ticketNumber
+    @customerId   = params.customerId
+    @history      = null
+    @lastData     = null
+    @lastError    = null
     @render(loading: true)
     @load()
+    @loadHistory()
 
   render: (state = {}) =>
     @html App.view('vm_customer_profile')(
       loading: !!state.loading
       error:   state.error
       data:    state.data
+      history: @history
+    )
+
+  # Every ticket of this customer in every area, as a timeline. Zammad's own
+  # lists hide tickets in areas the agent cannot read; here they show up with
+  # date, area, state and channel, but without title or content and without a
+  # link (see VmCustomerHistoryController). A failed fetch just leaves the
+  # section out: the profile above must not depend on it.
+  loadHistory: =>
+    return if !@customerId
+    @ajax(
+      id:   'vm-customer-history'
+      type: 'GET'
+      url:  "#{@apiPath}/vm_customer_history?customer_id=#{encodeURIComponent(@customerId)}"
+      success: (data) =>
+        @history = data
+        @render(loading: !@lastData and !@lastError, data: @lastData, error: @lastError)
+      error: =>
+        @history = null
     )
 
   load: =>
@@ -31,13 +55,16 @@ class App.VmCustomerProfile extends App.Controller
       url:  "#{@apiPath}/vm_assistant/customer_profile?ticket_number=#{encodeURIComponent(@ticketNumber)}"
       success: (data) =>
         if data.error
+          @lastError = data.error
           @render(error: data.error)
           return
+        @lastData = data
         @render(data: data)
       error: (xhr) =>
         message = switch xhr.status
           when 403 then __('Für diese Aktion fehlen dir die Rechte.')
           when 502, 503 then __('Gerade nicht erreichbar. Versuch es gleich noch einmal.')
           else __('Die Anfrage ist fehlgeschlagen.')
+        @lastError = message
         @render(error: message)
     )

@@ -217,4 +217,35 @@
       <div class="vm-profile__hint"><%= @data.xentralStatus %></div>
     <% end %>
   <% end %>
+  <%# All tickets of this customer in every area. Tickets in areas the agent cannot read show only date, area, state and channel: no title, no link (VmCustomerHistoryController). %>
+  <% if @history and @history.tickets and @history.tickets.length: %>
+    <div class="vm-profile__section vm-profile__history">
+      <div class="vm-profile__sectionHead"><%- @T('Alle Kontakte dieses Kunden') %> (<%= @history.total %>)</div>
+      <ul class="vm-profile__historyList">
+        <% for t in @history.tickets: %>
+          <li class="vm-profile__historyItem<%= if t.readable then '' else ' vm-profile__historyItem--locked' %>">
+            <div>
+              <% if t.readable: %>
+                <a href="#ticket/zoom/<%= t.id %>">#<%= t.number %></a>
+              <% else: %>
+                <span>#<%= t.number %></span>
+              <% end %>
+              <span class="vm-profile__muted"><%= new Date(t.created_at).toLocaleString('de-DE', {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'}) %></span>
+            </div>
+            <div class="vm-profile__muted">
+              <%= t.group %><% if t.channel: %> · <%= t.channel %><% end %> · <%- @T(t.state) %><% if t.closed_at: %> · <%- @T('geschlossen') %> <%= new Date(t.closed_at).toLocaleDateString('de-DE') %><% end %>
+            </div>
+            <% if t.readable and t.title: %>
+              <div class="vm-profile__historyTitle"><%= t.title %></div>
+            <% else if !t.readable: %>
+              <div class="vm-profile__hint"><%- @T('Inhalt nur für den Bereich sichtbar.') %></div>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+      <% if @history.total > @history.shown: %>
+        <div class="vm-profile__muted"><%- @T('Es werden die neuesten') %> <%= @history.shown %> <%- @T('von') %> <%= @history.total %> <%- @T('angezeigt.') %></div>
+      <% end %>
+    </div>
+  <% end %>
 </div>

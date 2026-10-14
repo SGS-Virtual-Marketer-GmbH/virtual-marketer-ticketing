@@ -2362,3 +2362,29 @@ a.vm-profile__orderNr:hover {
 }
 .vm-draftbar.hide { display: none; }
 .vm-draftbar__actions { display: inline-flex; align-items: center; gap: 8px; }
+
+.vm-profile__historyList {
+  list-style: none;
+  margin: 0.4rem 0 0;
+  padding: 0;
+}
+
+.vm-profile__historyItem {
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--vm-gray-200);
+}
+
+.vm-profile__historyItem:last-child {
+  border-bottom: 0;
+}
+
+.vm-profile__historyItem--locked {
+  opacity: 0.85;
+}
+
+.vm-profile__historyTitle {
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
