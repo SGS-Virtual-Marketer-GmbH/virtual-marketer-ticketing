@@ -22,6 +22,7 @@ class Ticket::Article < ApplicationModel
   include Ticket::Article::EnqueueCommunicateWhatsappJob
   include Ticket::Article::HasTicketContactAttributesImpact
   include Ticket::Article::ResetsTicketState
+  include Ticket::Article::VmClaimsOwner
   include Ticket::Article::TriggersSubscriptions
 
   # AddsMetadataGeneral depends on AddsMetadataOriginById, so load that first
