@@ -5,12 +5,13 @@
 # message sits in Vertrieb, the follow-up in Kundenservice, and an agent in the
 # second area has no way to see that the first contact happened, when, or in
 # which area. So this answers for ALL tickets of the customer, but only with
-# what the history needs to make sense: number, when it was created and
-# closed, state, area and channel.
+# what the history needs to make sense: number, title, when it was created and
+# closed, state, area, channel and who is handling it.
 #
 # Content and editing stay per area. A ticket the viewer may read also carries
-# its id and title (so the UI can link it); for every other ticket there is no
-# id, no title, no article, no owner, nothing that opens or reveals it.
+# its id (so the UI can link it); for every other ticket there is no id, no
+# article, no body, nothing that opens it. The UI explains there that access
+# is granted per area by the admin (`access_contact`) and has to be asked for.
 #
 # GET /api/v1/vm_customer_history?customer_id=123
 #
@@ -19,6 +20,10 @@ class VmCustomerHistoryController < ApplicationController
   prepend_before_action :authenticate_and_authorize!
 
   MAX_TICKETS = 200
+
+  # Who grants access to an area; shown in the hint for a ticket the viewer
+  # may not open.
+  ACCESS_CONTACT = ENV.fetch('VM_ACCESS_CONTACT', 'Nora Erlemann')
 
   CHANNELS = {
     'email'             => 'E-Mail',
@@ -38,7 +43,7 @@ class VmCustomerHistoryController < ApplicationController
 
     scope   = Ticket.where(customer_id: customer.id)
     total   = scope.count
-    tickets = scope.reorder(created_at: :desc).limit(MAX_TICKETS).includes(:group, :state)
+    tickets = scope.reorder(created_at: :desc).limit(MAX_TICKETS).includes(:group, :state, :owner)
     types   = Ticket::Article::Type.pluck(:id, :name).to_h
 
     first_types = Ticket::Article
@@ -58,10 +63,11 @@ class VmCustomerHistoryController < ApplicationController
         channel:    CHANNELS[types[first_types[ticket.id]]],
         readable:   readable,
         id:         (ticket.id if readable),
-        title:      (ticket.title if readable),
+        title:      ticket.title,
+        owner:      (ticket.owner.fullname if ticket.owner_id.to_i > 1),
       }
     end
 
-    render json: { total: total, shown: rows.size, tickets: rows }
+    render json: { total: total, shown: rows.size, access_contact: ACCESS_CONTACT, tickets: rows }
   end
 end

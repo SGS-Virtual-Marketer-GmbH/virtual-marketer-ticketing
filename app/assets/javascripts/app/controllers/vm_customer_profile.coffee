@@ -11,6 +11,15 @@
 # VmAssistantController#customer_profile) exactly like the assistant chat.
 
 class App.VmCustomerProfile extends App.Controller
+  events:
+    'click .js-historyLockedToggle': 'toggleHelp'
+
+  # A ticket in an area the agent may not open: the click explains why and who
+  # to ask, instead of leading to an error page.
+  toggleHelp: (e) =>
+    e.preventDefault()
+    $(e.currentTarget).closest('.js-historyLocked').find('.js-historyHelp').toggleClass('hide')
+
   constructor: (params) ->
     super
     @ticketNumber = params.ticketNumber
