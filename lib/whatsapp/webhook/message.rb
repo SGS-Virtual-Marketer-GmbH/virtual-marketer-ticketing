@@ -85,6 +85,8 @@ class Whatsapp::Webhook::Message
   def update_ticket(ticket:)
     new_state_id = ticket.state_id == default_create_ticket_state.id ? ticket.state_id : default_follow_up_ticket_state.id
 
+    reopened = VmMeta::RecentTicket.closed?(ticket)
+
     preferences = ticket.preferences
     preferences[:whatsapp] ||= {}
     preferences[:whatsapp][:timestamp_incoming] = @data[:entry].first[:changes].first[:value][:messages].first[:timestamp]
@@ -94,6 +96,8 @@ class Whatsapp::Webhook::Message
       state_id:    new_state_id,
     )
 
+    VmMeta::RecentTicket.add_reopen_note(ticket) if reopened
+
     ticket
   end
 
@@ -101,7 +105,8 @@ class Whatsapp::Webhook::Message
     state_ids        = Ticket::State.by_category_ids(:resolved)
     possible_tickets = Ticket.where(customer_id: @user.id).where.not(state_id: state_ids).reorder(:updated_at)
 
-    possible_tickets.find_each.find { |possible_ticket| possible_ticket.preferences[:channel_id] == @channel.id }
+    possible_tickets.find_each.find { |possible_ticket| possible_ticket.preferences[:channel_id] == @channel.id } ||
+      VmMeta::RecentTicket.find_closed(customer_id: @user.id, channel_id: @channel.id)
   end
 
   def default_create_ticket_state
