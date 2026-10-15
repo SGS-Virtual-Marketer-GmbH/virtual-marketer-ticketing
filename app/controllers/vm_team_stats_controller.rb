@@ -124,14 +124,37 @@ class VmTeamStatsController < ApplicationController
     Ticket.where(state_id: open_state_ids, owner_id: 1).count
   end
 
-  # { owner_id => [minutes, ...] } for tickets closed inside the period.
+  # { user_id => [minutes, ...] } for tickets this person set to a closed state
+  # inside the period, one entry per ticket. Counted from the history, not from
+  # the owner: most tickets are closed by whoever picks them up while the owner
+  # stays "nobody" (the daily report had the same flaw, see VmDailyReport). What
+  # the system user closes (trigger rules) counts for the pipeline's own account.
   def closed_rows
-    Ticket
-      .where(close_at: since..)
-      .pluck(:owner_id, :created_at, :close_at)
-      .each_with_object({}) do |(owner_id, created_at, close_at), acc|
-        (acc[owner_id] ||= []) << ((close_at - created_at) / 60.0)
-      end
+    ticket_obj = History::Object.find_by(name: 'Ticket')
+    state_attr = History::Attribute.find_by(name: 'state')
+    return {} unless ticket_obj && state_attr
+
+    automation_id = User.find_by(login: SYSTEM_ACCOUNT_LOGINS.first)&.id
+
+    events = History
+      .where(history_object_id: ticket_obj.id, history_attribute_id: state_attr.id,
+             created_at: since.., value_to: Ticket::State.where(id: Ticket::State.by_category_ids(:closed)).pluck(:name))
+      .order(:created_at)
+      .pluck(:created_by_id, :o_id, :created_at)
+
+    created = Ticket.where(id: events.map { |e| e[1] }.uniq).pluck(:id, :created_at).to_h
+
+    seen = {}
+    events.each_with_object({}) do |(user_id, ticket_id, at), acc|
+      user_id = automation_id if user_id == 1 && automation_id
+      next if created[ticket_id].nil?
+
+      # A ticket closed, reopened and closed again by the same person is one.
+      next if seen[[user_id, ticket_id]]
+
+      seen[[user_id, ticket_id]] = true
+      (acc[user_id] ||= []) << ((at - created[ticket_id]) / 60.0)
+    end
   end
 
   # { owner_id => [minutes, ...] } for first replies sent inside the period.

@@ -31,6 +31,15 @@
   --vm-gray-800: #2d3748;
   --vm-gray-900: #1a202c;
 
+  /* Semantic tokens. Components use these, never the raw grays above, so the
+     dark theme only has to redefine this block. --vm-gray-500 (#a0aec0) is only
+     2.3:1 on white and stays for borders; muted TEXT uses --vm-text-muted
+     (#5a6578, 6.0:1 on white, 5.1:1 on --vm-gray-200). */
+  --vm-text-muted: #5a6578;
+  --vm-surface: #fff;
+  --vm-tint-blue: #f7fbfe;
+  --vm-focus: #2c6a96;
+
   --vm-radius: 10px;
   --vm-radius-lg: 16px;
   --vm-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 4px 16px rgba(16, 24, 40, 0.08);
@@ -68,6 +77,57 @@
   --background-primary-alt: var(--vm-gray-200);
 }
 
+/* Dark theme. Same specificity as upstream's own [data-theme='dark'] block and
+   loaded after it, so the :root overrides above silently beat upstream's dark
+   tokens (red links and light grey surfaces on a dark page). This block hands
+   those tokens back to upstream and inverts our own gray scale, which every
+   component reads as surface (100-300) or text/fill (700-900). */
+[data-theme='dark'] {
+  --vm-gray-100: #232935;
+  --vm-gray-200: #2b3240;
+  --vm-gray-300: #3a4252;
+  --vm-gray-500: #7d889b;
+  --vm-gray-700: #c4ccd8;
+  --vm-gray-800: #dde3ec;
+  --vm-gray-900: #f1f4f8;
+  --vm-text-muted: #a3adbd;
+  --vm-surface: #1e2430;
+  --vm-tint-blue: #232b3a;
+  --vm-focus: #8dc0e6;
+  --vm-red-soft: rgba(224, 96, 118, 0.16);
+
+  --text-link: hsl(202, 72%, 50%);
+  --text-nav: hsl(205, 1%, 84%);
+  --text-button-primary: hsl(0, 0%, 100%);
+  --text-button-primary-active: hsl(0, 0%, 100%);
+  --highlight: hsl(205, 90%, 60%);
+  --focus-shadow-color: rgba(141, 192, 230, 0.4);
+  --border-highlight: hsl(205, 70%, 50%);
+  --shadow-highlight: hsl(205, 42%, 36%);
+  --background-primary: hsl(230, 5%, 19%);
+  --background-primary-alt: hsl(230, 5%, 21%);
+  --background-tertiary: hsl(230, 7%, 17%);
+  --background-quaternary: hsl(230, 7%, 13%);
+  --menu-switch-background: #12161f;
+}
+
+/* One visible keyboard focus ring for everything we style. Mouse clicks do not
+   trigger :focus-visible, so this costs nothing for pointer users. */
+:where(a, button, input, select, textarea, [tabindex], [role='button']):focus-visible {
+  outline: 2px solid var(--vm-focus);
+  outline-offset: 2px;
+}
+
+/* Motion: one central switch instead of a media query per component. */
+@media (prefers-reduced-motion: reduce) {
+  .vm-work *, .vm-chat *, .vm-tile, .vm-switch * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* ------------------------------------------------------------------------
  * Left navigation rail restyled light, 2026-09-18 (go-live) — the "light,
  * VM 2.0-style sidebar" the go-live checklist flagged as wanted but not yet
@@ -97,7 +157,7 @@
  * ------------------------------------------------------------------------ */
 
 .navigation {
-  background: #fff;
+  background: var(--vm-surface);
   border-right: 1px solid var(--vm-gray-200);
 }
 
@@ -132,7 +192,7 @@
 }
 
 .navigation .search.focused input[type='search'] {
-  background: #fff;
+  background: var(--vm-surface);
   border-color: var(--vm-blue);
 }
 
@@ -160,7 +220,7 @@
 
 .navigation .global-search-menu,
 .navigation .user-menu > li {
-  background: #fff;
+  background: var(--vm-surface);
 }
 
 /* Upstream positions this badge at right:-3px/bottom:2px, overlapping most of
@@ -225,7 +285,7 @@
 /* "Log in to <fqdn>" — upstream renders this as a bare paragraph above the
    card. Demote it: the logo already says where you are. */
 .login .fullscreen-body > p:first-child {
-  color: var(--vm-gray-500);
+  color: var(--vm-text-muted);
   font-size: 13px;
   letter-spacing: 0.02em;
   text-align: center;
@@ -235,7 +295,7 @@
 .login .hero-unit,
 .signup .hero-unit,
 .password_reset .hero-unit {
-  background: #fff;
+  background: var(--vm-surface);
   border: 1px solid var(--vm-gray-200);
   border-radius: var(--vm-radius-lg);
   box-shadow: var(--vm-shadow-lg);
@@ -270,7 +330,7 @@
 .login .form-control:focus,
 .signup .form-control:focus,
 .password_reset .form-control:focus {
-  background: #fff;
+  background: var(--vm-surface);
   border-color: var(--vm-red);
   box-shadow: 0 0 0 3px var(--focus-shadow-color);
   outline: none;
@@ -363,7 +423,7 @@
    card, so keep this as a quiet footer line. */
 .login .poweredBy,
 .signup .poweredBy {
-  color: var(--vm-gray-500);
+  color: var(--vm-text-muted);
   font-size: 12px;
   margin-top: 26px;
   text-align: center;
@@ -467,7 +527,7 @@
   gap: 0.75rem;
   padding: 1.15rem 1.25rem 1.25rem;
   text-align: left;
-  background: #fff;
+  background: var(--vm-surface);
   border: 1px solid var(--vm-gray-300);
   border-radius: var(--vm-radius-lg);
   box-shadow: var(--vm-shadow);
@@ -493,7 +553,7 @@
 .vm-tile--highlight {
   /* Voicemail and fax: capabilities worth pointing at, not a different rank. */
   border-color: var(--vm-blue-light);
-  background: linear-gradient(180deg, #f7fbfe 0%, #fff 42%);
+  background: linear-gradient(180deg, var(--vm-tint-blue) 0%, var(--vm-surface) 42%);
 }
 
 .vm-tile__head {
@@ -577,7 +637,7 @@
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.08em;
-  color: var(--vm-gray-500);
+  color: var(--vm-text-muted);
 }
 
 .vm-tile__chips {
@@ -654,7 +714,7 @@
   max-width: 46rem;
   height: 100%;
   min-height: 24rem;
-  background: #fff;
+  background: var(--vm-surface);
   border: 1px solid var(--vm-gray-300);
   border-radius: var(--vm-radius-lg);
   overflow: hidden;
@@ -730,7 +790,7 @@
 .vm-chat__scope {
   font-size: 0.95rem;
   font-weight: 400;
-  color: var(--vm-gray-500);
+  color: var(--vm-text-muted);
 }
 
 .vm-chat__close {
@@ -738,7 +798,7 @@
   padding: 0 0.35rem;
   font-size: 1.25rem;
   line-height: 1;
-  color: var(--vm-gray-500);
+  color: var(--vm-text-muted);
   background: none;
   border: 0;
   cursor: pointer;
@@ -761,7 +821,7 @@
 
 .vm-chat__intro p { margin: 0 0 0.4rem; }
 
-.vm-chat__intro-note { color: var(--vm-gray-500); }
+.vm-chat__intro-note { color: var(--vm-text-muted); }
 
 .vm-chat__suggestions {
   display: flex;
@@ -851,7 +911,7 @@
 .vm-reply {
   margin-top: 0.5rem;
   padding: 0.6rem;
-  background: #fff;
+  background: var(--vm-surface);
   border: 1px solid var(--vm-gray-200);
   border-radius: var(--vm-radius);
 }
@@ -878,7 +938,7 @@
 .vm-reply__meta {
   margin: 0.35rem 0;
   font-size: 0.85rem;
-  color: var(--vm-gray-500);
+  color: var(--vm-text-muted);
   overflow-wrap: anywhere;
 }
 
@@ -917,7 +977,7 @@
   gap: 0.4rem;
   padding: 0 0.9rem 0.5rem;
   font-size: 0.95rem;
-  color: var(--vm-gray-500);
+  color: var(--vm-text-muted);
 }
 
 .vm-chat__pulse {
@@ -1033,7 +1093,7 @@
 }
 
 .vm-team__period.is-active {
-  background: #fff;
+  background: var(--vm-surface);
   color: var(--vm-red);
   font-weight: 600;
   box-shadow: var(--vm-shadow);
@@ -1051,7 +1111,7 @@
 }
 
 .vm-team__empty {
-  color: var(--vm-gray-500);
+  color: var(--vm-text-muted);
   padding: 32px 0;
 }
 
@@ -1059,7 +1119,7 @@
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  background: #fff;
+  background: var(--vm-surface);
   border: 1px solid var(--vm-gray-300);
   border-radius: var(--vm-radius-lg);
   overflow: hidden;
@@ -1071,7 +1131,7 @@
   font-size: 12px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--vm-gray-500);
+  color: var(--vm-text-muted);
   font-weight: 600;
   padding: 12px 16px;
   background: var(--vm-gray-100);
@@ -1127,13 +1187,13 @@
 
 .vm-team__foot {
   margin: 14px 2px 0;
-  color: var(--vm-gray-500);
+  color: var(--vm-text-muted);
   font-size: 13px;
 }
 
 .vm-team__row--system .vm-team__name,
 .vm-team__row--system .vm-team__num {
-  color: var(--vm-gray-500);
+  color: var(--vm-text-muted);
 }
 
 .vm-team__badge {
@@ -1175,7 +1235,7 @@
   align-items: center;
   gap: 16px;
   padding: 10px 16px;
-  background: #fff;
+  background: var(--vm-surface);
   border-bottom: 1px solid var(--vm-gray-300);
   flex: 0 0 auto;
 }
@@ -1255,7 +1315,7 @@
 
 .vm-work__navbtn {
   border: 1px solid var(--vm-gray-300);
-  background: #fff;
+  background: var(--vm-surface);
   color: var(--vm-gray-700);
   width: 30px;
   height: 30px;
@@ -1269,7 +1329,7 @@
 
 .vm-work__key {
   font-size: 11px;
-  color: var(--vm-gray-500);
+  color: var(--vm-text-muted);
   border: 1px solid var(--vm-gray-300);
   border-radius: 5px;
   padding: 2px 6px;
@@ -1285,7 +1345,7 @@
 }
 
 .vm-work__col {
-  background: #fff;
+  background: var(--vm-surface);
   border: 1px solid var(--vm-gray-300);
   border-radius: var(--vm-radius-lg);
   min-height: 0;
@@ -1309,7 +1369,7 @@
   font-size: 12px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--vm-gray-500);
+  color: var(--vm-text-muted);
   font-weight: 600;
   white-space: nowrap;
 }
@@ -1320,7 +1380,7 @@
 .vm-work__blank,
 .vm-work__fnone {
   padding: 24px 16px;
-  color: var(--vm-gray-500);
+  color: var(--vm-text-muted);
   font-size: 13px;
   line-height: 1.5;
 }
@@ -1369,7 +1429,7 @@
   line-height: 1.5;
   white-space: nowrap;
   color: var(--vm-sig-color);
-  background: #fff;
+  background: var(--vm-surface);
 }
 .vm-sig__icon {
   width: 12px;
@@ -1401,8 +1461,8 @@
 .vm-work__qpres--viewing { background: #66a3ce; box-shadow: 0 0 0 2px rgba(102, 163, 206, 0.28); }
 .vm-work__qpres--editing { background: #e08a00; box-shadow: 0 0 0 2px rgba(224, 138, 0, 0.3); }
 
-.vm-work__qnr { font-size: 12px; color: var(--vm-gray-500); font-variant-numeric: tabular-nums; }
-.vm-work__qage { font-size: 12px; color: var(--vm-gray-500); margin-left: auto; }
+.vm-work__qnr { font-size: 12px; color: var(--vm-text-muted); font-variant-numeric: tabular-nums; }
+.vm-work__qage { font-size: 12px; color: var(--vm-text-muted); margin-left: auto; }
 
 .vm-work__qsubj {
   display: -webkit-box;
@@ -1417,7 +1477,7 @@
 .vm-work__qwho {
   display: block;
   font-size: 12px;
-  color: var(--vm-gray-500);
+  color: var(--vm-text-muted);
   margin-top: 3px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1445,7 +1505,7 @@
   gap: 7px;
   flex-wrap: wrap;
   font-size: 12px;
-  color: var(--vm-gray-500);
+  color: var(--vm-text-muted);
   margin-bottom: 18px;
 }
 
@@ -1480,7 +1540,7 @@
   border-radius: var(--vm-radius);
   padding: 12px 14px;
   margin-bottom: 12px;
-  background: #fff;
+  background: var(--vm-surface);
 }
 
 .vm-work__msg--note { background: var(--vm-gray-100); border-style: dashed; }
@@ -1490,7 +1550,7 @@
   justify-content: space-between;
   gap: 12px;
   font-size: 12px;
-  color: var(--vm-gray-500);
+  color: var(--vm-text-muted);
   margin-bottom: 7px;
 }
 
@@ -1530,7 +1590,7 @@
 }
 
 .vm-work__quotetoggle:hover {
-  border-color: var(--vm-gray-500);
+  border-color: var(--vm-text-muted);
   color: var(--vm-gray-900);
 }
 
@@ -1542,13 +1602,13 @@
   display: flex;
   gap: 8px;
   padding: 12px 0;
-  background: linear-gradient(to bottom, rgba(255,255,255,0), #fff 30%);
+  background: linear-gradient(to bottom, transparent, var(--vm-surface) 30%);
   flex: 0 0 auto;
 }
 
 .vm-work__btn {
   border: 1px solid var(--vm-gray-300);
-  background: #fff;
+  background: var(--vm-surface);
   color: var(--vm-gray-800);
   font-size: 13px;
   padding: 8px 16px;
@@ -1556,7 +1616,7 @@
   cursor: pointer;
 }
 
-.vm-work__btn:hover { border-color: var(--vm-gray-500); }
+.vm-work__btn:hover { border-color: var(--vm-text-muted); }
 
 .vm-work__btn--primary {
   background: var(--vm-red);
@@ -1576,7 +1636,7 @@
   font-size: 12px;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: var(--vm-gray-500);
+  color: var(--vm-text-muted);
   font-weight: 600;
   margin-bottom: 8px;
 }
@@ -1589,7 +1649,7 @@
 }
 
 .vm-work__card--miss { border-style: dashed; opacity: 0.7; }
-.vm-work__ck { font-size: 12px; color: var(--vm-gray-500); }
+.vm-work__ck { font-size: 12px; color: var(--vm-text-muted); }
 .vm-work__cv { font-size: 13px; color: var(--vm-gray-900); overflow-wrap: anywhere; }
 
 .vm-work__clink {
@@ -1626,7 +1686,7 @@
 }
 
 .vm-work__draft .vm-work__dlabel { color: var(--vm-red); }
-.vm-work__draft .vm-work__dtext { background: #fff; }
+.vm-work__draft .vm-work__dtext { background: var(--vm-surface); }
 
 @media (max-width: 1280px) {
   .vm-work__cols { grid-template-columns: 16rem minmax(0, 1fr) 21rem; }
@@ -1652,7 +1712,7 @@
 
 .vm-profile__loading,
 .vm-profile__error {
-  color: var(--vm-gray-500);
+  color: var(--vm-text-muted);
 }
 
 .vm-profile__error {
@@ -1674,7 +1734,7 @@
   font-weight: 650;
   text-transform: uppercase;
   letter-spacing: 0.02em;
-  color: var(--vm-gray-500);
+  color: var(--vm-text-muted);
   margin-bottom: 0.4rem;
 }
 
@@ -1685,7 +1745,7 @@
 }
 
 .vm-profile__muted {
-  color: var(--vm-gray-500);
+  color: var(--vm-text-muted);
   font-size: 1rem;
 }
 
@@ -1711,7 +1771,7 @@ a.vm-profile__muted:hover {
 }
 
 .vm-profile__statLabel {
-  color: var(--vm-gray-500);
+  color: var(--vm-text-muted);
   font-size: 1.05rem;
 }
 
@@ -1782,13 +1842,13 @@ a.vm-profile__orderNr:hover {
   border-radius: 4px;
   border: 1px solid var(--vm-gray-200);
   object-fit: contain;
-  background: #fff;
+  background: var(--vm-surface);
   flex-shrink: 0;
 }
 
 .vm-profile__hint {
   font-size: 0.98rem;
-  color: var(--vm-gray-500);
+  color: var(--vm-text-muted);
   font-style: italic;
 }
 
@@ -1943,7 +2003,7 @@ a.vm-profile__orderNr:hover {
 
 .vm-profile__stockLocation--remote::after {
   content: " (Partnerlager)";
-  color: var(--vm-gray-500);
+  color: var(--vm-text-muted);
 }
 
 .vm-profile__inbound li {
@@ -1954,7 +2014,7 @@ a.vm-profile__orderNr:hover {
 
 .vm-profile__inboundDate {
   font-size: 0.95rem;
-  color: var(--vm-gray-500);
+  color: var(--vm-text-muted);
 }
 
 .vm-profile__inboundDate--confirmed {
@@ -1970,7 +2030,7 @@ a.vm-profile__orderNr:hover {
 .vm-profile__history summary {
   cursor: pointer;
   font-size: 0.95rem;
-  color: var(--vm-gray-500);
+  color: var(--vm-text-muted);
 }
 
 .vm-profile__history summary:hover {
@@ -1989,7 +2049,7 @@ a.vm-profile__orderNr:hover {
 }
 
 .vm-profile__historyTime {
-  color: var(--vm-gray-500);
+  color: var(--vm-text-muted);
   margin-right: 0.4rem;
   font-variant-numeric: tabular-nums;
 }
@@ -2056,7 +2116,7 @@ a.vm-profile__orderNr:hover {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--vm-surface);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
   transition: transform 0.15s;
 }
@@ -2076,7 +2136,7 @@ a.vm-profile__orderNr:hover {
   font-weight: 600;
   gap: 6px;
   padding: 3px 10px 3px 8px;
-  background: #fff;
+  background: var(--vm-surface);
   border: 1px solid var(--vm-gray-300);
   border-radius: 999px;
   flex: 0 0 auto;
@@ -2147,7 +2207,7 @@ a.vm-profile__orderNr:hover {
 .vm-intro__close {
   border: 0;
   background: none;
-  color: var(--vm-gray-500);
+  color: var(--vm-text-muted);
   font-size: 18px;
   line-height: 1;
   padding: 0 2px;
