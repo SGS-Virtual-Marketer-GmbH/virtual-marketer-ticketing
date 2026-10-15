@@ -10,6 +10,9 @@
 #
 # Zeitwerk derives the constant from the filename -- "VmMetaComments", not "VMMeta".
 class VmMetaCommentsController < ApplicationController
+  # Messenger's own text limit; a longer body would only come back as a Graph error.
+  PRIVATE_REPLY_MAX_LENGTH = 2000
+
   prepend_before_action :authenticate_and_authorize!
 
   def hide
@@ -29,19 +32,36 @@ class VmMetaCommentsController < ApplicationController
     body            = params[:body].to_s.strip
 
     return render json: { error: __('Bitte einen Text eingeben.') }, status: :unprocessable_entity if body.blank?
-    return render json: { error: __('Auf diesen Kommentar wurde schon privat geantwortet. Meta erlaubt nur eine private Antwort pro Kommentar.') }, status: :unprocessable_entity if comment.preferences[:vm_meta_private_reply].present?
+    return render json: { error: __('Der Text ist zu lang für eine private Antwort.') }, status: :unprocessable_entity if body.length > PRIVATE_REPLY_MAX_LENGTH
 
     if comment.created_at < VmMeta::Outgoing::CommentModeration::PRIVATE_REPLY_WINDOW.ago
       return render json: { error: __('Der Kommentar ist älter als 7 Tage. Meta erlaubt dann keine private Antwort mehr.') }, status: :unprocessable_entity
     end
 
-    result = moderation(ticket).private_reply(comment_id: comment.message_id, body:)
+    # The row lock makes "already answered?" and "answer + remember it" one step:
+    # two quick clicks (or two tabs) used to both pass the check and both send.
+    already_answered = false
+    comment.with_lock do
+      if comment.preferences[:vm_meta_private_reply].present?
+        already_answered = true
+      else
+        result      = moderation(ticket).private_reply(comment_id: comment.message_id, body:)
+        preferences = comment.preferences
+        preferences[:vm_meta_private_reply] = { id: result[:id], at: Time.zone.now.iso8601, by: current_user.id }
+        comment.update_columns(preferences:) # rubocop:disable Rails/SkipsModelValidations
+      end
+    end
 
-    preferences = comment.preferences
-    preferences[:vm_meta_private_reply] = { id: result[:id], at: Time.zone.now.iso8601, by: current_user.id }
-    comment.update_columns(preferences:) # rubocop:disable Rails/SkipsModelValidations
+    return render json: { error: __('Auf diesen Kommentar wurde schon privat geantwortet. Meta erlaubt nur eine private Antwort pro Kommentar.') }, status: :unprocessable_entity if already_answered
 
-    note(ticket, "#{__('Private Antwort gesendet')}:\n#{body}")
+    # The message is out at this point. A failing note must not turn that into an
+    # error, or the agent clicks again believing nothing was sent.
+    begin
+      note(ticket, "#{__('Private Antwort gesendet')}:\n#{body}")
+    rescue => e
+      Rails.logger.error "VmMetaCommentsController: private reply sent, note failed: #{e.class}: #{e.message}"
+      return render json: { ok: true, warning: __('Die Antwort wurde gesendet, die Notiz im Ticket konnte aber nicht gespeichert werden.') }
+    end
 
     render json: { ok: true }
   rescue => e

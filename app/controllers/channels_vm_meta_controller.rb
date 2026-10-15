@@ -42,10 +42,11 @@ class ChannelsVmMetaController < ApplicationController
 
   private
 
+  # Unauthenticated callers can reach every failure path here, so the log line
+  # carries only what is needed to tell what happened: no headers (signature,
+  # cookies, proxy data) and no body (customer text). Meta's own dashboard shows
+  # the payload of a failed delivery if it is ever needed.
   def log_request
-    Rails.logger.error "VmMeta Webhook: #{request.method} #{request.url}"
-    Rails.logger.error "VmMeta Webhook: Headers: #{request.headers.inspect}"
-    Rails.logger.error "VmMeta Webhook: Params: #{params.inspect}"
-    Rails.logger.error "VmMeta Webhook: Payload: #{request.raw_post}"
+    Rails.logger.error "VmMeta Webhook: #{request.method} channel=#{params[:callback_url_uuid].to_s.first(36)} bytes=#{request.raw_post.to_s.bytesize} signature=#{request.headers['X-Hub-Signature-256'].present? ? 'present' : 'missing'}"
   end
 end

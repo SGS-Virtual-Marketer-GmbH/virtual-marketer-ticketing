@@ -38,7 +38,10 @@ class App.VmMetaCommentModal extends App.ControllerModal
       url:         url
       processData: true
       data:        JSON.stringify(data)
-      success: =>
+      success: (data) =>
+        # Sent, but the note in the ticket failed: say so, or the agent assumes nothing went out.
+        if data?.warning
+          App.Event.trigger('notify', { type: 'warn', msg: App.i18n.translateContent(data.warning), timeout: 8000 })
         @close()
       error: (xhr) =>
         @formEnable(e)

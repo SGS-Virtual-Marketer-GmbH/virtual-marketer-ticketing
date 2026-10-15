@@ -17,7 +17,7 @@ module VmMeta::Webhook
 
       channel = find_channel!(@options[:callback_url_uuid])
       raise VerificationError if channel.options[:verify_token].blank?
-      raise VerificationError if channel.options[:verify_token] != @options[:'hub.verify_token']
+      raise VerificationError if !ActiveSupport::SecurityUtils.secure_compare(channel.options[:verify_token].to_s, @options[:'hub.verify_token'].to_s)
 
       @options[:'hub.challenge']
     end

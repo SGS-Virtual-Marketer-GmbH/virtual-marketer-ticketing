@@ -87,10 +87,23 @@ RSpec.describe Channel::Filter::DuplicateContentCheck, type: :channel_filter do
                                  message_id: '<original@example.de>', preferences: {})
       end
 
-      it 'still ignores it - historical backlog has no date to compare against' do
+      it 'still ignores it while it is right behind its original (reimport window)' do
         filter(mail_hash)
 
         expect(mail_hash[:'x-zammad-ignore']).to be true
+      end
+    end
+
+    context 'and the existing undated article is older than the reimport window' do
+      before do
+        create(:ticket_article, ticket: ticket, from: base_mail[:from], subject: base_mail[:subject], body: base_mail[:body],
+                                 message_id: '<original@example.de>', preferences: {}, created_at: 5.hours.ago)
+      end
+
+      it 'lets a new, identical-looking message through' do
+        filter(mail_hash)
+
+        expect(mail_hash[:'x-zammad-ignore']).to be_nil
       end
     end
   end
