@@ -2539,3 +2539,23 @@ textarea.form-control{height:auto;min-height:88px}
 .content *::-webkit-scrollbar-track { background: transparent; }
 .content a:not(.btn):not(.dropdown-toggle) { text-underline-offset: 3px; }
 .content h1, .content h2, .content h3 { letter-spacing: -0.01em; }
+
+/* Login in the dark theme: field surfaces and links read the dark tokens (the
+   red link was 2.4:1 on the dark card), and the 1024px app minimum no longer
+   forces a horizontal scrollbar on the full-screen pages. */
+html[data-theme='dark'] .login .form-control,
+html[data-theme='dark'] .signup .form-control,
+html[data-theme='dark'] .password_reset .form-control { background: var(--vm-gray-100); }
+html[data-theme='dark'] .login .form-control:focus,
+html[data-theme='dark'] .signup .form-control:focus,
+html[data-theme='dark'] .password_reset .form-control:focus { background: var(--vm-surface); }
+html[data-theme='dark'] .login a,
+html[data-theme='dark'] .signup a,
+html[data-theme='dark'] .password_reset a { color: #f0a0ae; }
+html[data-theme='dark'] .login a:hover,
+html[data-theme='dark'] .signup a:hover,
+html[data-theme='dark'] .password_reset a:hover { color: #fff; }
+html[data-theme='dark'] .login .btn--primary,
+html[data-theme='dark'] .login .btn--primary:hover { color: #fff; }
+html[data-theme='dark'] .login .btn--secondary { border-color: transparent; color: #f0a0ae; }
+#app:has(.fullscreen) { min-width: 0; }
